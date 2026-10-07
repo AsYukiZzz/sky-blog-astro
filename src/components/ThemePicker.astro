@@ -1,0 +1,39 @@
+---
+import { theme } from '../config/theme';
+import Icon from './Icon.astro';
+---
+
+<dialog
+    id="theme-picker"
+    class="sky-dialog theme-picker"
+    aria-labelledby="theme-picker-title"
+    data-pagefind-ignore
+>
+    <div class="dialog-heading">
+        <div>
+            <h2 id="theme-picker-title">选择主题配色</h2>
+            <p>选择喜欢的主题配色。</p>
+        </div>
+        <button class="icon-button" data-close-dialog aria-label="关闭主题选择">
+            <Icon name="close" />
+        </button>
+    </div>
+    <div class="theme-grid">
+        {theme.themes.map((name) => (
+            <button
+                class="theme-option"
+                data-set-theme={name}
+                aria-label={`使用 ${name} 主题`}
+            >
+                <img
+                    src={`/previews/${name}.svg`}
+                    alt=""
+                    loading="lazy"
+                    width="160"
+                    height="96"
+                />
+                <span>{name}</span>
+            </button>
+        ))}
+    </div>
+</dialog>

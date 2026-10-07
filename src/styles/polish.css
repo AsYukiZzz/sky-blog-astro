@@ -1,0 +1,528 @@
+/* A small finishing layer: retain the Halo layout and give it a common rhythm. */
+:root {
+    --sky-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --sky-border: color-mix(
+        in oklch,
+        var(--color-base-content) 8%,
+        transparent
+    );
+    --sky-muted: color-mix(
+        in oklch,
+        var(--color-base-content) 62%,
+        transparent
+    );
+    --sky-shadow:
+        0 2px 6px -2px
+            color-mix(in oklch, var(--color-base-content) 7%, transparent),
+        0 16px 40px -20px
+            color-mix(in oklch, var(--color-base-content) 16%, transparent),
+        inset 0 1px 0
+            color-mix(in oklch, var(--color-base-100) 85%, transparent);
+}
+html[data-color-scheme='dark'] {
+    --sky-border: color-mix(
+        in oklch,
+        var(--color-base-content) 10%,
+        transparent
+    );
+    --sky-shadow:
+        0 16px 40px -16px #0007,
+        inset 0 1px 0
+            color-mix(in oklch, var(--color-base-content) 6%, transparent);
+}
+body {
+    transition:
+        background-color 0.24s,
+        color 0.2s;
+}
+body.background-grid {
+    background-image:
+        linear-gradient(
+            to right,
+            color-mix(in oklch, var(--color-base-content) 2.4%, transparent) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            to bottom,
+            color-mix(in oklch, var(--color-base-content) 2.4%, transparent) 1px,
+            transparent 1px
+        );
+}
+::selection {
+    background: color-mix(
+        in oklch,
+        var(--color-primary) 24%,
+        var(--color-base-100)
+    );
+    color: var(--color-base-content);
+}
+
+/* A quiet selected surface keeps the navigation readable in every palette. */
+.site-nav,
+.mobile-navigation {
+    --sky-nav-selected-bg: color-mix(
+        in oklch,
+        var(--color-primary) 9%,
+        transparent
+    );
+    --sky-nav-selected-border: color-mix(
+        in oklch,
+        var(--color-primary) 16%,
+        transparent
+    );
+}
+html[data-color-scheme='dark'] :is(.site-nav, .mobile-navigation) {
+    --sky-nav-selected-bg: color-mix(
+        in oklch,
+        var(--color-primary) 14%,
+        transparent
+    );
+    --sky-nav-selected-border: color-mix(
+        in oklch,
+        var(--color-primary) 24%,
+        transparent
+    );
+}
+.desktop-nav .nav-menu-item {
+    border-radius: 12px;
+    transform: none;
+    transition:
+        background-color 0.2s,
+        color 0.2s,
+        box-shadow 0.2s;
+}
+.desktop-nav .nav-menu-item::before {
+    content: none;
+}
+.desktop-nav .nav-menu-item:not(.active):hover,
+.desktop-nav .nav-dropdown[open] > .nav-menu-item:not(.active) {
+    color: var(--color-base-content);
+    background: color-mix(in oklch, var(--color-base-content) 6%, transparent);
+}
+.desktop-nav .nav-menu-item.active,
+.site-nav .dropdown-panel a[aria-current='page'],
+.mobile-navigation a[aria-current='page'] {
+    color: var(--color-base-content);
+    background: var(--sky-nav-selected-bg);
+    box-shadow: inset 0 0 0 1px var(--sky-nav-selected-border);
+}
+.desktop-nav .nav-menu-item.active > svg:first-child {
+    color: color-mix(
+        in oklch,
+        var(--color-primary) 65%,
+        var(--color-base-content)
+    );
+}
+.mobile-navigation nav > div:has(.mobile-subnav a[aria-current='page']) > a {
+    background: transparent;
+    box-shadow: none;
+}
+.mobile-navigation
+    nav
+    > div:has(.mobile-subnav a[aria-current='page'])
+    > a
+    > svg {
+    color: color-mix(
+        in oklch,
+        var(--color-primary) 65%,
+        var(--color-base-content)
+    );
+}
+.site-nav .dropdown-panel a:not([aria-current='page']):hover {
+    color: var(--color-base-content);
+    background: color-mix(in oklch, var(--color-base-content) 6%, transparent);
+}
+
+/* Soft colour around the original title, with a readable subtitle. */
+.hero-background-reference {
+    background: linear-gradient(180deg, #0000000d, #17192494 50%, #11131de8);
+}
+.hero-atmosphere {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+.hero-glow {
+    position: absolute;
+    width: min(800px, 85vw);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    opacity: 0.65;
+}
+.hero-glow-primary {
+    top: -8%;
+    left: 2%;
+    background: radial-gradient(
+        circle,
+        color-mix(in oklch, var(--color-primary) 24%, transparent),
+        transparent 68%
+    );
+    animation: sky-ambient-drift 22s ease-in-out infinite alternate;
+}
+.hero-glow-accent {
+    top: 12%;
+    right: -8%;
+    background: radial-gradient(
+        circle,
+        color-mix(in oklch, var(--color-accent) 14%, transparent),
+        transparent 65%
+    );
+    animation: sky-ambient-drift 27s ease-in-out -8s infinite alternate-reverse;
+}
+.hero-title {
+    filter: drop-shadow(
+        0 8px 20px color-mix(in oklch, var(--color-primary) 22%, transparent)
+    );
+}
+.hero-subtitle {
+    color: color-mix(in oklch, var(--color-primary) 24%, white);
+    letter-spacing: 0.045em;
+    text-shadow: 0 2px 12px #0005;
+}
+.hero-scroll-cue {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    z-index: 35;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    border: 1px solid color-mix(in oklch, var(--color-primary) 20%, transparent);
+    background: color-mix(in oklch, var(--color-base-100) 85%, transparent);
+    color: var(--color-primary);
+    box-shadow: 0 4px 16px #0001;
+    transition:
+        background-color 0.2s,
+        box-shadow 0.3s;
+}
+.hero-scroll-cue svg {
+    rotate: 90deg;
+    animation: sky-cue-float 2.8s ease-in-out infinite;
+}
+.hero-scroll-cue:hover {
+    background: var(--color-base-100);
+    box-shadow: 0 4px 20px
+        color-mix(in oklch, var(--color-primary) 18%, transparent);
+}
+.wave {
+    width: 160%;
+    left: -30%;
+}
+.wave-1 {
+    animation: sky-wave-drift 20s ease-in-out infinite;
+}
+.wave-2 {
+    animation: sky-wave-drift 14s ease-in-out infinite reverse;
+}
+.wave-3 {
+    animation: sky-wave-drift 11s ease-in-out -3s infinite;
+}
+#home-content {
+    scroll-margin-top: 64px;
+}
+
+/* Crisp surfaces and small, deliberate feedback. */
+.icon-button,
+.pagination a,
+.tag-cloud a,
+.theme-option {
+    transition:
+        color 0.2s,
+        background-color 0.2s,
+        border-color 0.2s,
+        box-shadow 0.3s var(--sky-ease),
+        translate 0.3s var(--sky-ease),
+        scale 0.2s var(--sky-ease);
+}
+.icon-button:active,
+.theme-option:active,
+.pagination a:active {
+    scale: 0.95;
+}
+.nav-dropdown[open] .dropdown-panel {
+    transform-origin: top right;
+    animation: sky-menu-in 0.2s var(--sky-ease);
+}
+.dropdown-panel a {
+    transition:
+        color 0.2s,
+        background-color 0.2s,
+        translate 0.25s var(--sky-ease);
+}
+.section-icon,
+.widget-icon {
+    box-shadow: inset 0 1px 0
+        color-mix(in oklch, var(--color-base-100) 50%, transparent);
+}
+.section-heading-title h2,
+.widget-heading h3 {
+    letter-spacing: 0.015em;
+}
+.widget-heading p {
+    color: var(--sky-muted);
+}
+.stats-card .stats-item {
+    border: 1px solid color-mix(in oklch, var(--stat-color) 8%, transparent);
+    transition:
+        translate 0.3s var(--sky-ease),
+        border-color 0.2s,
+        box-shadow 0.3s;
+}
+.stats-card strong {
+    font-variant-numeric: tabular-nums;
+}
+.category-widget > a,
+.recent-posts > a {
+    transition:
+        color 0.2s,
+        background-color 0.2s,
+        translate 0.3s var(--sky-ease);
+}
+.recent-posts > a > svg {
+    transition:
+        color 0.2s,
+        translate 0.3s var(--sky-ease);
+}
+.friend-avatar {
+    transition:
+        scale 0.4s var(--sky-ease),
+        box-shadow 0.4s;
+}
+.friend-card {
+    transition:
+        transform 0.35s var(--sky-ease),
+        box-shadow 0.35s,
+        border-color 0.3s;
+}
+.section-heading > a svg {
+    transition: translate 0.3s var(--sky-ease);
+}
+.sky-dock {
+    box-shadow:
+        0 8px 32px -12px #0003,
+        inset 0 1px 0
+            color-mix(in oklch, var(--color-base-100) 90%, transparent);
+    transition:
+        opacity 0.3s,
+        visibility 0.3s,
+        transform 0.35s var(--sky-ease);
+}
+.sky-dialog[open] {
+    animation: sky-dialog-in 0.28s var(--sky-ease);
+}
+.sky-dialog[open]::backdrop,
+.mobile-navigation[open]::backdrop {
+    animation: sky-backdrop-in 0.25s ease-out;
+}
+.mobile-navigation[open] {
+    animation: sky-drawer-in 0.3s var(--sky-ease);
+}
+.mobile-navigation[open] nav > div {
+    animation: sky-menu-in 0.3s var(--sky-ease) backwards;
+}
+.mobile-navigation nav > div:nth-child(2) {
+    animation-delay: 35ms;
+}
+.mobile-navigation nav > div:nth-child(3) {
+    animation-delay: 70ms;
+}
+.mobile-navigation nav > div:nth-child(4) {
+    animation-delay: 105ms;
+}
+.mobile-navigation nav > div:nth-child(5) {
+    animation-delay: 140ms;
+}
+.theme-option[aria-pressed='true'] {
+    box-shadow: 0 0 0 2px
+        color-mix(in oklch, var(--color-primary) 18%, transparent);
+}
+.toast-status:not([hidden]) {
+    animation: sky-toast-in 0.24s var(--sky-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+    .author-card:hover {
+        translate: 0 -3px;
+        border-color: color-mix(
+            in oklch,
+            var(--color-primary) 20%,
+            transparent
+        );
+    }
+    .stats-card a:hover {
+        translate: 0 -3px;
+        border-color: color-mix(in oklch, var(--stat-color) 25%, transparent);
+        box-shadow: 0 8px 20px -10px
+            color-mix(in oklch, var(--stat-color) 30%, transparent);
+    }
+    .category-widget > a:hover {
+        translate: 3px 0;
+    }
+    .recent-posts > a:hover > svg {
+        translate: 3px 0;
+        color: var(--color-primary);
+    }
+    .tag-cloud a:hover,
+    .pagination a:hover {
+        translate: 0 -2px;
+    }
+    .home-friends > a:hover .friend-avatar {
+        scale: 1.06;
+        box-shadow: 0 8px 24px -10px
+            color-mix(in oklch, var(--color-primary) 45%, transparent);
+    }
+    .dropdown-panel a:hover {
+        translate: 2px 0;
+    }
+    .section-heading > a:hover svg {
+        translate: 3px 0;
+    }
+}
+
+@keyframes sky-ambient-drift {
+    from {
+        transform: translate3d(-2%, -3%, 0) scale(0.95);
+    }
+    to {
+        transform: translate3d(8%, 7%, 0) scale(1.08);
+    }
+}
+@keyframes sky-wave-drift {
+    0%,
+    100% {
+        transform: translateX(-4%);
+    }
+    50% {
+        transform: translateX(4%);
+    }
+}
+@keyframes sky-cue-float {
+    0%,
+    100% {
+        translate: 0 -2px;
+    }
+    50% {
+        translate: 0 2px;
+    }
+}
+@keyframes sky-menu-in {
+    from {
+        opacity: 0;
+        translate: 0 -5px;
+    }
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+@keyframes sky-dialog-in {
+    from {
+        opacity: 0;
+        translate: 0 12px;
+        scale: 0.97;
+    }
+    to {
+        opacity: 1;
+        translate: 0 0;
+        scale: 1;
+    }
+}
+@keyframes sky-backdrop-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes sky-drawer-in {
+    from {
+        opacity: 0;
+        translate: -20px 0;
+    }
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+@keyframes sky-toast-in {
+    from {
+        opacity: 0;
+        translate: 0 8px;
+    }
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+
+/* Pause only decorative loops, so a hidden tab cannot stall a route transition. */
+body[data-motion-paused] .home-hero *,
+body[data-motion-paused] .home-hero *::before,
+body[data-motion-paused] .home-hero *::after,
+.home-hero[data-motion-idle] *,
+.home-hero[data-motion-idle] *::before,
+.home-hero[data-motion-idle] *::after,
+body[data-motion-paused] .sf-badge-dot {
+    animation-play-state: paused !important;
+}
+
+@media (width < 768px) {
+    .hero-glow {
+        opacity: 0.5;
+    }
+    .hero-subtitle {
+        letter-spacing: 0.02em;
+    }
+    /* Keep article information below its cover on phones, including magazine mode. */
+}
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+    .friend-card:hover,
+    .archive-post:hover {
+        transform: none;
+    }
+    .author-card,
+    .stats-card a,
+    .category-widget > a,
+    .recent-posts > a > svg,
+    .tag-cloud a,
+    .pagination a,
+    .dropdown-panel a,
+    .section-heading > a svg {
+        translate: none !important;
+    }
+    .home-friends > a .friend-avatar {
+        scale: none;
+    }
+    .icon-button,
+    .theme-option,
+    .pagination a {
+        scale: none !important;
+        translate: none !important;
+    }
+    .nav-menu-item:hover,
+    .sky-dock .dock-btn {
+        transform: none !important;
+    }
+    .sky-dock.dock-container:hover {
+        transform: translateX(-50%);
+    }
+}

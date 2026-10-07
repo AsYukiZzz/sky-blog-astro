@@ -1,0 +1,41 @@
+---
+interface Props {
+    current: number;
+    total: number;
+    base?: string;
+    first?: string;
+}
+const { current, total, base = '/page', first = '/' } = Astro.props;
+const href = (number: number) => (number === 1 ? first : `${base}/${number}/`);
+---
+
+{total > 1 && (
+    <nav class="pagination" aria-label="文章分页">
+        <a
+            href={href(Math.max(1, current - 1))}
+            aria-disabled={current === 1}
+            tabindex={current === 1 ? -1 : undefined}
+        >
+            ← 上一页
+        </a>
+        <div>
+            {Array.from({ length: total }, (_, index) => index + 1).map(
+                (number) => (
+                    <a
+                        href={href(number)}
+                        aria-current={number === current ? 'page' : undefined}
+                    >
+                        {number}
+                    </a>
+                ),
+            )}
+        </div>
+        <a
+            href={href(Math.min(total, current + 1))}
+            aria-disabled={current === total}
+            tabindex={current === total ? -1 : undefined}
+        >
+            下一页 →
+        </a>
+    </nav>
+)}

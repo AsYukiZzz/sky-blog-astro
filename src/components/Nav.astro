@@ -1,0 +1,143 @@
+---
+import { site } from '../config/site';
+import Icon from './Icon.astro';
+const path = Astro.url.pathname;
+---
+
+<header
+    class="site-nav navbar"
+    transition:name="site-nav"
+    transition:animate="none"
+    data-pagefind-ignore
+>
+    <div class="nav-inner">
+        <button
+            class="icon-button mobile-menu-button"
+            data-menu-toggle
+            aria-expanded="false"
+            aria-controls="mobile-navigation"
+            aria-label="打开导航菜单"
+        >
+            <Icon name="menu" />
+        </button>
+        <a class="brand" href="/" aria-label={`${site.title} 首页`}>
+            {site.title}
+        </a>
+        <nav class="desktop-nav" aria-label="主导航">
+            {site.navigation.map((item) =>
+                item.children ? (
+                    <details class="nav-dropdown">
+                        <summary
+                            class:list={[
+                                'nav-menu-item',
+                                {
+                                    active:
+                                        path === item.href ||
+                                        item.children.some(
+                                            (child) => path === child.href,
+                                        ),
+                                },
+                            ]}
+                        >
+                            <Icon name={item.icon} size={16} />
+                            {item.label}
+                            <Icon name="chevron" size={10} />
+                        </summary>
+                        <div class="dropdown-panel">
+                            {item.children.map((child) => (
+                                <a
+                                    href={child.href}
+                                    aria-current={
+                                        path === child.href ? 'page' : undefined
+                                    }
+                                >
+                                    {child.label}
+                                </a>
+                            ))}
+                        </div>
+                    </details>
+                ) : (
+                    <a
+                        href={item.href}
+                        class:list={[
+                            'nav-menu-item',
+                            { active: path === item.href },
+                        ]}
+                        aria-current={path === item.href ? 'page' : undefined}
+                    >
+                        <Icon name={item.icon} size={16} />
+                        {item.label}
+                    </a>
+                ),
+            )}
+        </nav>
+        <div class="nav-actions">
+            <button
+                class="icon-button"
+                type="button"
+                data-open-search
+                aria-label="搜索"
+                aria-haspopup="dialog"
+                aria-controls="search-dialog"
+            >
+                <Icon name="search" />
+            </button>
+            <button
+                class="icon-button"
+                data-theme-toggle
+                aria-label="切换明暗主题"
+            >
+                <Icon name="sun" class="light-icon" />
+                <Icon name="moon" class="dark-icon" />
+            </button>
+            <button
+                class="icon-button theme-settings-button"
+                data-theme-picker
+                aria-label="选择主题配色"
+            >
+                <Icon name="palette" />
+            </button>
+        </div>
+    </div>
+</header>
+<dialog
+    id="mobile-navigation"
+    class="mobile-navigation"
+    aria-label="移动端导航"
+>
+    <div class="mobile-menu-heading">
+        <a href="/" class="brand">
+            {site.title}
+        </a>
+        <button class="icon-button" data-close-dialog aria-label="关闭导航菜单">
+            ✕
+        </button>
+    </div>
+    <nav aria-label="移动端主导航">
+        {site.navigation.map((item) => (
+            <div>
+                <a
+                    href={item.href}
+                    aria-current={path === item.href ? 'page' : undefined}
+                >
+                    <Icon name={item.icon} size={18} />
+                    {item.label}
+                </a>
+                {item.children && (
+                    <div class="mobile-subnav">
+                        {item.children.map((child) => (
+                            <a
+                                href={child.href}
+                                aria-current={
+                                    path === child.href ? 'page' : undefined
+                                }
+                            >
+                                {child.label}
+                            </a>
+                        ))}
+                    </div>
+                )}
+            </div>
+        ))}
+    </nav>
+</dialog>

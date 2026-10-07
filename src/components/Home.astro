@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeHero from './HomeHero.astro';
+import HomeOverview from './HomeOverview.astro';
+import SakanaWidget from './SakanaWidget.astro';
+import { home } from '../config/home';
+import { homePresets } from '../config/home-presets';
+import { homeCardSpecs } from './home/card-specs';
+import { compileHomeLayout } from '../lib/home-layout';
+const plan = compileHomeLayout(home, homeCardSpecs, homePresets);
+---
+
+<BaseLayout>
+    <HomeHero />
+    <div
+        id="home-content"
+        class="site-container home-overview"
+        data-home-empty={plan.cards.length === 0 ? true : undefined}
+    >
+        <HomeOverview plan={plan} />
+    </div>
+    <SakanaWidget slot="floating" />
+</BaseLayout>

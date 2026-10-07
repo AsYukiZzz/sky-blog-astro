@@ -1,0 +1,25 @@
+---
+import type { HomeCardSpec } from '../../lib/home-cards';
+import type { HomeCardId } from './card-specs';
+
+interface Props {
+    id: HomeCardId;
+    spec: HomeCardSpec;
+}
+const { id, spec } = Astro.props;
+---
+
+<section
+    id={spec.anchor}
+    class:list={[
+        'glass-card',
+        'home-card',
+        `home-card-${id}`,
+        { 'home-links': id === 'links' },
+    ]}
+    aria-labelledby={spec.headingId}
+    data-home-card={id}
+    data-pagefind-ignore={spec.ignoreSearch ? true : undefined}
+>
+    <slot />
+</section>

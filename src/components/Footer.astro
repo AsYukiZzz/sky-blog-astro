@@ -1,0 +1,111 @@
+---
+import { site } from '../config/site';
+import { copyrightYears } from '../lib/site-metrics';
+import Icon from './Icon.astro';
+const { footer } = site;
+const links = [
+    { label: '隐私政策', href: footer.privacyUrl },
+    { label: '使用条款', href: footer.termsUrl },
+    { label: '网站地图', href: footer.sitemapUrl },
+    { label: 'RSS 订阅', href: footer.rssUrl, icon: 'rss' },
+].filter((link) => link.href);
+const years = copyrightYears(site.copyrightYear, site.timezone);
+---
+
+<footer class="site-footer" data-pagefind-ignore>
+    <div class="footer-content">
+        <nav class="footer-row footer-links" aria-label="页脚导航">
+            {links.map((link) => (
+                <a
+                    href={link.href}
+                    data-astro-reload={
+                        link.icon === 'rss' || link.href.endsWith('.xml')
+                    }
+                >
+                    {link.icon && <Icon name={link.icon} size={13} />}
+                    {link.label}
+                </a>
+            ))}
+        </nav>
+        <p class="footer-row footer-copyright">
+            <span>
+                Copyright ©{' '}
+                <span
+                    data-copyright-years
+                    data-copyright-start={site.copyrightYear}
+                    data-site-timezone={site.timezone}
+                >
+                    {years}
+                </span>
+            </span>
+            <span>
+                版权所有 <a href="/">{footer.copyrightOwner || site.title}</a>
+            </span>
+        </p>
+        {(footer.icp || footer.publicSecurity.text) && (
+            <div class="footer-row footer-registrations">
+                {footer.icp && (
+                    <a
+                        href="https://beian.miit.gov.cn/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <Icon name="shield" size={14} />
+                        {footer.icp}
+                    </a>
+                )}
+                {footer.publicSecurity.text &&
+                    (footer.publicSecurity.url ? (
+                        <a
+                            href={footer.publicSecurity.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Icon name="shield-check" size={14} />
+                            {footer.publicSecurity.text}
+                        </a>
+                    ) : (
+                        <span class="footer-item">
+                            <Icon name="shield-check" size={14} />
+                            {footer.publicSecurity.text}
+                        </span>
+                    ))}
+            </div>
+        )}
+        <div class="footer-row footer-credits">
+            {footer.provider.name && (
+                <a
+                    href={footer.provider.url || undefined}
+                    target={footer.provider.url ? '_blank' : undefined}
+                    rel={
+                        footer.provider.url ? 'noopener noreferrer' : undefined
+                    }
+                >
+                    <Icon name="cloud" size={14} />
+                    <span>
+                        {footer.provider.name} {footer.provider.description}
+                    </span>
+                </a>
+            )}
+            {footer.theme.name && (
+                <a
+                    href={footer.theme.url || undefined}
+                    target={footer.theme.url ? '_blank' : undefined}
+                    rel={footer.theme.url ? 'noopener noreferrer' : undefined}
+                >
+                    <Icon name="github" size={14} />
+                    {footer.theme.name}
+                </a>
+            )}
+            {footer.showLoadTime && (
+                <span
+                    class="footer-item footer-load-time"
+                    title="首次打开：从导航开始到页面 load 事件结束；站内切换：从开始导航到页面切换完成。"
+                >
+                    <Icon name="clock" size={14} />
+                    加载耗时 <span data-page-load-time>— ms</span>
+                </span>
+            )}
+        </div>
+    </div>
+</footer>

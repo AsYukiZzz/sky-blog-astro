@@ -1,0 +1,34 @@
+---
+import { getPosts, taxonomy } from '../../lib/content';
+import { paginateItems, publicTaxonomy } from '../../lib/content-model';
+import { site } from '../../config/site';
+import TaxonomyLayout from '../../layouts/TaxonomyLayout.astro';
+export async function getStaticPaths() {
+    const posts = await getPosts();
+    return publicTaxonomy(posts, taxonomy).tags.flatMap((tag) => {
+        const entries = posts.filter((post) => post.data.tags.includes(tag.id));
+        const pages = paginateItems(entries, site.pageSize);
+        return pages.map((items, index) => ({
+            params: { slug: index ? `${tag.id}/page/${index + 1}` : tag.id },
+            props: {
+                tag,
+                posts: items,
+                count: entries.length,
+                current: index + 1,
+                total: pages.length,
+            },
+        }));
+    });
+}
+const { tag, posts, count, current, total } = Astro.props;
+---
+
+<TaxonomyLayout
+    kind="tags"
+    title={`文章标签：${tag.name}`}
+    posts={posts}
+    count={count}
+    active={tag.id}
+    current={current}
+    total={total}
+/>

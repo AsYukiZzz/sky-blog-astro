@@ -1,0 +1,108 @@
+---
+import type { HomeCardContentProps } from '../../lib/home-cards';
+import Icon from '../Icon.astro';
+type Props = HomeCardContentProps;
+const { headingId } = Astro.props;
+import { site } from '../../config/site';
+import { authors } from '../../lib/content';
+interface HomeAuthor {
+    id: string;
+    name: string;
+    avatar: string;
+    bio: string;
+    description?: string;
+    location?: string;
+    role?: string;
+    interests?: string[];
+}
+const author: HomeAuthor =
+    authors.find((author) => author.id === site.author) ?? authors[0];
+const location = author.location?.trim();
+const contactLinks = site.social
+    .filter((link) => link.href.trim())
+    .filter(
+        (link, index, links) =>
+            links.findIndex((item) => item.href === link.href) === index,
+    );
+---
+
+<div class="home-card-decoration" aria-hidden="true"></div>
+<header class="home-card-header">
+    <div class="home-author-heading">
+        <p class="home-card-eyebrow">ABOUT ME</p>
+        {location && (
+            <span
+                class="home-author-location"
+                aria-label={`所在地：${location}`}
+                title={location}
+            >
+                <Icon name="location" size={13} />
+                <span>{location}</span>
+            </span>
+        )}
+    </div>
+    <div class="home-author-top">
+        <div class="home-author-portrait">
+            <img src={author.avatar} alt={author.name} width="80" height="80" />
+            <span aria-hidden="true">
+                <Icon name="code" size={14} />
+            </span>
+        </div>
+        <div class="home-author-identity">
+            <h2 id={headingId}>
+                {author.name}
+                <span aria-hidden="true">.</span>
+            </h2>
+            {author.role && <p class="home-author-role">{author.role}</p>}
+        </div>
+    </div>
+</header>
+<div
+    class="home-card-body"
+    tabindex="0"
+    role="region"
+    aria-labelledby={headingId}
+>
+    <div class="home-author-copy">
+        {author.description && (
+            <p class="home-author-intro">{author.description}</p>
+        )}
+        <p class="home-author-bio">{author.bio}</p>
+        {(author.interests?.length ?? 0) > 0 && (
+            <div class="home-author-interests" aria-label="作者关注主题">
+                {author.interests?.map((interest) => (
+                    <span>{interest}</span>
+                ))}
+            </div>
+        )}
+    </div>
+</div>
+{contactLinks.length > 0 && (
+    <footer class="home-card-footer home-author-bottom">
+        <p class="home-author-contact-heading">
+            <Icon name="mail" size={14} />
+            联系方式
+        </p>
+        <nav class="home-author-social" aria-label="作者联系方式">
+            {contactLinks.map((link) => (
+                <a
+                    href={link.href}
+                    aria-label={link.label}
+                    title={link.label}
+                    data-icon={link.icon}
+                    target={link.href.startsWith('http') ? '_blank' : undefined}
+                    rel={
+                        link.href.startsWith('http')
+                            ? 'noopener noreferrer'
+                            : undefined
+                    }
+                >
+                    <span class="home-author-social-icon">
+                        <Icon name={link.icon} size={20} />
+                    </span>
+                    <span>{link.label}</span>
+                </a>
+            ))}
+        </nav>
+    </footer>
+)}

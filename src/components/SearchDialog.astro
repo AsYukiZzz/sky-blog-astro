@@ -1,0 +1,59 @@
+---
+import Icon from './Icon.astro';
+---
+
+<dialog
+    id="search-dialog"
+    class="sky-dialog search-dialog"
+    aria-labelledby="search-dialog-title"
+    data-pagefind-ignore
+>
+    <div class="dialog-heading">
+        <div>
+            <h2 id="search-dialog-title">搜索内容</h2>
+            <p>寻找文章、页面和随笔。</p>
+        </div>
+        <button class="icon-button" data-close-dialog aria-label="关闭搜索">
+            <Icon name="close" />
+        </button>
+    </div>
+    <form class="search-form" role="search">
+        <Icon name="search" size={22} />
+        <input
+            type="search"
+            data-search-input
+            aria-label="搜索关键词"
+            aria-describedby="search-status"
+            placeholder="输入关键词…"
+            autocomplete="off"
+            enterkeyhint="search"
+            autofocus
+        />
+    </form>
+    <p
+        id="search-status"
+        class="search-status"
+        data-search-status
+        role="status"
+        aria-live="polite"
+    >
+        输入关键词，找到你感兴趣的内容。
+    </p>
+    <div class="search-content">
+        <ul
+            class="search-results"
+            data-search-results
+            aria-label="搜索结果"
+            aria-busy="false"
+        ></ul>
+        <div class="search-empty" aria-hidden="true">
+            <Icon name="search" size={64} />
+        </div>
+    </div>
+    <p class="search-shortcuts">
+        <span class="search-keyboard-hint">
+            ↑ ↓ 选择 · Enter 打开 · Esc 关闭
+        </span>
+        <span>搜索本站公开内容</span>
+    </p>
+</dialog>

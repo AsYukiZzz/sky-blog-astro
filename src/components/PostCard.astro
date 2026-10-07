@@ -1,0 +1,81 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { taxonomy } from '../lib/content';
+import { routeFor } from '../lib/content-model';
+import { formatDate, readingTime } from '../lib/format';
+import Icon from './Icon.astro';
+interface Props {
+    post: CollectionEntry<'posts'>;
+    index?: number;
+}
+const { post, index = 0 } = Astro.props;
+const path = routeFor('posts', post.data.slug);
+const category = taxonomy.categories.find(
+    (category) => category.id === post.data.categories[0],
+);
+---
+
+<article class="glass-card post-card" data-post-card>
+    <a href={path} class="post-cover" aria-label={post.data.title}>
+        {post.data.cover ? (
+            <img
+                src={post.data.cover}
+                alt={post.data.title}
+                width="720"
+                height="405"
+                loading={index < 2 ? 'eager' : 'lazy'}
+            />
+        ) : (
+            <span class="post-cover-placeholder">
+                <Icon name="image" size={64} />
+            </span>
+        )}
+    </a>
+    <div class="post-card-body">
+        {post.data.pinned && <span class="pinned-badge">置顶</span>}
+        <div class="post-reveal">
+            {category && (
+                <a
+                    class="post-category"
+                    href={routeFor('categories', category.id)}
+                >
+                    {category.name}
+                </a>
+            )}
+            <h2>
+                <a href={path}>{post.data.title}</a>
+            </h2>
+            <p>{post.data.description}</p>
+        </div>
+        <div class="post-meta">
+            <span>
+                <Icon name="calendar" size={14} />
+                <time datetime={post.data.publishedAt.toISOString()}>
+                    {formatDate(post.data.publishedAt)}
+                </time>
+            </span>
+            <span>
+                <Icon name="clock" size={14} />
+                {readingTime(post.body)} 分钟
+            </span>
+        </div>
+        <div class="post-card-bottom">
+            <div class="post-tags">
+                {post.data.tags.slice(0, 3).map((id) => (
+                    <a href={routeFor('tags', id)}>
+                        #
+                        {taxonomy.tags.find((tag) => tag.id === id)?.name ?? id}
+                    </a>
+                ))}
+            </div>
+            <a
+                class="read-more"
+                href={path}
+                aria-label={`阅读 ${post.data.title}`}
+            >
+                <span>阅读更多</span>
+                <Icon name="arrow" size={16} />
+            </a>
+        </div>
+    </div>
+</article>

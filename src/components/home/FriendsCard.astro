@@ -1,0 +1,41 @@
+---
+import type { HomeCardContentProps } from '../../lib/home-cards';
+import Icon from '../Icon.astro';
+type Props = HomeCardContentProps;
+const { headingId, maxPreviewItems } = Astro.props;
+import links from '../../data/links.json';
+---
+
+<header class="home-card-header home-card-heading">
+    <div>
+        <p class="home-card-eyebrow">GOOD COMPANY</p>
+        <h2 id={headingId}>朋友与链接</h2>
+    </div>
+    <a class="home-card-header-link" href="/links/" aria-label="全部朋友">
+        <Icon name="arrow" size={20} />
+    </a>
+</header>
+<div
+    class="home-card-body"
+    tabindex="0"
+    role="region"
+    aria-labelledby={headingId}
+>
+    <div class="home-friends" data-home-items>
+        {links.slice(0, maxPreviewItems).map((link) => (
+            <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-home-item
+            >
+                <span class="friend-avatar">{link.initial}</span>
+                <span class="home-friend-copy">
+                    <strong>{link.name}</strong>
+                    <small>{link.description}</small>
+                </span>
+            </a>
+        ))}
+    </div>
+    {links.length === 0 && <p class="home-card-empty">朋友会在这里相遇。</p>}
+</div>

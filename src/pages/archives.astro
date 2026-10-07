@@ -1,0 +1,138 @@
+---
+import { getPosts, taxonomy } from '../lib/content';
+import { archiveGroups, dateKey, routeFor } from '../lib/content-model';
+import { site } from '../config/site';
+import ListingLayout from '../layouts/ListingLayout.astro';
+import Icon from '../components/Icon.astro';
+const posts = await getPosts();
+const groups = archiveGroups(posts, site.timezone);
+const years = [...new Set(groups.map((group) => group.key.slice(0, 4)))].map(
+    (year) => ({
+        year,
+        months: groups.filter((group) => group.key.startsWith(year + '-')),
+    }),
+);
+const day = (date: Date) => dateKey(date, site.timezone).slice(-2);
+const weekday = (date: Date) =>
+    new Intl.DateTimeFormat('en', {
+        timeZone: site.timezone,
+        weekday: 'short',
+    }).format(date);
+---
+
+<ListingLayout
+    sidebar={false}
+    title="文章归档"
+    description={`共 ${years.length} 个年份的文章记录`}
+    icon="calendar"
+    count={posts.length}
+>
+    <div class="archive-timeline">
+        {years.map(({ year, months }) => (
+            <section class="archive-year" id={'year-' + year}>
+                <h2 class="archive-year-heading">
+                    <Icon name="calendar" size={20} />
+                    {year}
+                    <small>{months.length} 个月</small>
+                </h2>
+                <div class="archive-months">
+                    {months.map((group) => (
+                        <section
+                            class="archive-month"
+                            id={'month-' + group.key}
+                        >
+                            <h3>
+                                {Number(group.key.slice(-2))} 月
+                                <small>({group.entries.length} 篇)</small>
+                            </h3>
+                            <div class="archive-posts">
+                                {group.entries.map((post) => (
+                                    <article class="archive-post">
+                                        <a
+                                            class="archive-post-link"
+                                            href={routeFor(
+                                                'posts',
+                                                post.data.slug,
+                                            )}
+                                            aria-label={`阅读 ${post.data.title}`}
+                                        ></a>
+                                        <time
+                                            datetime={post.data.publishedAt.toISOString()}
+                                        >
+                                            <strong>
+                                                {day(post.data.publishedAt)}
+                                            </strong>
+                                            <small>
+                                                {weekday(post.data.publishedAt)}
+                                            </small>
+                                        </time>
+                                        <div class="archive-post-info">
+                                            <h4>
+                                                <a
+                                                    href={routeFor(
+                                                        'posts',
+                                                        post.data.slug,
+                                                    )}
+                                                >
+                                                    {post.data.title}
+                                                </a>
+                                            </h4>
+                                            <div class="archive-post-meta">
+                                                {post.data.categories
+                                                    .slice(0, 1)
+                                                    .map((id) => (
+                                                        <a
+                                                            href={routeFor(
+                                                                'categories',
+                                                                id,
+                                                            )}
+                                                        >
+                                                            <Icon
+                                                                name="folder"
+                                                                size={14}
+                                                            />
+                                                            {
+                                                                taxonomy.categories.find(
+                                                                    (item) =>
+                                                                        item.id ===
+                                                                        id,
+                                                                )?.name
+                                                            }
+                                                        </a>
+                                                    ))}
+                                                {post.data.tags
+                                                    .slice(0, 1)
+                                                    .map((id) => (
+                                                        <a
+                                                            href={routeFor(
+                                                                'tags',
+                                                                id,
+                                                            )}
+                                                        >
+                                                            <Icon
+                                                                name="tag"
+                                                                size={14}
+                                                            />
+                                                            {
+                                                                taxonomy.tags.find(
+                                                                    (item) =>
+                                                                        item.id ===
+                                                                        id,
+                                                                )?.name
+                                                            }
+                                                        </a>
+                                                    ))}
+                                            </div>
+                                        </div>
+                                        <Icon name="arrow" size={20} />
+                                    </article>
+                                ))}
+                            </div>
+                        </section>
+                    ))}
+                </div>
+            </section>
+        ))}
+        {!posts.length && <p class="empty-state">暂无归档文章</p>}
+    </div>
+</ListingLayout>

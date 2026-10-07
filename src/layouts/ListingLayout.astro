@@ -1,0 +1,57 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import PageHeader from '../components/PageHeader.astro';
+import '../styles/listing.css';
+interface Props {
+    title: string;
+    subtitle?: string;
+    description?: string;
+    showDescription?: boolean;
+    eyebrow?: string;
+    icon?: string;
+    count?: number;
+    sidebar?: boolean;
+    variant?: 'default' | 'archive';
+}
+const {
+    title,
+    subtitle,
+    description,
+    showDescription = true,
+    eyebrow,
+    icon,
+    count,
+    sidebar = true,
+    variant = 'default',
+} = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+    <div class="site-container listing-container">
+        <div
+            class:list={[
+                'content-grid',
+                `page-${icon ?? 'default'}`,
+                {
+                    'without-sidebar': !sidebar,
+                    'page-archive': variant === 'archive',
+                },
+            ]}
+        >
+            <div class="content-column">
+                <PageHeader
+                    title={title}
+                    description={
+                        subtitle ?? (showDescription ? description : undefined)
+                    }
+                    eyebrow={eyebrow}
+                    icon={icon}
+                    count={count}
+                />
+                <slot />
+            </div>
+            {sidebar && <Sidebar />}
+        </div>
+    </div>
+</BaseLayout>

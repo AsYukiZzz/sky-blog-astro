@@ -1,0 +1,133 @@
+---
+import { ClientRouter, fade } from 'astro:transitions';
+import { site } from '../config/site';
+import { theme } from '../config/theme';
+import { initialThemeScript, themeColorScheme } from '../lib/theme-state';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Dock from '../components/Dock.astro';
+import ThemePicker from '../components/ThemePicker.astro';
+import SearchDialog from '../components/SearchDialog.astro';
+import '../styles/global.css';
+import '@fontsource/noto-serif-sc/400.css';
+import '@fontsource/noto-serif-sc/600.css';
+import '@fontsource/noto-serif-sc/700.css';
+import '@fontsource/titan-one';
+interface Props {
+    title?: string;
+    description?: string;
+    image?: string;
+    article?: { publishedAt: Date; updatedAt?: Date; author: string };
+    noindex?: boolean;
+}
+const {
+    title,
+    description = site.description,
+    image = '/images/mist.svg',
+    article,
+    noindex = false,
+} = Astro.props;
+const pageTitle = title
+    ? `${title} · ${site.title}`
+    : `${site.title} · ${site.subtitle}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+const absoluteImage = new URL(image, Astro.site ?? site.url).href;
+const schema = {
+    '@context': 'https://schema.org',
+    '@type': article ? 'BlogPosting' : 'WebPage',
+    headline: title ?? site.title,
+    description,
+    url: canonical,
+    image: absoluteImage,
+    ...(article
+        ? {
+              datePublished: article.publishedAt.toISOString(),
+              dateModified: (
+                  article.updatedAt ?? article.publishedAt
+              ).toISOString(),
+              author: { '@type': 'Person', name: article.author },
+          }
+        : {}),
+};
+---
+
+<!doctype html>
+<html
+    lang={site.language}
+    data-theme={theme.light}
+    data-color-scheme={themeColorScheme(theme.light)}
+    data-light-theme={theme.light}
+    data-dark-theme={theme.dark}
+>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{pageTitle}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonical} />
+        <link rel="icon" type="image/png" href="/images/theme-icon.png" />
+        <link
+            rel="alternate"
+            type="application/rss+xml"
+            title={site.title}
+            href="/feed.xml"
+        />
+        <meta property="og:type" content={article ? 'article' : 'website'} />
+        <meta property="og:site_name" content={site.title} />
+        <meta property="og:title" content={title ?? site.title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={absoluteImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        {noindex && <meta name="robots" content="noindex, follow" />}
+        <script
+            type="application/ld+json"
+            set:html={JSON.stringify(schema).replaceAll('<', '\\u003c')}
+        />
+        <script is:inline set:html={initialThemeScript()} />
+        <ClientRouter />
+    </head>
+    <body
+        class:list={[
+            `background-${theme.background}`,
+            `body-font-${theme.fonts.body}`,
+        ]}
+        transition:animate="none"
+    >
+        <a class="skip-link" href="#main-content">
+            跳到正文
+        </a>
+        <Nav />
+        <main
+            id="main-content"
+            transition:name="page-content"
+            transition:animate={fade({ duration: '220ms' })}
+        >
+            <slot />
+        </main>
+        <Footer />
+        <Dock />
+        <ThemePicker />
+        <SearchDialog />
+        <slot name="floating" />
+        <dialog
+            id="image-lightbox"
+            class="sky-dialog lightbox-dialog"
+            aria-label="图片预览"
+        >
+            <button
+                class="icon-button lightbox-close"
+                data-close-dialog
+                aria-label="关闭图片预览"
+            >
+                ✕
+            </button>
+            <img alt="" />
+            <p></p>
+        </dialog>
+        <div class="toast-status" role="status" aria-live="polite" hidden></div>
+        <script>
+            import '../scripts/runtime';
+        </script>
+    </body>
+</html>

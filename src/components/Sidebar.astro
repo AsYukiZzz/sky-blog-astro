@@ -1,0 +1,202 @@
+---
+import { site } from '../config/site';
+import { theme } from '../config/theme';
+import { authors, getPosts, getMoments, taxonomy } from '../lib/content';
+import { dateKey, routeFor } from '../lib/content-model';
+import { formatDate } from '../lib/format';
+import { operatingDays } from '../lib/site-metrics';
+import Icon from './Icon.astro';
+const posts = await getPosts();
+const moments = await getMoments();
+const author =
+    authors.find((author) => author.id === site.author) ?? authors[0];
+const categories = taxonomy.categories.filter((category) =>
+    posts.some((post) => post.data.categories.includes(category.id)),
+);
+const tags = taxonomy.tags.filter((tag) =>
+    posts.some((post) => post.data.tags.includes(tag.id)),
+);
+const stats = [
+    {
+        href: '/archives/',
+        count: posts.length,
+        label: '篇文章',
+        icon: 'document',
+    },
+    {
+        href: undefined,
+        count: operatingDays(site.startedAt, site.timezone) ?? '—',
+        label: '运营天数',
+        icon: 'calendar',
+        uptime: true,
+    },
+    { href: '/tags/', count: tags.length, label: '个标签', icon: 'tag' },
+    {
+        href: '/moments/',
+        count: moments.length,
+        label: '篇随笔',
+        icon: 'message',
+    },
+];
+---
+
+<aside class="sidebar" data-pagefind-ignore>
+    {theme.sidebar.map((widget) => (
+        <>
+            {widget === 'author' && (
+                <a
+                    href={routeFor('authors', author.id)}
+                    class="glass-card author-card"
+                >
+                    <span class="author-avatar">
+                        <img
+                            src={author.avatar}
+                            width="40"
+                            height="40"
+                            alt={author.name}
+                        />
+                        <span class="online-dot"></span>
+                    </span>
+                    <span class="author-summary">
+                        <strong>{author.name}</strong>
+                        <small>{author.bio}</small>
+                    </span>
+                    <Icon name="chevron" size={16} />
+                </a>
+            )}
+            {widget === 'stats' && (
+                <section class="glass-card stats-card" aria-label="博客统计">
+                    {stats.map((stat) => {
+                        const Tile = stat.href ? 'a' : 'div';
+                        return (
+                            <Tile href={stat.href} class="stats-item">
+                                <Icon name={stat.icon} size={20} />
+                                <strong
+                                    data-site-uptime={stat.uptime}
+                                    data-site-started-at={
+                                        stat.uptime ? site.startedAt : undefined
+                                    }
+                                    data-site-timezone={
+                                        stat.uptime ? site.timezone : undefined
+                                    }
+                                >
+                                    {stat.count}
+                                </strong>
+                                <span>{stat.label}</span>
+                            </Tile>
+                        );
+                    })}
+                </section>
+            )}
+            {widget === 'categories' && (
+                <section class="glass-card widget">
+                    <div class="widget-heading">
+                        <span class="widget-icon">
+                            <Icon name="folder" size={20} />
+                        </span>
+                        <div>
+                            <h3>文章分类</h3>
+                            <p>Categories</p>
+                        </div>
+                    </div>
+                    <div class="category-widget">
+                        {categories.map((category) => (
+                            <a href={routeFor('categories', category.id)}>
+                                <span>
+                                    <Icon name={category.icon} size={18} />
+                                    {category.name}
+                                </span>
+                                <small>
+                                    {
+                                        posts.filter((post) =>
+                                            post.data.categories.includes(
+                                                category.id,
+                                            ),
+                                        ).length
+                                    }
+                                </small>
+                            </a>
+                        ))}
+                    </div>
+                </section>
+            )}
+            {widget === 'tags' && (
+                <section class="glass-card widget">
+                    <div class="widget-heading">
+                        <span class="widget-icon">
+                            <Icon name="tag" size={20} />
+                        </span>
+                        <div>
+                            <h3>标签云</h3>
+                            <p>Tags</p>
+                        </div>
+                    </div>
+                    <div class="tag-cloud">
+                        {tags.map((tag) => (
+                            <a href={routeFor('tags', tag.id)}>
+                                #{tag.name}
+                                <small>
+                                    {
+                                        posts.filter((post) =>
+                                            post.data.tags.includes(tag.id),
+                                        ).length
+                                    }
+                                </small>
+                            </a>
+                        ))}
+                    </div>
+                </section>
+            )}
+            {widget === 'recent' && (
+                <section class="glass-card widget">
+                    <div class="widget-heading">
+                        <span class="widget-icon">
+                            <Icon name="clock" size={20} />
+                        </span>
+                        <div>
+                            <h3>最新文章</h3>
+                            <p>Recent Posts</p>
+                        </div>
+                    </div>
+                    <div class="recent-posts">
+                        {[...posts]
+                            .sort(
+                                (a, b) =>
+                                    b.data.publishedAt.getTime() -
+                                    a.data.publishedAt.getTime(),
+                            )
+                            .slice(0, 5)
+                            .map((post) => (
+                                <a href={routeFor('posts', post.data.slug)}>
+                                    <time
+                                        datetime={post.data.publishedAt.toISOString()}
+                                    >
+                                        <strong>
+                                            {dateKey(
+                                                post.data.publishedAt,
+                                                site.timezone,
+                                            ).slice(-2)}
+                                        </strong>
+                                        <small>
+                                            {new Intl.DateTimeFormat('zh-CN', {
+                                                month: 'short',
+                                                timeZone: site.timezone,
+                                            }).format(post.data.publishedAt)}
+                                        </small>
+                                    </time>
+                                    <span>
+                                        <strong>{post.data.title}</strong>
+                                        <small>
+                                            {formatDate(post.data.publishedAt)}{' '}
+                                            · {post.data.description}
+                                        </small>
+                                    </span>
+                                    <Icon name="chevron" size={14} />
+                                </a>
+                            ))}
+                    </div>
+                </section>
+            )}
+        </>
+    ))}
+</aside>

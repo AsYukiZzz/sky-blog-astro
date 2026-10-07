@@ -1,0 +1,464 @@
+/* Article cards, list modes, responsive variants and interaction states. */
+
+.post-list-wrapper {
+    position: relative;
+}
+
+.list-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.list-style-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.list-style-controls button {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    border-radius: 8px;
+    border: 0;
+    background: transparent;
+    color: var(--sky-muted);
+    transition:
+        color 0.2s,
+        background-color 0.2s,
+        border-color 0.2s,
+        box-shadow 0.3s var(--sky-ease),
+        translate 0.3s var(--sky-ease),
+        scale 0.2s var(--sky-ease);
+}
+
+.list-style-controls button[aria-pressed='true'] {
+    color: var(--color-primary);
+    background: color-mix(in oklch, var(--color-primary) 8%, transparent);
+}
+
+.post-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.post-card {
+    position: relative;
+    overflow: hidden;
+    transition:
+        box-shadow 0.4s var(--sky-ease),
+        border-color 0.4s var(--sky-ease),
+        translate 0.4s var(--sky-ease);
+}
+
+.post-card:hover {
+    box-shadow: 0 25px 50px -12px #0004;
+}
+
+.post-cover {
+    position: relative;
+    display: block;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+}
+
+.post-cover img {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s var(--sky-ease);
+}
+
+.post-card:hover .post-cover img {
+    transform: scale(1.05);
+}
+
+.post-cover-placeholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        color-mix(in oklch, var(--color-primary) 15%, var(--color-base-100)),
+        color-mix(in oklch, var(--color-secondary) 10%, var(--color-base-100)),
+        color-mix(in oklch, var(--color-accent) 15%, var(--color-base-100))
+    );
+    color: color-mix(in oklch, var(--color-primary) 30%, transparent);
+}
+
+.pinned-badge {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 6px;
+    color: white;
+    background: linear-gradient(to right, #ec4899, #f43f5e);
+    z-index: 2;
+    box-shadow: 0 3px 12px #0002;
+    letter-spacing: 0.04em;
+}
+
+.post-card-body {
+    padding: 20px;
+}
+
+.post-category {
+    display: inline-flex;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    background: color-mix(in oklch, var(--color-primary) 8%, transparent);
+    color: var(--color-primary);
+}
+
+.post-card h2 {
+    font-size: 18px;
+    line-height: 1.4;
+    font-weight: 700;
+    margin: 12px 0;
+}
+
+.post-reveal > p {
+    font-size: 14px;
+    line-height: 1.625;
+    color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
+    margin: 8px 0 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: var(--sky-muted);
+    font-size: 12px;
+}
+
+.post-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.post-card-bottom {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--sky-muted);
+}
+
+.read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--sky-muted);
+}
+
+.post-list[data-style='magazine'] .post-card {
+    border-radius: 32px;
+    aspect-ratio: 16/9;
+}
+
+.post-list[data-style='magazine'] .post-cover {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.post-list[data-style='magazine'] .post-card-body {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px 24px 20px;
+    color: white;
+    pointer-events: none;
+    background: linear-gradient(to top, #0d1023cc, #10132130 65%, transparent);
+}
+
+.post-list[data-style='magazine'] .post-card-body a {
+    pointer-events: auto;
+}
+
+.post-list[data-style='magazine'] .post-reveal {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(16px);
+    transition:
+        max-height 0.45s var(--sky-ease),
+        opacity 0.3s,
+        transform 0.45s var(--sky-ease);
+}
+
+.post-list[data-style='magazine']
+    .post-card:is(:hover, :focus-within)
+    .post-reveal {
+    max-height: 160px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.post-list[data-style='magazine']
+    .post-card:is(:hover, :focus-within)
+    .post-card-body {
+    background: linear-gradient(to top, #0d1023ed, #10132160 70%, transparent);
+}
+
+.post-list[data-style='magazine'] h2 {
+    font-size: 20px;
+    margin: 12px 0 16px;
+    color: white;
+}
+
+.post-list[data-style='magazine'] h2 a:hover {
+    color: white;
+}
+
+.post-list[data-style='magazine'] .post-meta {
+    color: #ffffffd9;
+}
+
+.post-list[data-style='magazine'] .post-category {
+    background: #ffffff26;
+    color: #ffffffe6;
+    padding: 4px 10px;
+}
+
+.post-list[data-style='magazine'] .post-reveal p,
+.post-list[data-style='magazine'] .post-card-bottom {
+    display: none;
+}
+
+.post-list[data-style='card'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.post-list[data-style='list'] {
+    grid-template-columns: 1fr;
+    gap: 32px;
+}
+
+.post-list[data-style='list'] .post-card {
+    display: grid;
+    grid-template-columns: 25% minmax(0, 1fr);
+    padding: 20px;
+    gap: 24px;
+}
+
+.post-list[data-style='list'] .post-cover {
+    border-radius: 12px;
+    aspect-ratio: 4/3;
+    align-self: start;
+}
+
+.post-list[data-style='list'] .post-card-body {
+    padding: 0;
+}
+
+.post-list[data-style='list'] h2 {
+    margin-top: 8px;
+}
+
+.post-list[data-style='minimal'] {
+    display: block;
+    max-width: 672px;
+    margin: auto;
+}
+
+.post-list[data-style='minimal'] .post-card {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    overflow: visible;
+    padding: 48px 16px;
+    border-bottom: 1px solid var(--sky-border);
+}
+
+.post-list[data-style='minimal'] .post-cover {
+    display: none;
+}
+
+.post-list[data-style='minimal'] .post-card-body {
+    padding: 0;
+}
+
+.post-list[data-style='minimal'] h2 {
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 1.2;
+    margin: 20px 0 24px;
+}
+
+.post-list[data-style='minimal'] .post-reveal > p {
+    display: block;
+    font-size: 20px;
+    line-height: 1.8;
+    margin-bottom: 32px;
+    color: var(--sky-muted);
+}
+
+.post-list[data-style='minimal'] .post-card-bottom {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--sky-border);
+}
+
+@media (max-width: 1023px) {
+    .post-list[data-style='card'] {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    .post-list[data-style='magazine'] h2 {
+        font-size: 18px;
+    }
+
+    .post-list[data-style='minimal'] h2 {
+        font-size: 30px;
+    }
+
+    .post-list[data-style='minimal'] .post-reveal > p {
+        font-size: 18px;
+    }
+}
+.list-style-controls button:active {
+    scale: 0.95;
+}
+.read-more > svg {
+    transition: translate 0.3s var(--sky-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .post-list:not([data-style='minimal'])
+        .post-card:is(:hover, :focus-within) {
+        translate: 0 -5px;
+        border-color: color-mix(
+            in oklch,
+            var(--color-primary) 25%,
+            transparent
+        );
+        box-shadow: 0 20px 44px -16px
+            color-mix(in oklch, var(--color-base-content) 24%, transparent);
+    }
+    .post-card:is(:hover, :focus-within) .post-cover img {
+        transform: scale(1.045);
+    }
+    .read-more:hover > svg {
+        translate: 3px 0;
+    }
+}
+
+@media (width < 768px) {
+    .post-card .pinned-badge {
+        position: static;
+        display: inline-flex;
+        margin-bottom: 8px;
+    }
+    .post-card-bottom {
+        flex-wrap: wrap;
+    }
+    .post-tags {
+        min-width: 0;
+        flex-wrap: wrap;
+        overflow-wrap: anywhere;
+    }
+    .post-list,
+    .post-list[data-style='card'] {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .post-list[data-style='list'] .post-card {
+        display: block;
+        padding: 16px;
+    }
+    .post-list[data-style='list'] .post-cover {
+        aspect-ratio: 16 / 9;
+        margin-bottom: 16px;
+    }
+    .post-list[data-style='magazine'] .post-card {
+        aspect-ratio: auto;
+        border-radius: var(--sky-radius);
+    }
+    .post-list[data-style='magazine'] .post-cover {
+        position: relative;
+        inset: auto;
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+    .post-list[data-style='magazine'] .post-card-body {
+        position: static;
+        inset: auto;
+        display: block;
+        padding: 20px;
+        color: var(--color-base-content);
+        pointer-events: auto;
+    }
+    .post-list[data-style='magazine'] .post-card-body,
+    .post-list[data-style='magazine']
+        .post-card:is(:hover, :focus-within)
+        .post-card-body {
+        background: none;
+    }
+    .post-list[data-style='magazine'] .post-reveal,
+    .post-list[data-style='magazine']
+        .post-card:is(:hover, :focus-within)
+        .post-reveal {
+        max-height: none;
+        opacity: 1;
+        overflow: visible;
+        transform: none;
+    }
+    .post-list[data-style='magazine'] h2 {
+        color: var(--color-base-content);
+    }
+    .post-list[data-style='magazine'] h2 a:hover {
+        color: var(--color-primary);
+    }
+    .post-list[data-style='magazine'] .post-category {
+        color: var(--color-primary);
+        background: color-mix(in oklch, var(--color-primary) 10%, transparent);
+    }
+    .post-list[data-style='magazine'] .post-meta {
+        color: var(--sky-muted);
+    }
+    .post-list[data-style='magazine'] .post-card-bottom {
+        display: flex;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .post-card:is(:hover, :focus-within) .post-cover img {
+        transform: none;
+    }
+    .post-card,
+    .read-more > svg {
+        translate: none !important;
+    }
+    .list-style-controls button {
+        scale: none !important;
+        translate: none !important;
+    }
+}

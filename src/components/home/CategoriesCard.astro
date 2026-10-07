@@ -1,0 +1,60 @@
+---
+import type { HomeCardContentProps } from '../../lib/home-cards';
+import Icon from '../Icon.astro';
+type Props = HomeCardContentProps;
+const { headingId, maxPreviewItems } = Astro.props;
+import { getPosts, taxonomy } from '../../lib/content';
+import { publicTaxonomy, routeFor } from '../../lib/content-model';
+const posts = await getPosts();
+const { categories } = publicTaxonomy(posts, taxonomy);
+---
+
+<header class="home-card-header home-card-heading">
+    <div>
+        <p class="home-card-eyebrow">EXPLORE</p>
+        <h2 id={headingId}>文章分类</h2>
+    </div>
+    <a
+        class="home-card-header-link"
+        href="/categories/"
+        aria-label="查看全部文章分类"
+    >
+        <Icon name="folder" size={20} />
+    </a>
+</header>
+<div
+    class="home-card-body"
+    tabindex="0"
+    role="region"
+    aria-labelledby={headingId}
+>
+    <div class="home-taxonomy-list home-category-list" data-home-items>
+        {categories.slice(0, maxPreviewItems).map((category) => (
+            <a
+                class="home-taxonomy-chip"
+                data-home-item
+                href={routeFor('categories', category.id)}
+                title={category.description}
+            >
+                <Icon name="folder" size={14} />
+                <span>{category.name}</span>
+                <small>
+                    {
+                        posts.filter((post) =>
+                            post.data.categories.includes(category.id),
+                        ).length
+                    }
+                </small>
+            </a>
+        ))}
+    </div>
+    {categories.length === 0 && (
+        <p class="home-card-empty">分类会随第一篇文章一起出现。</p>
+    )}
+</div>
+<footer class="home-card-footer">
+    <a class="home-card-more" href="/categories/">
+        浏览全部 {categories.length} 个分类
+        <Icon name="arrow" size={14} />
+    </a>
+</footer>

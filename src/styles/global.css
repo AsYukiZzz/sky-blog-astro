@@ -1,0 +1,22 @@
+@import 'tailwindcss' source(none);
+@import './article-content.css';
+@import './floating-dock.css';
+@import './original/index-title-effects.css';
+@import './original/index-effects.css';
+@import './original/nav-enhancements.css';
+@import './original/toc.css';
+@import './cards.css';
+@import './theme.css';
+@import './polish.css';
+@import './search.css';
+@import './post-cards.css';
+@import './home.css';
+@import './footer.css';
+@source "../**/*.{astro,ts}";
+@source not "../content";
+@source "../../.astro/public-content/posts.mdx";
+@source "../../.astro/public-content/pages.mdx";
+@source "../../.astro/public-content/moments.mdx";
+@plugin "daisyui" {
+    themes: all;
+}

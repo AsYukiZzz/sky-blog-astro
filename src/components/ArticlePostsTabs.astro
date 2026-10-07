@@ -1,0 +1,178 @@
+---
+import { theme } from '../config/theme';
+import { getPosts, getPopularPosts, taxonomy } from '../lib/content';
+import { routeFor } from '../lib/content-model';
+import { formatDate } from '../lib/format';
+import Icon from './Icon.astro';
+
+interface Props {
+    currentSlug?: string;
+    expanded?: boolean;
+}
+const { currentSlug, expanded = false } = Astro.props;
+const limit = expanded
+    ? Infinity
+    : Math.max(1, Math.min(5, Math.floor(theme.articlePostsLimit)));
+const [posts, popular] = await Promise.all([
+    getPosts(),
+    theme.articlePopular ? getPopularPosts(limit) : [],
+]);
+const recent = [...posts]
+    .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+    .slice(0, limit);
+const panels = [
+    { id: 'latest', label: '最新文章', icon: 'clock', posts: recent },
+    ...(theme.articlePopular
+        ? [{ id: 'popular', label: '热门文章', icon: 'flame', posts: popular }]
+        : []),
+];
+const prefix = expanded ? 'article-posts-expanded' : 'article-posts';
+const Container = expanded ? 'dialog' : 'section';
+---
+
+<Container
+    id={expanded ? 'article-posts-dialog' : undefined}
+    class:list={[
+        'article-posts-widget',
+        expanded
+            ? 'sky-dialog toc-dialog article-posts-dialog'
+            : 'glass-card article-posts-card',
+    ]}
+    data-article-posts-tabs
+    data-article-posts-inline={expanded ? undefined : true}
+    aria-label={expanded ? undefined : '文章推荐'}
+    aria-labelledby={expanded ? 'article-posts-dialog-heading' : undefined}
+    data-pagefind-ignore
+>
+    {expanded && (
+        <div class="dialog-heading">
+            <div>
+                <>
+                    <p class="toc-dialog-article">继续阅读</p>
+                    <h2 id="article-posts-dialog-heading">文章推荐</h2>
+                    <p>切换最新与热门，点击文章继续阅读</p>
+                </>
+            </div>
+            <button
+                type="button"
+                class="icon-button"
+                data-close-dialog
+                aria-label="关闭文章推荐"
+                autofocus
+            >
+                <Icon name="close" size={22} />
+            </button>
+        </div>
+    )}
+    <div class="article-widget-heading article-post-tabs-heading">
+        <div class="article-post-tabs" role="tablist" aria-label="文章列表">
+            {panels.map((panel, index) => (
+                <button
+                    type="button"
+                    role="tab"
+                    id={`${prefix}-${panel.id}-tab`}
+                    data-posts-kind={panel.id}
+                    aria-controls={`${prefix}-${panel.id}-panel`}
+                    aria-selected={index === 0}
+                    tabindex={index === 0 ? 0 : -1}
+                >
+                    <span>{panel.label}</span>
+                    {expanded && <small>{panel.posts.length}</small>}
+                </button>
+            ))}
+        </div>
+        {!expanded && (
+            <button
+                type="button"
+                class="icon-button toc-expand"
+                data-open-article-posts
+                aria-label="展开文章推荐"
+                aria-haspopup="dialog"
+                aria-controls="article-posts-dialog"
+                title="大屏查看文章"
+            >
+                <Icon name="expand" size={17} />
+            </button>
+        )}
+    </div>
+    {panels.map((panel, index) => (
+        <nav
+            class="article-posts-panel"
+            role="tabpanel"
+            id={`${prefix}-${panel.id}-panel`}
+            aria-labelledby={`${prefix}-${panel.id}-tab`}
+            tabindex="0"
+            hidden={index !== 0}
+        >
+            <ol class="article-posts-list">
+                {panel.posts.map((post, rank) => (
+                    <li>
+                        <a
+                            href={routeFor('posts', post.data.slug)}
+                            title={post.data.title}
+                            aria-current={
+                                post.data.slug === currentSlug
+                                    ? 'page'
+                                    : undefined
+                            }
+                        >
+                            <span class="article-post-rank" aria-hidden="true">
+                                {String(rank + 1).padStart(2, '0')}
+                            </span>
+                            <span class="article-post-summary">
+                                <strong>{post.data.title}</strong>
+                                {expanded && (
+                                    <small>
+                                        <time
+                                            datetime={post.data.publishedAt.toISOString()}
+                                        >
+                                            {formatDate(post.data.publishedAt)}
+                                        </time>
+                                        {post.data.categories[0] && (
+                                            <span>
+                                                {
+                                                    taxonomy.categories.find(
+                                                        (category) =>
+                                                            category.id ===
+                                                            post.data
+                                                                .categories[0],
+                                                    )?.name
+                                                }
+                                            </span>
+                                        )}
+                                    </small>
+                                )}
+                                {expanded && post.data.description && (
+                                    <p>{post.data.description}</p>
+                                )}
+                            </span>
+                            <Icon name="arrow" size={14} />
+                        </a>
+                    </li>
+                ))}
+            </ol>
+            {panel.posts.length === 0 && (
+                <p class="article-widget-empty">
+                    文章还在酝酿，先去归档逛逛吧。
+                </p>
+            )}
+            {!expanded && panel.posts.length > 0 && (
+                <p class="article-widget-empty" data-article-posts-space hidden>
+                    展开查看完整文章列表
+                </p>
+            )}
+        </nav>
+    ))}
+    {expanded && (
+        <div class="toc-dialog-footer">
+            <>
+                <a class="article-widget-more" href="/archives/">
+                    前往文章归档
+                    <Icon name="arrow" size={14} />
+                </a>
+                <kbd>Esc</kbd>
+                <span>关闭面板</span>
+            </>
+        </div>
+    )}
+</Container>

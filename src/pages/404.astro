@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<BaseLayout title="页面走丢了" noindex>
+    <div class="site-container empty-state error-page">
+        <span class="eyebrow">A SMALL DETOUR</span>
+        <strong>404</strong>
+        <Icon name="location" size={35} />
+        <h1>这条小路，还没有故事</h1>
+        <p>页面可能已经搬家，也可能只是走错了方向。</p>
+        <a href="/">回到首页，继续探索 →</a>
+    </div>
+</BaseLayout>

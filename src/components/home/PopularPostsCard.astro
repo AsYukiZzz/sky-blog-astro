@@ -1,0 +1,37 @@
+---
+import type { HomeCardContentProps } from '../../lib/home-cards';
+import Icon from '../Icon.astro';
+type Props = HomeCardContentProps;
+const { headingId, maxPreviewItems } = Astro.props;
+import { getPopularPosts } from '../../lib/content';
+import HomePostList from '../HomePostList.astro';
+
+const posts = await getPopularPosts(maxPreviewItems);
+---
+
+<header class="home-card-header home-card-heading">
+    <div>
+        <p class="home-card-eyebrow">POPULAR STORIES</p>
+        <h2 id={headingId}>热门文章</h2>
+    </div>
+    <span class="home-card-icon" aria-hidden="true">
+        <Icon name="flame" size={20} />
+    </span>
+</header>
+<div
+    class="home-card-body"
+    tabindex="0"
+    role="region"
+    aria-labelledby={headingId}
+>
+    <HomePostList posts={posts} label="热门文章" />
+    {posts.length === 0 && (
+        <p class="home-card-empty">好文章还在酝酿，先去归档逛逛吧。</p>
+    )}
+</div>
+<footer class="home-card-footer">
+    <a class="home-card-more" href="/archives/">
+        翻阅全部文章
+        <Icon name="arrow" size={14} />
+    </a>
+</footer>

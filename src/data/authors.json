@@ -1,0 +1,12 @@
+[
+    {
+        "id": "sky",
+        "name": "Sky",
+        "bio": "开发者，也是一名生活观察者。喜欢把想法变成代码，把日常写成故事。",
+        "avatar": "/images/avatar.svg",
+        "location": "中国 · 地球",
+        "description": "你好，我是 Sky。欢迎来到我的数字花园。",
+        "role": "开发者 · 生活观察者",
+        "interests": ["代码", "设计", "生活"]
+    }
+]

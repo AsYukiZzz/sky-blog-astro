@@ -1,0 +1,39 @@
+---
+import { theme } from '../config/theme';
+import Icon from './Icon.astro';
+// Astro must restore the base CSS on navigation; the lazy JS module is cached.
+import 'sakana-widget/lib/index.css';
+import '../styles/sakana.css';
+
+const { sakana } = theme;
+const size = Math.min(320, Math.max(120, sakana.size));
+const side = Math.max(8, sakana.offset.side);
+const bottom = Math.max(8, sakana.offset.bottom);
+---
+
+{sakana.enabled && (
+    <aside
+        class="home-sakana"
+        data-sakana
+        data-position={sakana.position}
+        data-mobile={String(sakana.showOnMobile)}
+        data-pagefind-ignore
+        aria-label="Sakana 互动挂件"
+        style={`--sakana-size: ${size}px; --sakana-side: ${side}px; --sakana-bottom: ${bottom}px;`}
+        hidden
+    >
+        <div class="home-sakana-anchor">
+            <div data-sakana-host></div>
+            <button
+                type="button"
+                class="sakana-restore"
+                data-sakana-restore
+                aria-label="显示 Sakana 挂件"
+                title="显示 Sakana 挂件"
+                hidden
+            >
+                <Icon name="sparkles" size={19} />
+            </button>
+        </div>
+    </aside>
+)}

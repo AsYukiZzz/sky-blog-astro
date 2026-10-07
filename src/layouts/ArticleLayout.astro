@@ -1,0 +1,411 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import ArticleTocTree from '../components/ArticleTocTree.astro';
+import ArticlePostsTabs from '../components/ArticlePostsTabs.astro';
+import Comments from '../components/Comments.astro';
+import Icon from '../components/Icon.astro';
+import { authors, taxonomy } from '../lib/content';
+import { routeFor } from '../lib/content-model';
+import { formatDate, readingTime } from '../lib/format';
+import { buildToc } from '../lib/toc';
+import '../styles/article.css';
+interface Props {
+    entry: CollectionEntry<'posts' | 'pages' | 'moments'>;
+    headings: { depth: number; slug: string; text: string }[];
+    previous?: CollectionEntry<'posts'>;
+    next?: CollectionEntry<'posts'>;
+}
+const { entry, headings, previous, next } = Astro.props;
+const author = authors.find((author) => author.id === entry.data.author);
+if (!author)
+    throw new Error(`${entry.id}: unknown author ${entry.data.author}`);
+const categories = 'categories' in entry.data ? entry.data.categories : [];
+const tags = 'tags' in entry.data ? entry.data.tags : [];
+const copyright = 'copyright' in entry.data ? entry.data.copyright : undefined;
+const types = {
+    original: '原创',
+    repost: '转载',
+    ai: 'AI 辅助',
+    derivative: '二次创作',
+    custom: '创作声明',
+};
+const toc = buildToc(headings);
+---
+
+<BaseLayout
+    title={entry.data.title}
+    description={entry.data.description}
+    image={entry.data.cover}
+    article={{
+        publishedAt: entry.data.publishedAt,
+        updatedAt: entry.data.updatedAt,
+        author: author.name,
+    }}
+>
+    <div class="article-page">
+        <header class="article-banner">
+            {entry.data.cover && (
+                <img
+                    class="article-banner-image"
+                    src={entry.data.cover}
+                    width="1440"
+                    height="600"
+                    alt=""
+                />
+            )}
+            <div class="article-hero site-container">
+                <div class="article-heading">
+                    <div class="article-breadcrumb">
+                        {categories.map((id) => (
+                            <a href={routeFor('categories', id)}>
+                                {taxonomy.categories.find(
+                                    (category) => category.id === id,
+                                )?.name ?? id}
+                            </a>
+                        ))}
+                        {entry.collection !== 'moments' &&
+                            tags.slice(0, 4).map((id) => (
+                                <a
+                                    class="article-tag"
+                                    href={routeFor('tags', id)}
+                                >
+                                    #
+                                    {taxonomy.tags.find((tag) => tag.id === id)
+                                        ?.name ?? id}
+                                </a>
+                            ))}
+                    </div>
+                    <h1 data-pagefind-meta="title">{entry.data.title}</h1>
+                    <div class="article-meta">
+                        <a href={routeFor('authors', author.id)}>
+                            <img
+                                src={author.avatar}
+                                width="24"
+                                height="24"
+                                alt=""
+                            />
+                            {author.name}
+                        </a>
+                        <span>
+                            <Icon name="calendar" size={16} />
+                            <time
+                                datetime={entry.data.publishedAt.toISOString()}
+                            >
+                                {formatDate(entry.data.publishedAt)}
+                            </time>
+                        </span>
+                        <span>
+                            <Icon name="clock" size={16} />
+                            {readingTime(entry.body)} 分钟
+                        </span>
+                        {entry.data.updatedAt && (
+                            <span>
+                                更新于 {formatDate(entry.data.updatedAt)}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="site-container">
+            <div class="article-grid">
+                <div class="article-main">
+                    {toc.length > 0 && (
+                        <details class="mobile-toc">
+                            <summary>
+                                <span>
+                                    <Icon name="list" size={18} />
+                                    文章目录
+                                    <small>{headings.length} 个标题</small>
+                                </span>
+                                <Icon name="chevron" size={16} />
+                            </summary>
+                            <nav aria-label="本文目录">
+                                <ArticleTocTree nodes={toc} />
+                            </nav>
+                            <button
+                                type="button"
+                                class="mobile-toc-expand"
+                                data-open-toc
+                                aria-haspopup="dialog"
+                                aria-controls="article-toc-dialog"
+                            >
+                                <Icon name="expand" size={16} />
+                                打开大屏目录
+                            </button>
+                        </details>
+                    )}
+                    <article class="article-paper" data-pagefind-body>
+                        {entry.data.description && (
+                            <div class="article-excerpt">
+                                {entry.data.description}
+                            </div>
+                        )}
+                        <div id="article-content">
+                            <slot />
+                        </div>
+                        <div class="copyright-box" data-pagefind-ignore>
+                            <div class="copyright-heading">
+                                <span class="copyright-heading-label">
+                                    <span class="copyright-icon">
+                                        <Icon name="document" size={18} />
+                                    </span>
+                                    版权声明
+                                </span>
+                                <span class="copyright-type">
+                                    {types[copyright?.type ?? 'original']}
+                                </span>
+                            </div>
+                            <strong class="copyright-title">
+                                {entry.data.title}
+                            </strong>
+                            <dl class="copyright-meta">
+                                <div>
+                                    <dt>作者</dt>
+                                    <dd>
+                                        <a
+                                            href={routeFor(
+                                                'authors',
+                                                author.id,
+                                            )}
+                                        >
+                                            <img
+                                                src={author.avatar}
+                                                width="24"
+                                                height="24"
+                                                alt=""
+                                                loading="lazy"
+                                            />
+                                            {author.name}
+                                        </a>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>发布于</dt>
+                                    <dd>
+                                        <time
+                                            datetime={entry.data.publishedAt.toISOString()}
+                                        >
+                                            {formatDate(entry.data.publishedAt)}
+                                        </time>
+                                    </dd>
+                                </div>
+                            </dl>
+                            <p class="copyright-note">
+                                {copyright?.note ??
+                                    `本文采用 ${copyright?.license ?? 'CC BY-NC-SA 4.0'} 协议，转载时请注明作者和出处。`}
+                            </p>
+                            {copyright?.source && (
+                                <p class="copyright-source">
+                                    来源：
+                                    <a
+                                        href={copyright.source}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        原始作品 ↗
+                                    </a>
+                                </p>
+                            )}
+                            <div class="article-share">
+                                <button type="button" data-copy-link>
+                                    <Icon name="link" size={16} />
+                                    复制链接
+                                </button>
+                                <button type="button" data-share>
+                                    <Icon name="share" size={16} />
+                                    分享文章
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                    <div
+                        class="mobile-article-recommendations"
+                        data-pagefind-ignore
+                    >
+                        <button
+                            type="button"
+                            class="mobile-toc-expand"
+                            data-open-article-posts
+                            aria-haspopup="dialog"
+                            aria-controls="article-posts-dialog"
+                        >
+                            <Icon name="document" size={16} />
+                            查看更多文章
+                            <Icon name="expand" size={16} />
+                        </button>
+                    </div>
+                    <nav
+                        class="post-neighbors"
+                        aria-label="相邻文章"
+                        data-pagefind-ignore
+                    >
+                        {previous ? (
+                            <a
+                                class="glass-card post-neighbor post-neighbor-previous"
+                                href={routeFor('posts', previous.data.slug)}
+                            >
+                                <span class="post-neighbor-label">
+                                    <Icon name="arrow" size={16} />
+                                    上一篇
+                                </span>
+                                <span class="post-neighbor-title">
+                                    {previous.data.title}
+                                </span>
+                            </a>
+                        ) : (
+                            <button
+                                type="button"
+                                class="glass-card post-neighbor post-neighbor-previous"
+                                disabled
+                            >
+                                <span class="post-neighbor-label">
+                                    <Icon name="arrow" size={16} />
+                                    上一篇
+                                </span>
+                                <span class="post-neighbor-title">
+                                    没有更早的文章
+                                </span>
+                            </button>
+                        )}
+                        {next ? (
+                            <a
+                                class="glass-card post-neighbor post-neighbor-next"
+                                href={routeFor('posts', next.data.slug)}
+                            >
+                                <span class="post-neighbor-label">
+                                    下一篇
+                                    <Icon name="arrow" size={16} />
+                                </span>
+                                <span class="post-neighbor-title">
+                                    {next.data.title}
+                                </span>
+                            </a>
+                        ) : (
+                            <button
+                                type="button"
+                                class="glass-card post-neighbor post-neighbor-next"
+                                disabled
+                            >
+                                <span class="post-neighbor-label">
+                                    下一篇
+                                    <Icon name="arrow" size={16} />
+                                </span>
+                                <span class="post-neighbor-title">
+                                    没有更新的文章
+                                </span>
+                            </button>
+                        )}
+                    </nav>
+                    <Comments />
+                </div>
+                <aside class="article-side" data-pagefind-ignore>
+                    <section
+                        class="glass-card toc-card"
+                        aria-labelledby="article-toc-heading"
+                    >
+                        <div class="article-widget-heading">
+                            <h2 id="article-toc-heading">
+                                <span class="article-widget-icon">
+                                    <Icon name="list" size={18} />
+                                </span>
+                                文章目录
+                            </h2>
+                            {toc.length > 0 && (
+                                <button
+                                    type="button"
+                                    class="icon-button toc-expand"
+                                    data-open-toc
+                                    aria-label="展开文章目录"
+                                    aria-haspopup="dialog"
+                                    aria-controls="article-toc-dialog"
+                                    title="大屏查看目录"
+                                >
+                                    <Icon name="expand" size={17} />
+                                </button>
+                            )}
+                        </div>
+                        {toc.length > 0 ? (
+                            <nav
+                                class="article-toc-scroll"
+                                data-toc-scroll
+                                aria-label="本文目录"
+                            >
+                                <ArticleTocTree nodes={toc} />
+                            </nav>
+                        ) : (
+                            <p class="toc-empty">这篇文章暂时没有章节标题。</p>
+                        )}
+                        <div class="toc-progress-row">
+                            <small
+                                class="toc-progress-value"
+                                data-reading-percent
+                                aria-hidden="true"
+                            >
+                                0%
+                            </small>
+                            <div
+                                class="reading-progress"
+                                role="progressbar"
+                                aria-label="文章阅读进度"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                                aria-valuenow="0"
+                                data-reading-meter
+                            >
+                                <span data-reading-progress />
+                            </div>
+                        </div>
+                    </section>
+                    <ArticlePostsTabs
+                        currentSlug={
+                            entry.collection === 'posts'
+                                ? entry.data.slug
+                                : undefined
+                        }
+                    />
+                </aside>
+            </div>
+        </div>
+    </div>
+    {toc.length > 0 && (
+        <dialog
+            id="article-toc-dialog"
+            class="sky-dialog toc-dialog"
+            aria-labelledby="toc-dialog-heading"
+            data-pagefind-ignore
+        >
+            <div class="dialog-heading">
+                <div>
+                    <p class="toc-dialog-article">{entry.data.title}</p>
+                    <h2 id="toc-dialog-heading">文章目录</h2>
+                    <p>{headings.length} 个标题 · 点击标题跳转到正文</p>
+                </div>
+                <button
+                    type="button"
+                    class="icon-button"
+                    data-close-dialog
+                    aria-label="关闭文章目录"
+                    autofocus
+                >
+                    <Icon name="close" size={22} />
+                </button>
+            </div>
+            <nav class="toc-dialog-content" aria-label="完整文章目录">
+                <ArticleTocTree nodes={toc} />
+            </nav>
+            <div class="toc-dialog-footer">
+                <span>
+                    阅读进度 <span data-reading-percent>0%</span>
+                </span>
+                <kbd>Esc</kbd>
+                <span>关闭目录</span>
+            </div>
+        </dialog>
+    )}
+    <ArticlePostsTabs
+        expanded
+        currentSlug={entry.collection === 'posts' ? entry.data.slug : undefined}
+    />
+</BaseLayout>

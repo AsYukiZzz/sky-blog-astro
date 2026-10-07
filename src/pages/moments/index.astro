@@ -1,0 +1,16 @@
+---
+import { getMoments } from '../../lib/content';
+import ListingLayout from '../../layouts/ListingLayout.astro';
+import EssayMasonry from '../../components/EssayMasonry.astro';
+const moments = await getMoments();
+---
+
+<ListingLayout
+    sidebar={false}
+    variant="archive"
+    title="随笔"
+    description="记录生活中的片刻，留下一些随性的想法。"
+    count={moments.length}
+>
+    <EssayMasonry entries={moments} />
+</ListingLayout>

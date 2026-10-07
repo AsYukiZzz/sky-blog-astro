@@ -1,0 +1,30 @@
+[
+    {
+        "name": "Astro",
+        "description": "为内容而生的 Web 框架。",
+        "url": "https://astro.build",
+        "group": "喜欢的网站",
+        "initial": "A"
+    },
+    {
+        "name": "Cloudflare",
+        "description": "让作品走向更广阔的网络。",
+        "url": "https://developers.cloudflare.com",
+        "group": "喜欢的网站",
+        "initial": "C"
+    },
+    {
+        "name": "DaisyUI",
+        "description": "用简单的组件，装点自己的界面。",
+        "url": "https://daisyui.com",
+        "group": "设计工具",
+        "initial": "D"
+    },
+    {
+        "name": "Sky Blog · Halo",
+        "description": "这个数字花园最初的模样。",
+        "url": "https://github.com/sky121666/halo-theme-sky-blog-1",
+        "group": "开源作品",
+        "initial": "S"
+    }
+]

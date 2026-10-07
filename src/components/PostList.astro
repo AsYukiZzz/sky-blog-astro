@@ -1,0 +1,71 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { theme } from '../config/theme';
+import PostCard from './PostCard.astro';
+import Icon from './Icon.astro';
+interface Props {
+    posts: CollectionEntry<'posts'>[];
+    controls?: boolean;
+    style?: typeof theme.listStyle;
+}
+const { posts, controls = true, style = theme.listStyle } = Astro.props;
+---
+
+<div
+    class="post-list-wrapper"
+    data-post-list-wrapper
+    data-remember-layout={controls ? 'true' : undefined}
+>
+    {controls && (
+        <div class="list-toolbar">
+            <div class="list-style-controls" aria-label="文章列表风格">
+                <button
+                    data-list-style="card"
+                    aria-label="卡片布局"
+                    title="卡片布局"
+                    aria-pressed={style === 'card'}
+                >
+                    <Icon name="grid" size={16} />
+                </button>
+                <button
+                    data-list-style="list"
+                    aria-label="列表布局"
+                    title="列表布局"
+                    aria-pressed={style === 'list'}
+                >
+                    <Icon name="list" size={16} />
+                </button>
+                <button
+                    data-list-style="magazine"
+                    aria-label="杂志布局"
+                    title="杂志布局"
+                    aria-pressed={style === 'magazine'}
+                >
+                    <Icon name="book" size={16} />
+                </button>
+                <button
+                    data-list-style="minimal"
+                    aria-label="极简布局"
+                    title="极简布局"
+                    aria-pressed={style === 'minimal'}
+                >
+                    <Icon name="document" size={16} />
+                </button>
+            </div>
+        </div>
+    )}
+    {posts.length ? (
+        <div class="post-list" data-style={style}>
+            {posts.map((post, index) => (
+                <PostCard post={post} index={index} />
+            ))}
+        </div>
+    ) : (
+        <div class="empty-state">
+            <Icon name="book" size={36} />
+            <h2>这里还没有文章</h2>
+            <p>先去其他地方逛逛吧。</p>
+            <a href="/">返回首页 →</a>
+        </div>
+    )}
+</div>

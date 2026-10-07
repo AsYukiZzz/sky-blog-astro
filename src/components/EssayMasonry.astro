@@ -1,0 +1,73 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { site } from '../config/site';
+import { dateKey, routeFor } from '../lib/content-model';
+import Icon from './Icon.astro';
+import '../styles/essays.css';
+
+interface Props {
+    entries: CollectionEntry<'moments'>[];
+}
+const { entries } = Astro.props;
+---
+
+{entries.length > 0 ? (
+    <div class="essay-masonry" aria-label="随笔列表">
+        {entries.map((entry, index) => {
+            const cover =
+                entry.data.cover?.trim() ||
+                entry.data.images.find((image) => image.trim());
+            return (
+                <article
+                    class="glass-card essay-card"
+                    data-essay-kind={cover ? 'image' : 'text'}
+                >
+                    <a
+                        class="essay-card-link"
+                        href={routeFor('moments', entry.data.slug)}
+                        aria-label={`阅读 ${entry.data.title}`}
+                    >
+                        {cover && (
+                            <div class="essay-card-cover">
+                                <img
+                                    src={cover}
+                                    alt=""
+                                    loading={index < 3 ? 'eager' : 'lazy'}
+                                    decoding="async"
+                                />
+                            </div>
+                        )}
+                        <div class="essay-card-body">
+                            <h2>{entry.data.title}</h2>
+                            {entry.data.tags.length > 0 && (
+                                <div class="essay-card-tags">
+                                    {entry.data.tags.slice(0, 3).map((tag) => (
+                                        <span>#{tag}</span>
+                                    ))}
+                                </div>
+                            )}
+                            <div class="essay-card-footer">
+                                <time
+                                    datetime={entry.data.publishedAt.toISOString()}
+                                >
+                                    {dateKey(
+                                        entry.data.publishedAt,
+                                        site.timezone,
+                                    )}
+                                </time>
+                                <Icon name="arrow" size={16} />
+                            </div>
+                        </div>
+                    </a>
+                </article>
+            );
+        })}
+    </div>
+) : (
+    <div class="empty-state">
+        <Icon name="book" size={36} />
+        <h2>这里还没有随笔</h2>
+        <p>下一段记录正在路上。</p>
+        <a href="/">返回首页 →</a>
+    </div>
+)}

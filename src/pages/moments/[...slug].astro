@@ -1,0 +1,180 @@
+---
+import { render } from 'astro:content';
+import { getMoments, authors } from '../../lib/content';
+import { routeFor } from '../../lib/content-model';
+import { formatDate } from '../../lib/format';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Comments from '../../components/Comments.astro';
+import Icon from '../../components/Icon.astro';
+export async function getStaticPaths() {
+    return (await getMoments()).map((entry) => ({
+        params: { slug: entry.data.slug },
+        props: { entry },
+    }));
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const author = authors.find((author) => author.id === entry.data.author);
+if (!author)
+    throw new Error(`${entry.id}: unknown author ${entry.data.author}`);
+---
+
+<BaseLayout
+    title={entry.data.title}
+    description={entry.data.description}
+    image={entry.data.images[0]}
+>
+    <div class="moment-detail-page">
+        <h1 class="sr-only" data-pagefind-meta="title">
+            {entry.data.title}
+        </h1>
+        <a class="btn btn-ghost btn-sm moment-back" href="/moments/">
+            ← 返回随笔
+        </a>
+        <article class="moment-detail-card" data-pagefind-body>
+            <header class="moment-detail-author">
+                <a href={routeFor('authors', author.id)}>
+                    <img
+                        src={author.avatar}
+                        width="44"
+                        height="44"
+                        alt={author.name}
+                    />
+                </a>
+                <div>
+                    <a href={routeFor('authors', author.id)}>{author.name}</a>
+                    <time datetime={entry.data.publishedAt.toISOString()}>
+                        {formatDate(entry.data.publishedAt)}
+                    </time>
+                </div>
+            </header>
+            <div id="article-content" class="moment-body">
+                <Content />
+            </div>
+            {entry.data.images.length > 0 && (
+                <div
+                    class:list={[
+                        'moment-images',
+                        {
+                            'moment-single-image':
+                                entry.data.images.length === 1,
+                        },
+                    ]}
+                >
+                    {entry.data.images.map((image) => (
+                        <button
+                            data-lightbox={image}
+                            data-caption={entry.data.title}
+                            aria-label={`查看图片：${entry.data.title}`}
+                        >
+                            <img
+                                src={image}
+                                alt={entry.data.title}
+                                width="960"
+                                height="560"
+                                loading="lazy"
+                            />
+                        </button>
+                    ))}
+                </div>
+            )}
+            <div class="moment-detail-tags">
+                {entry.data.tags.map((tag) => (
+                    <span>#{tag}</span>
+                ))}
+            </div>
+            <div class="moment-detail-actions" data-pagefind-ignore>
+                <button data-copy-link>
+                    <Icon name="link" size={16} />
+                    复制链接
+                </button>
+                <button data-share>
+                    <Icon name="share" size={16} />
+                    分享
+                </button>
+            </div>
+            <Comments />
+        </article>
+    </div>
+</BaseLayout>
+<style is:global>
+    .moment-detail-page {
+        max-width: 672px;
+        margin: auto;
+        padding: 32px 16px;
+    }
+    .moment-back {
+        margin-bottom: 24px;
+    }
+    .moment-detail-card {
+        padding: 16px;
+        border-radius: 16px;
+        background: var(--color-base-100);
+        box-shadow: 0 1px 3px #0001;
+    }
+    .moment-detail-author {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .moment-detail-author img {
+        border-radius: 12px;
+        width: 44px;
+        height: 44px;
+    }
+    .moment-detail-author > div {
+        min-width: 0;
+    }
+    .moment-detail-author > div a {
+        font-size: 14px;
+        color: var(--color-primary);
+        font-weight: 600;
+    }
+    .moment-detail-author time {
+        display: block;
+        font-size: 12px;
+        color: var(--sky-muted);
+    }
+    .moment-detail-card .moment-body {
+        font-size: 14px;
+        line-height: 1.625;
+    }
+    .moment-detail-card .moment-images {
+        margin-top: 12px;
+    }
+    .moment-detail-card .moment-single-image {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .moment-detail-card .moment-single-image img {
+        aspect-ratio: auto;
+        max-height: 288px;
+    }
+    .moment-detail-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 12px 0;
+        color: var(--color-primary);
+        font-size: 12px;
+    }
+    .moment-detail-tags span {
+        padding: 2px 6px;
+        background: var(--color-base-200);
+        border-radius: 6px;
+    }
+    .moment-detail-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding-top: 8px;
+        border-top: 1px solid var(--color-base-200);
+    }
+    .moment-detail-actions button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--sky-muted);
+        font-size: 14px;
+    }
+</style>

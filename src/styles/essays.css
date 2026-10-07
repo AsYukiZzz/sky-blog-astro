@@ -1,0 +1,158 @@
+/* Independent essay previews: column flow keeps each card at its content height. */
+.essay-masonry {
+    --essay-gap: 22px;
+    columns: 260px 3;
+    column-gap: var(--essay-gap);
+}
+.essay-card {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    margin-bottom: var(--essay-gap);
+    break-inside: avoid;
+    border-radius: 22px;
+    overflow: hidden;
+    border-color: color-mix(
+        in oklch,
+        var(--color-primary) 12%,
+        var(--sky-border)
+    );
+    box-shadow: 0 8px 24px -20px
+        color-mix(in oklch, var(--color-base-content) 24%, transparent);
+    transition:
+        border-color 0.25s,
+        box-shadow 0.3s var(--sky-ease),
+        translate 0.3s var(--sky-ease);
+}
+.essay-card-link {
+    display: block;
+    color: inherit;
+}
+.essay-card-cover {
+    overflow: hidden;
+    background: var(--color-base-200);
+}
+.essay-card-cover img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 0.65s var(--sky-ease);
+}
+.essay-card-body {
+    padding: 20px;
+}
+.essay-card-body h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    transition: color 0.2s;
+}
+.essay-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+}
+.essay-card-tags > span {
+    max-width: 100%;
+    padding: 3px 7px;
+    border-radius: 7px;
+    background: color-mix(in oklch, var(--color-primary) 6%, transparent);
+    color: color-mix(in oklch, var(--color-primary) 40%, var(--sky-muted));
+    font-size: 11px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.essay-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+    color: var(--sky-muted);
+}
+.essay-card-footer time {
+    font:
+        11px/1.5 system-ui,
+        sans-serif;
+    font-variant-numeric: tabular-nums;
+}
+.essay-card-footer svg {
+    flex-shrink: 0;
+    transition:
+        color 0.2s,
+        translate 0.25s var(--sky-ease);
+}
+.essay-card:focus-within {
+    border-color: color-mix(
+        in oklch,
+        var(--color-primary) 45%,
+        var(--sky-border)
+    );
+}
+.essay-card-link:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -5px;
+    border-radius: inherit;
+}
+@media (hover: hover) and (pointer: fine) {
+    .essay-card:hover {
+        translate: 0 -3px;
+        border-color: color-mix(
+            in oklch,
+            var(--color-primary) 30%,
+            var(--sky-border)
+        );
+        box-shadow: 0 14px 32px -22px
+            color-mix(in oklch, var(--color-primary) 30%, transparent);
+    }
+    .essay-card-link:hover {
+        color: inherit;
+    }
+    .essay-card:hover .essay-card-body h2,
+    .essay-card:hover .essay-card-footer svg {
+        color: var(--color-primary);
+    }
+    .essay-card:hover .essay-card-cover img {
+        transform: scale(1.035);
+    }
+    .essay-card:hover .essay-card-footer svg {
+        translate: 3px 0;
+    }
+}
+@media (width < 1024px) {
+    .essay-masonry {
+        column-count: 2;
+    }
+}
+@media (width < 768px) {
+    .essay-masonry {
+        --essay-gap: 18px;
+    }
+}
+@media (width < 600px) {
+    .essay-masonry {
+        --essay-gap: 16px;
+        column-count: 1;
+    }
+    .essay-card {
+        border-radius: 20px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .essay-card,
+    .essay-card-cover img,
+    .essay-card-body h2,
+    .essay-card-footer svg {
+        transition: none;
+    }
+    .essay-card:hover,
+    .essay-card:hover .essay-card-footer svg {
+        translate: none;
+    }
+    .essay-card:hover .essay-card-cover img {
+        transform: none;
+    }
+}

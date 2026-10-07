@@ -1,0 +1,32 @@
+---
+import { getPosts } from '../../lib/content';
+import { paginateItems } from '../../lib/content-model';
+import { site } from '../../config/site';
+import ListingLayout from '../../layouts/ListingLayout.astro';
+import PostList from '../../components/PostList.astro';
+import Pagination from '../../components/Pagination.astro';
+export async function getStaticPaths() {
+    const posts = await getPosts();
+    const pages = paginateItems(posts, site.pageSize);
+    return pages.slice(1).map((items, index) => ({
+        params: { page: String(index + 2) },
+        props: {
+            posts: items,
+            current: index + 2,
+            total: pages.length,
+            count: posts.length,
+        },
+    }));
+}
+const { posts, current, total, count } = Astro.props;
+---
+
+<ListingLayout
+    title={`文章 · 第 ${current} 页`}
+    description="继续阅读博客里的故事与记录。"
+    icon="document"
+    count={count}
+>
+    <PostList posts={posts} />
+    <Pagination current={current} total={total} first="/archives/" />
+</ListingLayout>

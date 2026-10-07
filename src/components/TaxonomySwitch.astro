@@ -1,0 +1,162 @@
+---
+import { getPosts, taxonomy } from '../lib/content';
+import { publicTaxonomy, routeFor } from '../lib/content-model';
+import Icon from './Icon.astro';
+interface Props {
+    kind: 'categories' | 'tags';
+    active?: string;
+}
+const { kind, active } = Astro.props;
+const posts = await getPosts();
+const items = publicTaxonomy(posts, taxonomy)[kind];
+const maxVisible = kind === 'categories' ? 10 : 12;
+const countFor = (id: string) =>
+    posts.filter((post) => post.data[kind].includes(id)).length;
+---
+
+<nav
+    class="taxonomy-switch"
+    aria-label={kind === 'categories' ? '分类切换' : '标签切换'}
+>
+    <a href={`/${kind}/`} aria-current={!active ? 'page' : undefined}>
+        <Icon name="grid" size={14} />
+        全部
+    </a>
+    {items.slice(0, maxVisible).map((item) => (
+        <a
+            href={routeFor(kind, item.id)}
+            aria-current={active === item.id ? 'page' : undefined}
+        >
+            <Icon name={kind === 'categories' ? 'folder' : 'tag'} size={14} />
+            {item.name}
+            <small>{countFor(item.id)}</small>
+        </a>
+    ))}
+    {items.length > maxVisible && (
+        <details
+            class="taxonomy-more"
+            open={items.slice(maxVisible).some((item) => item.id === active)}
+        >
+            <summary
+                aria-label={kind === 'categories' ? '更多分类' : '更多标签'}
+            >
+                +{items.length - maxVisible}
+            </summary>
+            <div>
+                {items.slice(maxVisible).map((item) => (
+                    <a
+                        href={routeFor(kind, item.id)}
+                        aria-current={active === item.id ? 'page' : undefined}
+                    >
+                        {item.name}
+                        <small>{countFor(item.id)}</small>
+                    </a>
+                ))}
+            </div>
+        </details>
+    )}
+</nav>
+<style>
+    .taxonomy-switch {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: start;
+        gap: 10px;
+        margin-bottom: 28px;
+    }
+    .taxonomy-switch a {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 38px;
+        max-width: 100%;
+        padding: 8px 13px;
+        border: 1px solid var(--sky-border);
+        border-radius: 10px;
+        background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
+        color: var(--sky-muted);
+        font-size: 13px;
+        font-weight: 500;
+        overflow-wrap: anywhere;
+        transition:
+            color 0.2s,
+            background 0.2s,
+            border-color 0.2s;
+    }
+    .taxonomy-switch small {
+        padding: 1px 5px;
+        border-radius: 5px;
+        background: color-mix(
+            in oklch,
+            var(--color-base-content) 4%,
+            transparent
+        );
+        font:
+            10px/1.5 system-ui,
+            sans-serif;
+    }
+    .taxonomy-switch a[aria-current='page'] {
+        color: var(--color-base-content);
+        border-color: color-mix(
+            in oklch,
+            var(--color-primary) 24%,
+            transparent
+        );
+        background: color-mix(
+            in oklch,
+            var(--color-primary) 9%,
+            var(--color-base-100)
+        );
+    }
+    .taxonomy-switch a[aria-current='page'] svg {
+        color: color-mix(
+            in oklch,
+            var(--color-primary) 65%,
+            var(--color-base-content)
+        );
+    }
+    .taxonomy-more {
+        max-width: 100%;
+    }
+    .taxonomy-more[open] {
+        flex-basis: 100%;
+    }
+    .taxonomy-more summary {
+        cursor: pointer;
+        padding: 8px 12px;
+        font-size: 13px;
+        color: var(--sky-muted);
+    }
+    .taxonomy-more > div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 8px 0 0;
+    }
+    @media (hover: hover) and (pointer: fine) {
+        .taxonomy-switch a:hover {
+            color: var(--color-base-content);
+            border-color: color-mix(
+                in oklch,
+                var(--color-primary) 20%,
+                transparent
+            );
+            background: color-mix(
+                in oklch,
+                var(--color-primary) 6%,
+                var(--color-base-100)
+            );
+        }
+    }
+    @media (max-width: 540px) {
+        .taxonomy-switch {
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .taxonomy-switch a {
+            padding-inline: 10px;
+            font-size: 12px;
+        }
+    }
+</style>

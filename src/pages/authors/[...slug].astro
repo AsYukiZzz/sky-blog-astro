@@ -1,0 +1,44 @@
+---
+import { getPosts, authors } from '../../lib/content';
+import { paginateItems, routeFor } from '../../lib/content-model';
+import { site } from '../../config/site';
+import ListingLayout from '../../layouts/ListingLayout.astro';
+import PostList from '../../components/PostList.astro';
+import Pagination from '../../components/Pagination.astro';
+export async function getStaticPaths() {
+    const posts = await getPosts();
+    return authors.flatMap((author) => {
+        const entries = posts.filter((post) => post.data.author === author.id);
+        const pages = paginateItems(entries, site.pageSize);
+        return pages.map((items, index) => ({
+            params: {
+                slug: index ? `${author.id}/page/${index + 1}` : author.id,
+            },
+            props: {
+                author,
+                posts: items,
+                count: entries.length,
+                current: index + 1,
+                total: pages.length,
+            },
+        }));
+    });
+}
+const { author, posts, count, current, total } = Astro.props;
+---
+
+<ListingLayout
+    title={author.name}
+    description={author.bio}
+    eyebrow="THE PERSON BEHIND THE WORDS"
+    icon="user"
+    count={count}
+>
+    <PostList posts={posts} />
+    <Pagination
+        current={current}
+        total={total}
+        first={routeFor('authors', author.id)}
+        base={`${routeFor('authors', author.id)}page`}
+    />
+</ListingLayout>

@@ -1,0 +1,14 @@
+---
+import { getPosts, taxonomy } from '../../lib/content';
+import { publicTaxonomy } from '../../lib/content-model';
+import TaxonomyLayout from '../../layouts/TaxonomyLayout.astro';
+const posts = await getPosts();
+const { categories } = publicTaxonomy(posts, taxonomy);
+---
+
+<TaxonomyLayout
+    kind="categories"
+    title="文章分类"
+    subtitle={`共 ${categories.length} 个文章分类`}
+    posts={posts}
+/>

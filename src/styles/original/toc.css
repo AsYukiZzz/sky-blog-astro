@@ -1,0 +1,142 @@
+/**
+ * TOC 目录导航公共样式
+ * 适用于 post、doc 等需要目录的页面
+ */
+
+/* ===================================================
+ * CSS 变量定义
+ * ==================================================*/
+:root {
+    /* 目录导航变量 */
+    --toc-indent-unit: 16px;
+    --toc-base-padding: 8px;
+    --toc-link-height: 32px;
+    --toc-hover-bg: color-mix(in srgb, var(--color-primary) 7%, transparent);
+    --toc-active-bg: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    --toc-border-color: color-mix(
+        in srgb,
+        var(--color-primary) 30%,
+        transparent
+    );
+}
+
+/* ===================================================
+ * TOC 容器
+ * ==================================================*/
+.toc-container {
+    max-height: min(70vh, 600px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-base-300) transparent;
+}
+
+.toc-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.toc-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.toc-container::-webkit-scrollbar-thumb {
+    background: var(--color-base-300);
+    border-radius: 2px;
+}
+
+.toc-container::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-base-content) 30%, transparent);
+}
+
+/* ===================================================
+ * TOC 列表
+ * ==================================================*/
+.toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc-item-wrapper {
+    margin: 0;
+    padding: 0;
+    padding-left: calc(
+        var(--toc-indent-multiplier, 0) * var(--toc-indent-unit)
+    );
+}
+
+.toc-item-wrapper .toc-list {
+    border-left: 1px solid
+        color-mix(in srgb, var(--color-base-content) 10%, transparent);
+    margin-left: 8px;
+    padding-left: 0;
+}
+
+/* ===================================================
+ * TOC 链接
+ * ==================================================*/
+.toc-link {
+    display: flex;
+    align-items: center;
+    padding: 6px var(--toc-base-padding);
+    margin: 2px 0;
+    min-height: var(--toc-link-height);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--color-base-content) 60%, transparent);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-radius: 4px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.toc-link:hover {
+    background: var(--toc-hover-bg);
+    color: var(--color-base-content);
+}
+
+.toc-link.active {
+    background: var(--toc-active-bg);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* 顶级链接样式 */
+.toc-link[data-relative-level='0'] {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* 二级链接样式 */
+.toc-link[data-relative-level='1'] {
+    padding-left: 1rem;
+    font-size: 0.8125rem;
+}
+
+/* 三级链接样式 */
+.toc-link[data-relative-level='2'] {
+    padding-left: 1.5rem;
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.toc-link[data-relative-level='1']:hover,
+.toc-link[data-relative-level='1'].active,
+.toc-link[data-relative-level='2']:hover,
+.toc-link[data-relative-level='2'].active {
+    opacity: 1;
+}
+
+/* ===================================================
+ * 触摸设备优化
+ * ==================================================*/
+@media (pointer: coarse) {
+    .toc-link {
+        padding: 0.5rem var(--toc-base-padding);
+        min-height: 40px;
+    }
+}

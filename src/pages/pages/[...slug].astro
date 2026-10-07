@@ -1,0 +1,38 @@
+---
+import { render } from 'astro:content';
+import { getPages } from '../../lib/content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Comments from '../../components/Comments.astro';
+import '../../styles/original/page.css';
+export async function getStaticPaths() {
+    return (await getPages()).map((entry) => ({
+        params: { slug: entry.data.slug },
+        props: { entry },
+    }));
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout
+    title={entry.data.title}
+    description={entry.data.description}
+    image={entry.data.cover}
+>
+    <article id="page-container" data-pagefind-body>
+        <header id="page-header">
+            <h1 id="page-title" data-pagefind-meta="title">
+                {entry.data.title}
+            </h1>
+        </header>
+        <div class="divider"></div>
+        <div id="article-content">
+            <Content />
+        </div>
+        <div class="divider"></div>
+        <footer id="page-footer" data-pagefind-ignore>
+            <p>如有疑问，请通过站点提供的联系方式与我们取得联系。</p>
+        </footer>
+        <Comments />
+    </article>
+</BaseLayout>

@@ -1,0 +1,26 @@
+---
+import { theme } from '../config/theme';
+import Icon from './Icon.astro';
+const config = theme.comments;
+const enabled =
+    config.enabled && config.repo && config.repoId && config.categoryId;
+---
+
+{enabled && (
+    <section class="glass-card comments-section" data-pagefind-ignore>
+        <>
+            <h2>
+                <Icon name="message" />
+                聊聊你的想法
+            </h2>
+            <div
+                class="giscus"
+                data-giscus
+                data-repo={config.repo}
+                data-repo-id={config.repoId}
+                data-category={config.category}
+                data-category-id={config.categoryId}
+            />
+        </>
+    </section>
+)}

@@ -1,0 +1,42 @@
+---
+import type { HomeCardContentProps } from '../../lib/home-cards';
+import Icon from '../Icon.astro';
+type Props = HomeCardContentProps;
+const { headingId, maxPreviewItems } = Astro.props;
+import { getPosts } from '../../lib/content';
+import HomePostList from '../HomePostList.astro';
+const recent = [...(await getPosts())]
+    .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+    .slice(0, maxPreviewItems);
+---
+
+<header class="home-card-header home-card-heading">
+    <div>
+        <p class="home-card-eyebrow">LATEST STORIES</p>
+        <h2 id={headingId}>最新文章</h2>
+    </div>
+    <a
+        class="home-card-header-link"
+        href="/archives/"
+        aria-label="查看全部文章"
+    >
+        <Icon name="arrow" size={20} />
+    </a>
+</header>
+<div
+    class="home-card-body"
+    tabindex="0"
+    role="region"
+    aria-labelledby={headingId}
+>
+    <HomePostList posts={recent} label="最新文章" />
+    {recent.length === 0 && (
+        <p class="home-card-empty">故事还在酝酿，下一篇从这里开始。</p>
+    )}
+</div>
+<footer class="home-card-footer">
+    <a class="home-card-more" href="/archives/">
+        翻阅全部文章
+        <Icon name="arrow" size={14} />
+    </a>
+</footer>

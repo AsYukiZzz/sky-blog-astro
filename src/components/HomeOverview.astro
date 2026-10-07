@@ -1,0 +1,31 @@
+---
+import type { HomeLayoutPlan } from '../lib/home-cards';
+import { homeLayoutCss } from '../lib/home-layout-css';
+import { homeCardRegistry } from './home/registry';
+import type { HomeCardId } from './home/card-specs';
+import HomeCardSlot from './home/HomeCardSlot.astro';
+
+interface Props {
+    plan: HomeLayoutPlan<HomeCardId>;
+}
+const { plan } = Astro.props;
+---
+
+{plan.cards.length > 0 && (
+    <>
+        <style is:global set:html={homeLayoutCss(plan)} />
+        <div class="home-card-grid" data-home-grid aria-label="博客信息卡片">
+            {plan.cards.map(({ id, spec, maxPreviewItems }) => {
+                const Card = homeCardRegistry[id];
+                return (
+                    <HomeCardSlot id={id} spec={spec}>
+                        <Card
+                            headingId={spec.headingId}
+                            maxPreviewItems={maxPreviewItems}
+                        />
+                    </HomeCardSlot>
+                );
+            })}
+        </div>
+    </>
+)}

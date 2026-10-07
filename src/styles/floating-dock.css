@@ -1,0 +1,275 @@
+/* ========================================== */
+/*              悬浮控制栏样式                 */
+/* ========================================== */
+
+/* Dock 容器样式 */
+.floating-dock-wrapper {
+    /* 不设置 position，让内部 fixed 正常工作 */
+}
+
+.dock-container {
+    /* 毛玻璃效果 */
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+
+    /* 阴影层次 */
+    box-shadow:
+        0 8px 32px -8px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* 桌面端 hover 效果 */
+@media (hover: hover) {
+    .dock-container {
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .dock-container:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 16px 48px -12px rgba(0, 0, 0, 0.15),
+            0 0 0 1px rgba(0, 0, 0, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+}
+
+/* Dock 按钮项 */
+.dock-item {
+    position: relative;
+    overflow: visible;
+}
+
+/* Dock 自定义按钮样式 */
+.dock-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--color-base-content);
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 桌面端 hover */
+@media (hover: hover) {
+    .dock-btn {
+        transition: transform 0.15s ease;
+    }
+
+    .dock-btn:hover [class*='icon-'],
+    .dock-btn:hover .dock-icon-svg,
+    .dock-btn:hover .dock-icon-svg svg {
+        color: var(--color-primary);
+        transform: scale(1.1);
+    }
+}
+
+.dock-btn:active {
+    transform: scale(0.9);
+}
+
+/* SVG 图标样式控制 */
+.dock-icon-svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: currentColor;
+}
+
+.dock-icon-svg svg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* 强制 SVG 使用 currentColor，覆盖任何固定颜色 */
+.dock-icon-svg svg,
+.dock-icon-svg svg * {
+    fill: currentColor !important;
+    color: currentColor !important;
+}
+
+/* 强制移除 SVG 的固定尺寸属性 */
+.dock-icon-svg svg[width],
+.dock-icon-svg svg[height] {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* 分享平台按钮样式 - 简约卡片风格 */
+.share-platform-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: 1px solid var(--color-base-300);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--color-base-content);
+    -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+    .share-platform-btn {
+        transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .share-platform-btn:hover {
+        background: var(--color-base-200);
+        border-color: var(--color-primary);
+    }
+}
+
+.share-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+}
+
+.share-icon-wrapper svg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+.share-icon-wrapper svg,
+.share-icon-wrapper svg * {
+    fill: currentColor !important;
+    color: currentColor !important;
+}
+
+.share-platform-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-base-content);
+}
+
+/* Dock 分隔线 */
+.dock-container .w-px {
+    background: color-mix(in srgb, var(--color-base-content) 15%, transparent);
+}
+
+/* 深色模式分隔线更亮 - 使用 data-color-scheme 统一判断 */
+[data-color-scheme='dark'] .dock-container .w-px {
+    background: color-mix(in srgb, var(--color-base-content) 25%, transparent);
+}
+
+/* Tooltip 增强 */
+.dock-tooltip {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+}
+
+.dock-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: var(--color-base-content);
+}
+
+/* 响应式适配 */
+
+/* 桌面端 (≥1024px) */
+@media (min-width: 1024px) {
+    .dock-container {
+        padding: 0.375rem 0.5rem;
+    }
+
+    .dock-item {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+/* 平板端 (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .dock-container {
+        padding: 0.375rem 0.5rem;
+    }
+
+    .dock-item {
+        width: 1.875rem;
+        height: 1.875rem;
+    }
+
+    .dock-item [class*='icon-'] {
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+}
+
+/* 移动端 (< 768px) */
+@media (max-width: 767px) {
+    .dock-container {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .dock-item {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+
+    .dock-item [class*='icon-'] {
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+
+    .floating-dock-wrapper {
+        bottom: 1rem;
+    }
+
+    /* 移动端隐藏 tooltip，避免遮挡 */
+    .dock-tooltip {
+        display: none;
+    }
+
+    /* 修复：防止 Dock 占用额外高度 */
+    body {
+        padding-bottom: 0 !important;
+    }
+}
+
+/* 小屏幕 (< 640px) */
+@media (max-width: 639px) {
+    .dock-container {
+        padding: 0.25rem 0.375rem;
+    }
+
+    .dock-item {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+/* 深色模式微光圈效果 - 使用 data-color-scheme 统一判断 */
+[data-color-scheme='dark'] .dock-container {
+    box-shadow: 0 4px 12px
+        color-mix(in srgb, var(--color-base-content) 15%, transparent);
+}
+
+[data-color-scheme='dark'] .dock-container:hover {
+    box-shadow: 0 6px 16px
+        color-mix(in srgb, var(--color-base-content) 20%, transparent);
+}

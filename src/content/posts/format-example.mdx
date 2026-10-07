@@ -1,0 +1,160 @@
+---
+title: 'Markdown 与 MDX 格式示例'
+slug: format-example
+description: '用一篇文章展示标题、列表、引用、表格、代码块、图片，以及 MDX 提示框组件。'
+publishedAt: 2026-09-30T09:00:00+08:00
+cover: /images/dusk.svg
+categories: [development]
+tags: [astro, markdown]
+pinned: true
+---
+
+import Callout from '../../components/Callout.astro';
+
+这篇文章集中展示 Markdown 与 MDX 支持的常用写作格式。可以一边查看页面效果，一边打开源文件，复制需要的写法。
+
+## 标题与段落
+
+文章标题由文件顶部的 `title` 生成，正文通常从二级标题开始。空一行即可另起一个段落。
+
+### 三级标题
+
+三级标题适合章节中的小节，也会显示在文章目录中。
+
+#### 四级标题
+
+更细的内容可以继续使用四级标题。
+
+##### 五级标题
+
+这里展示五级标题的排版。
+
+###### 六级标题
+
+这里展示六级标题的排版。
+
+## 文字强调与链接
+
+普通文字可以搭配 **粗体**、_斜体_、**_粗斜体_** 和 ~~删除线~~。
+
+行内代码适合表示文件名、命令或变量，例如 `src/content/posts/`、`pnpm build` 和 `publishedAt`。
+
+链接可以指向 [Astro 官网](https://astro.build/)，也可以指向站内的 [瞬间格式示例](/moments/format-example/)。
+
+## 列表与待办
+
+无序列表：
+
+- 标题组织文章结构。
+- 图片补充文字表达。
+    - 图片可以来自项目的 `public/images/` 目录。
+    - 使用清楚的替代文字描述图片内容。
+- 表格适合比较多组信息。
+
+有序列表：
+
+1. 新建 `.md` 或 `.mdx` 文件。
+2. 填写标题、链接标识和发布时间。
+3. 编写正文并预览页面。
+
+任务列表：
+
+- [x] 填写文章信息。
+- [x] 添加表格和代码示例。
+- [ ] 替换成自己的内容。
+
+## 引用
+
+> 记录不必等到想法完整之后。
+>
+> 先写下来，再慢慢整理。
+>
+> > 引用也可以嵌套，用来区分不同层次的说明。
+
+## 表格
+
+通过表头下方的冒号控制列的对齐方式：
+
+| 格式     |      用途      | 示例数量 |
+| :------- | :------------: | -------: |
+| Markdown | 普通文章与瞬间 |        1 |
+| MDX      |  带组件的文章  |        1 |
+| 行内代码 | 文件名与短命令 |        3 |
+
+表格中的文字也可以使用 **强调**、`行内代码` 和 [链接](/moments/)。
+
+## 代码块
+
+代码围栏后写语言名称，可以启用对应的语法高亮。代码框右上角可以复制代码。
+
+### TypeScript
+
+```ts
+interface Post {
+    title: string;
+    tags: string[];
+}
+
+const post: Post = {
+    title: '我的第一篇文章',
+    tags: ['astro', 'markdown'],
+};
+
+console.log(`${post.title}：${post.tags.join('、')}`);
+```
+
+### Shell 命令
+
+```sh
+pnpm install
+pnpm dev
+pnpm build
+```
+
+### JSON
+
+```json
+{
+    "title": "格式示例",
+    "draft": false,
+    "tags": ["astro", "markdown"]
+}
+```
+
+### 普通文本
+
+```text
+src/content/
+├── posts/format-example.mdx
+└── moments/format-example.md
+```
+
+## 图片
+
+下面使用项目内的 SVG 图片。点击图片，或聚焦图片后按 Enter、空格键，可以查看大图；按 Escape 关闭预览。
+
+![远山与傍晚的光](/images/dusk.svg)
+
+## MDX 提示框
+
+本文件使用 `.mdx`，因此可以导入项目组件。下面分别展示信息、提示和注意三种提示框。
+
+<Callout title="信息" type="info">
+    普通段落、表格和代码块可以直接使用 Markdown 语法。
+</Callout>
+
+<Callout title="提示" type="tip">
+    需要自定义组件时，使用 MDX 并在正文前导入组件。
+</Callout>
+
+<Callout title="注意" type="warning">
+    MDX 中的标签需要正确闭合；展示花括号等代码符号时，可以使用行内代码或代码块。
+</Callout>
+
+## 分隔线
+
+分隔线适合区分相邻内容。
+
+---
+
+这是分隔线之后的新段落。现在可以将这篇示例替换成自己的第一篇文章。

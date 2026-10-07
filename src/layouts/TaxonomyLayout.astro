@@ -1,0 +1,55 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ListingLayout from './ListingLayout.astro';
+import ContentPreviewList from '../components/ContentPreviewList.astro';
+import Pagination from '../components/Pagination.astro';
+import TaxonomySwitch from '../components/TaxonomySwitch.astro';
+import { routeFor } from '../lib/content-model';
+interface Props {
+    kind: 'categories' | 'tags';
+    title: string;
+    subtitle?: string;
+    description?: string;
+    posts: CollectionEntry<'posts'>[];
+    count?: number;
+    active?: string;
+    current?: number;
+    total?: number;
+}
+const {
+    kind,
+    title,
+    subtitle,
+    description,
+    posts,
+    count = posts.length,
+    active,
+    current = 1,
+    total = 1,
+} = Astro.props;
+const first = active ? routeFor(kind, active) : `/${kind}/`;
+const summary =
+    description ||
+    (kind === 'categories'
+        ? '按主题分类，寻找你感兴趣的文章。'
+        : '用标签串联记录，发现相近的灵感与思考。');
+---
+
+<ListingLayout
+    sidebar={false}
+    variant="archive"
+    title={title}
+    subtitle={subtitle}
+    description={summary}
+    showDescription={false}
+    count={count}
+>
+    <TaxonomySwitch kind={kind} active={active} />
+    <ContentPreviewList entries={posts} />
+    <Pagination
+        current={current}
+        total={total}
+        first={first}
+        base={`${first}page`}
+    />
+</ListingLayout>

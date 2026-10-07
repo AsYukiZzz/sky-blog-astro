@@ -1,0 +1,17 @@
+/* Shared glass surface. Component files own their layout and variants. */
+
+.glass-card {
+    border: 1px solid var(--sky-border);
+    border-radius: var(--sky-radius);
+    backdrop-filter: blur(24px);
+    box-shadow: var(--sky-shadow);
+    background: linear-gradient(
+        145deg,
+        color-mix(in oklch, var(--color-base-100) 96%, transparent),
+        color-mix(in oklch, var(--color-base-100) 86%, transparent)
+    );
+    transition:
+        box-shadow 0.35s var(--sky-ease),
+        border-color 0.3s,
+        translate 0.35s var(--sky-ease);
+}

@@ -1,0 +1,47 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { taxonomy } from '../lib/content';
+import { routeFor } from '../lib/content-model';
+import { formatDate } from '../lib/format';
+import Icon from './Icon.astro';
+
+interface Props {
+    posts: CollectionEntry<'posts'>[];
+    label: string;
+}
+const { posts, label } = Astro.props;
+---
+
+<ol class="home-recent-list" aria-label={label} data-home-items>
+    {posts.map((post, index) => (
+        <li data-home-item>
+            <a href={routeFor('posts', post.data.slug)} title={post.data.title}>
+                <span class="home-recent-number" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="home-recent-summary">
+                    <strong>{post.data.title}</strong>
+                    <small>
+                        <time datetime={post.data.publishedAt.toISOString()}>
+                            {formatDate(post.data.publishedAt)}
+                        </time>
+                        {post.data.categories[0] && (
+                            <span class="home-recent-category">
+                                {taxonomy.categories.find(
+                                    (category) =>
+                                        category.id === post.data.categories[0],
+                                )?.name ?? post.data.categories[0]}
+                            </span>
+                        )}
+                    </small>
+                    {post.data.description && (
+                        <p>
+                            <span>{post.data.description}</span>
+                        </p>
+                    )}
+                </span>
+                <Icon name="arrow" size={16} />
+            </a>
+        </li>
+    ))}
+</ol>

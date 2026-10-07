@@ -1,0 +1,79 @@
+---
+interface Props {
+    name: string;
+    size?: number;
+    class?: string;
+}
+const { name, size = 20, class: className = '' } = Astro.props;
+const paths: Record<string, string> = {
+    home: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+    document:
+        '<path d="M14 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9z"/><path d="M14 2v7h7M7 13h10M7 17h7"/>',
+    sparkles:
+        '<path d="m12 3 2.7 6.3L21 12l-6.3 2.7L12 21l-2.7-6.3L3 12l6.3-2.7zM20 2v4M18 4h4"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/><path d="M16 3a4 4 0 0 1 0 8"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
+    search: '<circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/>',
+    moon: '<path d="M21 12.8A9 9 0 0 1 11.2 3a9 9 0 1 0 9.8 9.8z"/>',
+    arrow: '<path d="M4 12h16m-6-6 6 6-6 6"/>',
+    chevron: '<path d="m6 9 6 6 6-6"/>',
+    menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+    close: '<path d="m6 6 12 12M6 18 18 6"/>',
+    expand: '<path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5M3 3l6 6M21 3l-6 6M21 21l-6-6M3 21l6-6"/>',
+    code: '<path d="m8 5-7 7 7 7m8-14 7 7-7 7m-3-17-2 20"/>',
+    palette:
+        '<path d="M12 3a9 9 0 1 0 0 18h2a2 2 0 0 0 0-4h-1a2 2 0 0 1 0-4h3a5 5 0 0 0 5-5c0-3-4-5-9-5z"/><path d="M6 10h.01M9 6h.01M15 6h.01"/>',
+    coffee: '<path d="M3 8h14v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM17 8h1a3 3 0 0 1 0 6h-1M7 2v2M11 2v2M3 23h16"/>',
+    github: '<path d="M9 19c-4.3 1.3-4.3-2.2-6-2.5M15 22v-3.5a3 3 0 0 0-.8-2.3c2.7-.3 5.6-1.3 5.6-6a4.7 4.7 0 0 0-1.3-3.3 4.3 4.3 0 0 0-.1-3.3S17.4 3.3 15 4.9a11.5 11.5 0 0 0-6 0C6.6 3.3 5.6 3.6 5.6 3.6a4.3 4.3 0 0 0-.1 3.3A4.7 4.7 0 0 0 4.2 10c0 4.7 2.9 5.7 5.6 6A3 3 0 0 0 9 18.3V22"/>',
+    rss: '<circle cx="5" cy="19" r="1"/><path d="M4 4a16 16 0 0 1 16 16M4 11a9 9 0 0 1 9 9"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 6 9 7 9-7"/>',
+    bilibili:
+        '<rect x="3" y="7" width="18" height="14" rx="3"/><path d="m7 3 3 4m7-4-3 4M7 12l3 1m4 0 3-1m-8 4 3 2 3-2"/>',
+    wechat: '<path d="M14 12a7 7 0 0 0 1-3c0-3-3-5-6-5S3 6 3 9c0 1.7.8 3.1 2.2 4.1L4 16l3-1.8c.7.2 1.3.3 2 .3"/><path d="M21 14c0-2.5-2.7-4.5-6-4.5s-6 2-6 4.5 2.7 4.5 6 4.5c.8 0 1.5-.1 2.2-.3L20 20l-.9-2.6c1.2-.8 1.9-2 1.9-3.4"/><path d="M6.5 8h.01M11.5 8h.01M12.5 13.5h.01M17.5 13.5h.01"/>',
+    telegram: '<path d="m21 3-4 18-6-5-4 4v-6L3 12zM7 14 17 7l-6 9"/>',
+    zhihu: '<text x="12" y="19" text-anchor="middle" font-size="20" font-family="system-ui, sans-serif" font-weight="600" fill="currentColor" stroke="none">知</text>',
+    x: '<path d="M4 3h4.5L20 21h-4.5L4 3ZM20 3 4 21"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    cloud: '<path d="M7 18a5 5 0 1 1 .5-10A7 7 0 0 1 21 11a3.5 3.5 0 0 1-1 7z"/>',
+    shield: '<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z"/>',
+    'shield-check':
+        '<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8 12l3 3 5-6"/>',
+    flame: '<path d="M12 3c1 5 5 5 5 9a5 5 0 0 1-10 0c0-2 1-4 3-6 0 3 1 4 2 5 2-2 1-5 0-8z"/>',
+    calendar:
+        '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>',
+    tag: '<path d="m20 13-7 7a2 2 0 0 1-3 0L2 12V2h10l8 8a2 2 0 0 1 0 3z"/><circle cx="7" cy="7" r="1"/>',
+    folder: '<path d="M3 5h6l2 2h10v13H3z"/>',
+    image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m21 15-5-5L5 21"/>',
+    link: '<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/>',
+    external: '<path d="M15 3h6v6m-6-6-9 9M10 3H3v18h18v-7"/>',
+    up: '<path d="m6 14 6-6 6 6"/>',
+    share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.5 10.5 7-4M8.5 13.5l7 4"/>',
+    copy: '<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V3H3v13h5"/>',
+    check: '<path d="m5 12 4 4L19 6"/>',
+    location:
+        '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+    book: '<path d="M12 5c-3-3-7-3-10-1v16c3-2 7-2 10 1 3-3 7-3 10-1V4c-3-2-7-2-10 1zM12 5v16"/>',
+    monitor:
+        '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+    list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+    message:
+        '<path d="M21 15a2 2 0 0 1-2 2H7l-5 5V4a2 2 0 0 1 2-2h15a2 2 0 0 1 2 2zM7 7h10M7 11h7"/>',
+    heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',
+};
+---
+
+<svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class={className}
+    aria-hidden="true"
+    set:html={paths[name] ?? paths.sparkles}
+/>

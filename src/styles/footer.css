@@ -1,0 +1,127 @@
+.site-footer {
+    position: relative;
+    border-top: 1px solid var(--sky-border);
+    background: color-mix(in oklch, var(--color-base-100) 82%, transparent);
+    backdrop-filter: blur(20px);
+    padding: 23px 24px 25px;
+    color: var(--sky-muted);
+    font-size: 13px;
+    line-height: 1.8;
+    font-weight: 600;
+    text-align: center;
+}
+.footer-content {
+    display: grid;
+    gap: 9px;
+    max-width: 1100px;
+    margin-inline: auto;
+}
+.footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px 24px;
+    margin: 0;
+    min-width: 0;
+}
+.footer-row a,
+.footer-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    max-width: 100%;
+}
+.footer-row a {
+    border-radius: 4px;
+    transition: color 0.2s;
+    overflow-wrap: anywhere;
+}
+.footer-row a:hover {
+    color: var(--color-primary);
+}
+.footer-row a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+}
+.footer-row svg {
+    flex: 0 0 auto;
+    opacity: 0.85;
+}
+.footer-links {
+    gap: 5px 24px;
+}
+.footer-links a {
+    position: relative;
+    min-height: 28px;
+}
+.footer-links a + a::before {
+    content: '';
+    position: absolute;
+    left: -13px;
+    top: calc(50% - 1px);
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: color-mix(in oklch, var(--sky-muted) 45%, transparent);
+    pointer-events: none;
+}
+.footer-copyright {
+    gap: 0 5px;
+}
+.footer-copyright a {
+    color: inherit;
+}
+.footer-registrations {
+    font-size: 12px;
+}
+.footer-credits {
+    font-size: 12px;
+    font-weight: 400;
+    gap: 6px 22px;
+}
+.footer-load-time {
+    white-space: nowrap;
+}
+[data-page-load-time] {
+    min-width: 6ch;
+    font:
+        500 11px/1.8 system-ui,
+        sans-serif;
+    font-variant-numeric: tabular-nums;
+    text-align: left;
+}
+body[data-footer-visible] .sky-dock {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+@media (width < 541px) {
+    .site-footer {
+        padding: 20px 16px 22px;
+        font-size: 12px;
+    }
+    .footer-content {
+        gap: 8px;
+    }
+    .footer-links {
+        gap: 4px 16px;
+    }
+    .footer-links a + a::before {
+        left: -10px;
+    }
+    .footer-registrations {
+        gap: 5px 16px;
+        font-size: 11px;
+    }
+    .footer-credits {
+        gap: 5px 18px;
+        font-size: 11px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .footer-row a {
+        transition: none;
+    }
+}

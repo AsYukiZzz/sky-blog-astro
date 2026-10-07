@@ -1,0 +1,18 @@
+---
+interface Props {
+    title: string;
+    description?: string;
+    eyebrow?: string;
+    icon?: string;
+    count?: number;
+}
+const { title, description, count } = Astro.props;
+---
+
+<header class="page-header">
+    <h1>
+        {title}
+        {count !== undefined && <small>{count}</small>}
+    </h1>
+    {description && <p>{description}</p>}
+</header>

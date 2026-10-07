@@ -1,0 +1,122 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { taxonomy } from '../lib/content';
+import { dateKey, routeFor } from '../lib/content-model';
+import { site } from '../config/site';
+import Icon from './Icon.astro';
+
+interface Props {
+    entries: (CollectionEntry<'posts'> | CollectionEntry<'moments'>)[];
+}
+const { entries } = Astro.props;
+---
+
+<div class="content-preview-list">
+    {entries.map((entry, index) => {
+        const path = routeFor(entry.collection, entry.data.slug);
+        const cover =
+            entry.data.cover ??
+            (entry.collection === 'moments' ? entry.data.images[0] : undefined);
+        const category =
+            entry.collection === 'posts'
+                ? taxonomy.categories.find(
+                      (item) => item.id === entry.data.categories[0],
+                  )
+                : undefined;
+        const pinned = entry.collection === 'posts' && entry.data.pinned;
+        const tags = entry.data.tags.slice(0, 3).map((id) => ({
+            name:
+                entry.collection === 'posts'
+                    ? (taxonomy.tags.find((item) => item.id === id)?.name ?? id)
+                    : id,
+            href:
+                entry.collection === 'posts' ? routeFor('tags', id) : undefined,
+        }));
+        return (
+            <article
+                class="glass-card content-preview-card"
+                data-preview-kind={entry.collection}
+            >
+                <a
+                    class="content-preview-cover"
+                    href={path}
+                    aria-label={`阅读 ${entry.data.title}`}
+                >
+                    {cover ? (
+                        <img
+                            src={cover}
+                            alt=""
+                            width="480"
+                            height="360"
+                            loading={index < 2 ? 'eager' : 'lazy'}
+                        />
+                    ) : (
+                        <span
+                            class="content-preview-placeholder"
+                            aria-hidden="true"
+                        >
+                            <Icon name="book" size={44} />
+                        </span>
+                    )}
+                </a>
+                <div class="content-preview-body">
+                    <div class="content-preview-heading">
+                        <h2>
+                            <a href={path}>{entry.data.title}</a>
+                        </h2>
+                        {pinned && (
+                            <span class="content-preview-pinned">置顶</span>
+                        )}
+                    </div>
+                    <div class="content-preview-footer">
+                        <div class="content-preview-taxonomy">
+                            {category && (
+                                <a
+                                    class="content-preview-category"
+                                    href={routeFor('categories', category.id)}
+                                >
+                                    {category.name}
+                                </a>
+                            )}
+                            {entry.collection === 'moments' && (
+                                <span class="content-preview-category">
+                                    随笔
+                                </span>
+                            )}
+                            {tags.map((tag) =>
+                                tag.href ? (
+                                    <a
+                                        class="content-preview-tag"
+                                        href={tag.href}
+                                    >
+                                        #{tag.name}
+                                    </a>
+                                ) : (
+                                    <span class="content-preview-tag">
+                                        #{tag.name}
+                                    </span>
+                                ),
+                            )}
+                        </div>
+                        <time
+                            class="content-preview-date"
+                            datetime={entry.data.publishedAt.toISOString()}
+                        >
+                            {dateKey(entry.data.publishedAt, site.timezone)}
+                        </time>
+                    </div>
+                </div>
+            </article>
+        );
+    })}
+    {!entries.length && (
+        <div class="empty-state">
+            <>
+                <Icon name="book" size={36} />
+                <h2>这里还没有内容</h2>
+                <p>下一篇记录正在路上。</p>
+                <a href="/">返回首页 →</a>
+            </>
+        </div>
+    )}
+</div>

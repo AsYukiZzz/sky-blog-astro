@@ -1,0 +1,30 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { routeFor } from '../lib/content-model';
+import { formatDate } from '../lib/format';
+import Icon from './Icon.astro';
+interface Props {
+    entry: CollectionEntry<'moments'>;
+}
+const { entry } = Astro.props;
+---
+
+<a
+    class="home-moment-preview"
+    data-home-item
+    href={routeFor('moments', entry.data.slug)}
+    aria-label={`查看随笔：${entry.data.title}`}
+>
+    <p>{entry.data.description || entry.data.title}</p>
+    <span class="home-moment-footer">
+        <span class="home-moment-tags">
+            {entry.data.tags.slice(0, 3).map((tag) => (
+                <span>#{tag}</span>
+            ))}
+        </span>
+        <time datetime={entry.data.publishedAt.toISOString()}>
+            {formatDate(entry.data.publishedAt)}
+        </time>
+        <Icon name="arrow" size={14} />
+    </span>
+</a>

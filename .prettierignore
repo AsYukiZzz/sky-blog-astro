@@ -1,0 +1,11 @@
+# Generated output, dependencies, and local caches.
+node_modules/
+dist/
+.astro/
+.cache/
+.pnpm-store/
+test-results/
+
+# Keep the package-manager lockfile and static assets as supplied.
+pnpm-lock.yaml
+public/

@@ -1,0 +1,57 @@
+---
+import type { HomeCardContentProps } from '../../lib/home-cards';
+import Icon from '../Icon.astro';
+type Props = HomeCardContentProps;
+const { headingId, maxPreviewItems } = Astro.props;
+import { getPosts, taxonomy } from '../../lib/content';
+import { publicTaxonomy, routeFor } from '../../lib/content-model';
+const posts = await getPosts();
+const { tags } = publicTaxonomy(posts, taxonomy);
+---
+
+<header class="home-card-header home-card-heading">
+    <div>
+        <p class="home-card-eyebrow">THINGS I WRITE ABOUT</p>
+        <h2 id={headingId}>文章标签</h2>
+    </div>
+    <a
+        class="home-card-header-link"
+        href="/tags/"
+        aria-label="查看全部文章标签"
+    >
+        <Icon name="tag" size={20} />
+    </a>
+</header>
+<div
+    class="home-card-body"
+    tabindex="0"
+    role="region"
+    aria-labelledby={headingId}
+>
+    <div class="home-taxonomy-list home-tag-list" data-home-items>
+        {tags.slice(0, maxPreviewItems).map((tag) => (
+            <a
+                class="home-taxonomy-chip"
+                href={routeFor('tags', tag.id)}
+                data-home-item
+            >
+                <span>#{tag.name}</span>
+                <small>
+                    {
+                        posts.filter((post) => post.data.tags.includes(tag.id))
+                            .length
+                    }
+                </small>
+            </a>
+        ))}
+    </div>
+    {tags.length === 0 && (
+        <p class="home-card-empty">写下第一个话题，让灵感有迹可循。</p>
+    )}
+</div>
+<footer class="home-card-footer">
+    <a class="home-card-more" href="/tags/">
+        探索全部 {tags.length} 个话题
+        <Icon name="arrow" size={14} />
+    </a>
+</footer>

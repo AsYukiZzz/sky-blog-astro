@@ -1,0 +1,154 @@
+---
+import { site } from '../config/site';
+import { getPosts, getMoments, getPages, taxonomy } from '../lib/content';
+import { publicTaxonomy, routeFor } from '../lib/content-model';
+import ListingLayout from '../layouts/ListingLayout.astro';
+const [posts, moments, pages] = await Promise.all([
+    getPosts(),
+    getMoments(),
+    getPages(),
+]);
+const { categories, tags } = publicTaxonomy(posts, taxonomy);
+const primary = site.navigation
+    .flatMap((item) => [item, ...(item.children ?? [])])
+    .filter(
+        (item, index, items) =>
+            items.findIndex((link) => link.href === item.href) === index,
+    );
+const groups = [
+    {
+        title: '站点页面',
+        links: [
+            ...primary.map(({ label, href }) => ({ title: label, href })),
+            ...pages.map((page) => ({
+                title: page.data.title,
+                href: routeFor('pages', page.data.slug),
+            })),
+        ],
+    },
+    {
+        title: '文章分类',
+        links: categories.map((category) => ({
+            title: category.name,
+            href: routeFor('categories', category.id),
+        })),
+    },
+    {
+        title: '文章标签',
+        links: tags.map((tag) => ({
+            title: tag.name,
+            href: routeFor('tags', tag.id),
+        })),
+    },
+    {
+        title: '全部文章',
+        links: posts.map((post) => ({
+            title: post.data.title,
+            href: routeFor('posts', post.data.slug),
+        })),
+    },
+    {
+        title: '全部随笔',
+        links: moments.map((moment) => ({
+            title: moment.data.title,
+            href: routeFor('moments', moment.data.slug),
+        })),
+    },
+];
+---
+
+<ListingLayout
+    title="网站地图"
+    description="从这里找到本站的文章、随笔与页面。"
+    icon="grid"
+    sidebar={false}
+    variant="archive"
+>
+    <div class="sitemap-directory" data-pagefind-body>
+        {groups
+            .filter((group) => group.links.length)
+            .map((group) => (
+                <section>
+                    <h2>
+                        {group.title}
+                        <small>{group.links.length}</small>
+                    </h2>
+                    <ul>
+                        {group.links.map((link) => (
+                            <li>
+                                <a href={link.href}>{link.title}</a>
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            ))}
+    </div>
+    {import.meta.env.PROD && (
+        <p class="sitemap-xml-link">
+            <a href="/sitemap-index.xml" data-astro-reload>
+                查看 XML 网站地图
+            </a>
+        </p>
+    )}
+</ListingLayout>
+
+<style>
+    .sitemap-directory {
+        display: grid;
+        gap: 20px;
+    }
+    section {
+        padding: 24px 28px;
+        border: 1px solid var(--sky-border);
+        border-radius: 20px;
+        background: color-mix(in oklch, var(--color-base-100) 80%, transparent);
+    }
+    h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    h2 small {
+        color: var(--sky-muted);
+        font:
+            12px system-ui,
+            sans-serif;
+    }
+    ul {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 24px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    li {
+        min-width: 0;
+    }
+    li a {
+        display: block;
+        padding-block: 5px;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+    a:hover {
+        color: var(--color-primary);
+    }
+    .sitemap-xml-link {
+        margin-top: 24px;
+        text-align: center;
+        font-size: 13px;
+        color: var(--sky-muted);
+    }
+    @media (width < 541px) {
+        section {
+            padding: 20px;
+        }
+        ul {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+</style>
