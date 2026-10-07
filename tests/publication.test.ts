@@ -39,6 +39,11 @@ const hooks = registerHooks({
             };
         if (
             context.parentURL?.startsWith(sourceDirectory) &&
+            specifier.endsWith('.jsonc?raw')
+        )
+            return nextResolve(specifier, context);
+        if (
+            context.parentURL?.startsWith(sourceDirectory) &&
             specifier.startsWith('.') &&
             !/\.[a-z]+$/i.test(specifier)
         )
@@ -46,10 +51,10 @@ const hooks = registerHooks({
         return nextResolve(specifier, context);
     },
     load(url, context, nextLoad) {
-        if (url.startsWith(sourceDirectory) && url.endsWith('.json'))
+        if (url.startsWith(sourceDirectory) && url.endsWith('.jsonc?raw'))
             return {
                 format: 'module',
-                source: `export default ${readFileSync(fileURLToPath(url), 'utf8')};`,
+                source: `export default ${JSON.stringify(readFileSync(fileURLToPath(url), 'utf8'))};`,
                 shortCircuit: true,
             };
         return nextLoad(url, context);

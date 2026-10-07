@@ -3,7 +3,7 @@ import type { HomeCardContentProps } from '../../lib/home-cards';
 import Icon from '../Icon.astro';
 type Props = HomeCardContentProps;
 const { headingId, maxPreviewItems } = Astro.props;
-import links from '../../data/links.json';
+import { links } from '../../lib/friends';
 ---
 
 <header class="home-card-header home-card-heading">

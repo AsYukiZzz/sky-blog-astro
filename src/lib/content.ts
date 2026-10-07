@@ -5,9 +5,7 @@ import {
     validateContent,
     validateCollection,
 } from './content-model';
-import authors from '../data/authors.json';
-import taxonomy from '../data/taxonomy.json';
-import popularSlugs from '../data/popular-posts.json';
+import { authors, taxonomy, popularSlugs } from '../data/index';
 
 export async function getPosts() {
     const entries = await getCollection('posts');
