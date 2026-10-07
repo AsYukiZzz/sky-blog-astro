@@ -3,13 +3,6 @@ import links from '../data/links.json';
 import ListingLayout from '../layouts/ListingLayout.astro';
 import Icon from '../components/Icon.astro';
 import '../styles/friends.css';
-const accents = ['primary', 'secondary', 'accent'];
-const groups = [...new Set(links.map((link) => link.group))].map(
-    (name, index) => ({
-        name,
-        accent: accents[index % accents.length],
-    }),
-);
 const hostname = (url: string) => new URL(url).hostname.replace(/^www\./, '');
 ---
 
@@ -29,17 +22,17 @@ const hostname = (url: string) => new URL(url).hostname.replace(/^www\./, '');
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={
-                            '--friend-accent: var(--color-' +
-                            groups.find((group) => group.name === link.group)
-                                ?.accent +
-                            ')'
-                        }
                     >
                         <div class="friend-card-heading">
-                            <span class="friend-avatar" aria-hidden="true">
-                                {link.initial}
-                            </span>
+                            <img
+                                class="friend-avatar"
+                                src={link.logo}
+                                alt=""
+                                width="56"
+                                height="56"
+                                loading="lazy"
+                                decoding="async"
+                            />
                             <div class="friend-card-identity">
                                 <h2>{link.name}</h2>
                                 <span class="friend-domain">

@@ -29,7 +29,15 @@ import links from '../../data/links.json';
                 rel="noopener noreferrer"
                 data-home-item
             >
-                <span class="friend-avatar">{link.initial}</span>
+                <img
+                    class="friend-avatar"
+                    src={link.logo}
+                    alt=""
+                    width="30"
+                    height="30"
+                    loading="lazy"
+                    decoding="async"
+                />
                 <span class="home-friend-copy">
                     <strong>{link.name}</strong>
                     <small>{link.description}</small>

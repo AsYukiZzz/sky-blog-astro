@@ -1792,19 +1792,16 @@ html[data-color-scheme='dark'] .astro-code span {
 }
 
 .friend-avatar {
-    display: grid;
-    place-items: center;
+    display: block;
     width: 56px;
     height: 56px;
+    object-fit: contain;
     border-radius: 50%;
     background: color-mix(
         in oklch,
         var(--color-primary) 10%,
         var(--color-base-100)
     );
-    color: var(--color-primary);
-    font-size: 24px;
-    font-weight: 700;
     flex-shrink: 0;
 }
 
