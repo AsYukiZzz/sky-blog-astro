@@ -3,7 +3,7 @@
 基于 Astro 的静态博客主题，移植自 [Sky Blog](https://github.com/sky121666/halo-theme-sky-blog-1)。使用 Markdown/MDX、Tailwind CSS、DaisyUI 和 Pagefind，可部署到 Cloudflare Pages。
 
 - 响应式首页卡片、35 种配色、明暗切换与悬浮 Dock。
-- 文章、随笔、独立页面、分类、标签和友链。
+- 文章、随笔、独立页面、分类、标签、友链和项目展示。
 - 文章目录、阅读进度、图片预览和中英文站内搜索。
 - RSS、网站地图，可选 Giscus 评论和 Sakana 挂件。
 
@@ -34,9 +34,12 @@ pnpm preview
 | [src/config/home.ts](src/config/home.ts)                     | 首页布局与禁用卡片；完整模板见 [home-presets.ts](src/config/home-presets.ts) |
 | [src/data/authors.jsonc](src/data/authors.jsonc)             | 作者资料                                                                     |
 | [src/data/links.jsonc](src/data/links.jsonc)                 | 友链                                                                         |
+| [src/data/projects.jsonc](src/data/projects.jsonc)           | 首页项目展示，名称、简介和仓库或网站链接                                     |
 | [src/data/popular-posts.jsonc](src/data/popular-posts.jsonc) | 精选文章的 slug 列表                                                         |
 
 数据文件使用 JSONC，支持 `//` 行注释、`/* */` 块注释和末尾逗号。友链的 `logo` 可省略或设为空串，会显示默认占位图标。
+
+项目通过 `src/data/projects.jsonc` 配置 `name`、`description`、`url` 和可选的 `logo`，链接支持 HTTP/HTTPS 仓库或网站地址，点击项目会在新标签页打开。`logo` 支持本地路径或远程图片链接，省略、设为空串或 `null` 时使用项目专用默认图标 `/images/project-default.svg`；图片加载失败也会回退到这张默认图。全部项目按数组顺序展示，内容较多时在卡片内滚动；空数组显示空状态。wide 的项目卡片以 2×3 位于左下角，友链卡片以 4×3 位于右下角；medium 的两张卡片均为 4×3，compact 均为 2×3。
 
 上线前替换示例内容、作者资料和图片，并修改站点域名。Giscus 默认关闭；启用时填写 `theme.comments` 中的仓库及分类信息。
 

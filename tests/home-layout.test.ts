@@ -37,7 +37,7 @@ test('scalar inheritance and whole-template replacement never mutate input or pr
     const plan = compile(config);
     assert.equal(plan.layouts.wide.rowHeight, 120);
     assert.equal(plan.layouts.wide.gap, 20);
-    assert.equal(plan.layouts.wide.rows, 16);
+    assert.equal(plan.layouts.wide.rows, 17);
     plan.layouts.wide.areas[0] = 'changed';
     assert.deepEqual(config, originalConfig);
     assert.deepEqual(homePresets, originalPresets);
@@ -46,9 +46,9 @@ test('scalar inheritance and whole-template replacement never mutate input or pr
 test('disabling preserves partial gaps and columns, only removing newly empty rows', () => {
     const plan = compile({ preset: 'default', disabled: ['author', 'stats'] });
     assert.equal(plan.layouts.wide.columns, 6);
-    assert.equal(plan.layouts.wide.rows, 15);
+    assert.equal(plan.layouts.wide.rows, 16);
     assert.equal(plan.layouts.wide.areas[0], '. . heatmap heatmap . .');
-    assert.equal(plan.layouts.compact.rows, 20);
+    assert.equal(plan.layouts.compact.rows, 23);
     const withBlank = compile({
         preset: 'default',
         disabled: ['author'],
@@ -57,13 +57,13 @@ test('disabling preserves partial gaps and columns, only removing newly empty ro
         },
     });
     assert.equal(withBlank.layouts.compact.areas[0], '. .');
-    assert.equal(withBlank.layouts.compact.rows, 23);
+    assert.equal(withBlank.layouts.compact.rows, 26);
     const withoutMoments = compile({
         preset: 'default',
         disabled: ['moments'],
     });
     assert.ok(withoutMoments.cards.every((card) => card.id !== 'moments'));
-    assert.equal(withoutMoments.layouts.medium.rows, 23);
+    assert.equal(withoutMoments.layouts.medium.rows, 26);
 });
 
 test('all disabled cards produce no grid or residual blank height', () => {

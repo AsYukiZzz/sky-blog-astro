@@ -49,11 +49,9 @@ test('removed presets cannot be selected', () => {
 });
 
 test('card registration retains only sizes used by the requested layouts', () => {
-    for (const [id, sizes] of Object.entries(expectedHomeSizes))
-        assert.deepEqual(
-            Object.keys(
-                homeCardSpecs[id as keyof typeof homeCardSpecs].sizes,
-            ).sort(),
-            [...sizes].sort(),
-        );
+    for (const [id, sizes] of Object.entries(expectedHomeSizes)) {
+        const spec = homeCardSpecs[id as keyof typeof homeCardSpecs];
+        assert.ok(spec, `Missing card registration: ${id}`);
+        assert.deepEqual(Object.keys(spec.sizes).sort(), [...sizes].sort());
+    }
 });

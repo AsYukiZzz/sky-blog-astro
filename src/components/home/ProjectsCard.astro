@@ -1,0 +1,94 @@
+---
+import type { HomeCardContentProps } from '../../lib/home-cards';
+import { projects } from '../../data/index';
+import Icon from '../Icon.astro';
+type Props = HomeCardContentProps;
+const { headingId } = Astro.props;
+const defaultProjectLogo = '/images/project-default.svg';
+---
+
+<header class="home-card-header home-card-heading">
+    <div>
+        <p class="home-card-eyebrow">SELECTED PROJECTS</p>
+        <h2 id={headingId}>项目</h2>
+    </div>
+    <span class="home-card-icon" aria-hidden="true">
+        <Icon name="code" size={20} />
+    </span>
+</header>
+<div
+    class="home-card-body"
+    tabindex="0"
+    role="region"
+    aria-labelledby={headingId}
+>
+    <div class="home-projects" data-home-items>
+        {projects.map((project) => (
+            <a
+                class="home-project"
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${project.name}（在新标签页打开）`}
+                data-home-item
+            >
+                <span class="home-project-icon" aria-hidden="true">
+                    <img
+                        class="home-project-logo"
+                        src={project.logo?.trim() || defaultProjectLogo}
+                        alt=""
+                        width="32"
+                        height="32"
+                        loading="lazy"
+                        decoding="async"
+                        data-project-logo
+                        data-fallback-logo={defaultProjectLogo}
+                    />
+                </span>
+                <span class="home-project-copy">
+                    <strong>{project.name}</strong>
+                    <small>{project.description}</small>
+                </span>
+                <Icon name="external" size={14} class="home-project-arrow" />
+            </a>
+        ))}
+    </div>
+    {projects.length === 0 && (
+        <p class="home-card-empty">新的作品还在酝酿中。</p>
+    )}
+</div>
+
+<script>
+    function fallbackProjectLogo(image: HTMLImageElement) {
+        const fallback = image.dataset.fallbackLogo;
+        // Stop if the default image itself fails, avoiding a request loop.
+        if (fallback && image.getAttribute('src') !== fallback) {
+            image.src = fallback;
+        }
+    }
+
+    document.addEventListener(
+        'error',
+        (event) => {
+            const image = event.target;
+            if (
+                image instanceof HTMLImageElement &&
+                image.hasAttribute('data-project-logo')
+            ) {
+                fallbackProjectLogo(image);
+            }
+        },
+        true,
+    );
+
+    document.addEventListener('astro:page-load', () => {
+        // An image can fail before this script runs or arrive from the cache.
+        document
+            .querySelectorAll<HTMLImageElement>('[data-project-logo]')
+            .forEach((image) => {
+                if (image.complete && image.naturalWidth === 0) {
+                    fallbackProjectLogo(image);
+                }
+            });
+    });
+</script>

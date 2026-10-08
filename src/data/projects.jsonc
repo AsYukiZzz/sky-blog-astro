@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Sky Blog · Astro",
+        "description": "使用 Astro 构建的静态博客主题。",
+        "logo": "/images/theme-icon.png",
+        "url": "https://github.com/AsYukiZzz/sky-blog-astro",
+    },
+    {
+        "name": "Sky Blog · Halo",
+        "description": "在 Halo 上记录生活与分享热爱。",
+        "logo": "",
+        "url": "https://github.com/AsYukiZzz/halo-theme-sky-blog",
+    },
+]

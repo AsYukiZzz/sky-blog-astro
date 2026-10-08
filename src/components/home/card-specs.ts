@@ -109,6 +109,18 @@ const specs = {
             '4x3': size('wide', 4, 3, 2),
         },
     },
+    projects: {
+        headingId: 'home-projects-title',
+        baseCssVars: {
+            '--home-card-projects-columns': 1,
+        },
+        sizes: {
+            '2x3': size('compact', 2, 3),
+            '4x3': size('wide', 4, 3, undefined, {
+                '--home-card-projects-columns': 2,
+            }),
+        },
+    },
     links: {
         headingId: 'home-links-title',
         baseCssVars: {
@@ -118,7 +130,6 @@ const specs = {
         sizes: {
             '2x3': size('compact', 2, 3, 3),
             '4x3': size('wide', 4, 3, 6, { '--home-card-links-columns': 3 }),
-            '6x2': size('full', 6, 2, 6, { '--home-card-links-columns': 3 }),
         },
     },
 } satisfies Record<string, HomeCardSpec>;

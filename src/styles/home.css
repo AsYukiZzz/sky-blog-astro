@@ -869,6 +869,71 @@
     );
     gap: 8px;
 }
+.home-projects {
+    display: grid;
+    grid-template-columns: repeat(
+        var(--home-card-projects-columns),
+        minmax(0, 1fr)
+    );
+    gap: 10px;
+}
+.home-project {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--sky-border);
+    border-radius: 16px;
+    background: color-mix(in oklch, var(--color-base-100) 65%, transparent);
+    transition:
+        border-color 0.2s,
+        background-color 0.2s,
+        translate 0.25s var(--sky-ease);
+}
+.home-project-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 32px;
+    height: 32px;
+    border-radius: 10px;
+    color: var(--card-accent);
+    background: color-mix(in oklch, var(--card-accent) 8%, transparent);
+}
+.home-project-logo {
+    display: block;
+    width: 32px;
+    height: 32px;
+    border-radius: inherit;
+    object-fit: contain;
+}
+.home-project-copy {
+    flex: 1;
+    min-width: 0;
+}
+.home-project-copy strong,
+.home-project-copy small {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+.home-project-copy strong {
+    -webkit-line-clamp: 2;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.home-project-copy small {
+    -webkit-line-clamp: 2;
+    margin-top: 4px;
+    color: var(--sky-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+.home-project-arrow {
+    flex: 0 0 auto;
+    color: var(--sky-muted);
+}
 .home-links .home-friends > a {
     flex-direction: row;
     text-align: left;
@@ -987,7 +1052,15 @@
         );
         border-color: color-mix(in oklch, var(--card-accent) 25%, transparent);
     }
+    .home-project:hover {
+        background: color-mix(
+            in oklch,
+            var(--card-accent) 5%,
+            var(--color-base-100)
+        );
+    }
     .home-stats-grid a:hover,
+    .home-project:hover,
     .home-links .home-friends > a:hover {
         border-color: color-mix(in oklch, var(--card-accent) 25%, transparent);
         translate: 0 -2px;

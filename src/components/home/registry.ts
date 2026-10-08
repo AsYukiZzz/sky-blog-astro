@@ -6,6 +6,7 @@ import TagsCard from './TagsCard.astro';
 import LatestPostsCard from './LatestPostsCard.astro';
 import PopularPostsCard from './PopularPostsCard.astro';
 import EssaysCard from './EssaysCard.astro';
+import ProjectsCard from './ProjectsCard.astro';
 import FriendsCard from './FriendsCard.astro';
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 import type { HomeCardId } from './card-specs';
@@ -20,5 +21,6 @@ export const homeCardRegistry = {
     recent: LatestPostsCard,
     popular: PopularPostsCard,
     moments: EssaysCard,
+    projects: ProjectsCard,
     links: FriendsCard,
 } satisfies Record<HomeCardId, AstroComponentFactory>;

@@ -8,6 +8,7 @@ export const expectedHomeOrder = [
     'recent',
     'popular',
     'moments',
+    'projects',
     'links',
 ] as const;
 
@@ -22,7 +23,8 @@ export const expectedHomePlacements = {
         recent: [13, 1, 2, 4],
         popular: [17, 1, 2, 4],
         moments: [21, 1, 2, 3],
-        links: [24, 1, 2, 3],
+        projects: [24, 1, 2, 3],
+        links: [27, 1, 2, 3],
     },
     medium: {
         author: [1, 1, 4, 4],
@@ -33,7 +35,8 @@ export const expectedHomePlacements = {
         recent: [9, 1, 4, 6],
         popular: [15, 1, 4, 6],
         moments: [21, 1, 4, 3],
-        links: [24, 1, 4, 3],
+        projects: [24, 1, 4, 3],
+        links: [27, 1, 4, 3],
     },
     wide: {
         author: [1, 1, 2, 4],
@@ -44,11 +47,12 @@ export const expectedHomePlacements = {
         tags: [8, 1, 2, 3],
         popular: [9, 3, 4, 5],
         moments: [11, 1, 2, 3],
-        links: [14, 1, 6, 2],
+        projects: [14, 1, 2, 3],
+        links: [14, 3, 4, 3],
     },
 } as const;
 
-export const expectedHomeHeights = { compact: 3312, medium: 3412, wide: 1960 };
+export const expectedHomeHeights = { compact: 3696, medium: 3808, wide: 2092 };
 
 export const expectedHomeSizes = {
     author: ['2x4', '4x4'],
@@ -59,5 +63,6 @@ export const expectedHomeSizes = {
     recent: ['2x4', '4x5', '4x6'],
     popular: ['2x4', '4x5', '4x6'],
     moments: ['2x3', '4x3'],
-    links: ['2x3', '4x3', '6x2'],
+    projects: ['2x3', '4x3'],
+    links: ['2x3', '4x3'],
 } as const;

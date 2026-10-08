@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+    <title>项目默认图标</title>
+    <defs>
+        <linearGradient id="project-folder" x1="12" y1="24" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#9e94df" />
+            <stop offset="1" stop-color="#7666b5" />
+        </linearGradient>
+    </defs>
+    <path d="M10 27V18a5 5 0 0 1 5-5h11l7 8h16a5 5 0 0 1 5 5v21a5 5 0 0 1-5 5H15a5 5 0 0 1-5-5V27Z" fill="#e5def9" stroke="#7564b5" stroke-width="3" stroke-linejoin="round" />
+    <path d="M14 24h36a4 4 0 0 1 4 4v19a5 5 0 0 1-5 5H15a5 5 0 0 1-5-5V28a4 4 0 0 1 4-4Z" fill="url(#project-folder)" stroke="#7564b5" stroke-width="3" />
+    <path d="m25 32-6 6 6 6m14-12 6 6-6 6m-4-14-6 16" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

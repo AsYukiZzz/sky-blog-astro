@@ -1,4 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { parseJsonc } from '../../src/lib/jsonc';
 import {
     expectedHomeOrder as order,
     expectedHomePlacements,
@@ -201,6 +203,90 @@ test('fixed layout and all-content links work with JavaScript disabled', async (
     await context.close();
 });
 
+test('project previews open configured destinations without JavaScript', async ({
+    browser,
+}) => {
+    const context = await browser.newContext({
+        javaScriptEnabled: false,
+        viewport: { width: 375, height: 900 },
+    });
+    try {
+        const page = await context.newPage();
+        await page.goto('http://127.0.0.1:4399/');
+        const card = page.locator('[data-home-card="projects"]');
+        await expect(card).toHaveCount(1);
+        const projects = parseJsonc(
+            readFileSync(
+                new URL('../../src/data/projects.jsonc', import.meta.url),
+                'utf8',
+            ),
+            'projects.jsonc',
+        ) as { name: string; description: string; url: string }[];
+        for (const project of projects) {
+            const link = card.getByRole('link', { name: project.name });
+            await expect(link).toHaveAttribute('href', project.url);
+            await expect(link).toContainText(project.description);
+            // Keep this navigation check independent of external network access.
+            await context.route(project.url, (route) =>
+                route.fulfill({
+                    contentType: 'text/html',
+                    body: '<title>Project destination</title>',
+                }),
+            );
+            await link.focus();
+            const popupPromise = context.waitForEvent('page');
+            await page.keyboard.press('Enter');
+            const popup = await popupPromise;
+            await expect(popup).toHaveURL(project.url);
+            await expect(popup).toHaveTitle('Project destination');
+            await popup.close();
+        }
+    } finally {
+        await context.close();
+    }
+});
+
+test('every configured project remains keyboard reachable in fixed cards at all widths', async ({
+    page,
+}) => {
+    const projects = parseJsonc(
+        readFileSync(
+            new URL('../../src/data/projects.jsonc', import.meta.url),
+            'utf8',
+        ),
+        'projects.jsonc',
+    ) as { name: string; description: string; url: string }[];
+    await page.goto('/');
+    const card = page.locator('[data-home-card="projects"]');
+    const links = card.locator('[data-home-item]');
+    await expect(links).toHaveCount(projects.length);
+    for (const width of [375, 800, 1440, 375]) {
+        await page.setViewportSize({ width, height: 900 });
+        await expect(card.locator('[data-home-item]:visible')).toHaveCount(
+            projects.length,
+        );
+        if (!projects.length) {
+            await expect(card.locator('.home-card-empty')).toBeVisible();
+        }
+        if (projects.length) {
+            await card.locator('.home-card-body').focus();
+            for (const link of await links.all()) {
+                await page.keyboard.press('Tab');
+                await expect(link).toBeFocused();
+            }
+            await expect(links.last()).toBeFocused();
+            await expect(links.last()).toBeInViewport();
+            await expect(links.last()).toHaveAttribute(
+                'href',
+                projects.at(-1)!.url,
+            );
+        }
+        expect((await card.boundingBox())!.height).toBe(
+            width === 375 ? 368 : 376,
+        );
+    }
+});
+
 test('enlarged text can scroll bodies and reach every footer with keyboard focus', async ({
     page,
 }) => {
@@ -257,7 +343,7 @@ test('long content keeps fixed frames and scrolls while every contact remains re
     await page.evaluate(() => {
         document
             .querySelectorAll(
-                '.home-recent-summary strong, .home-taxonomy-chip > span, .home-friends strong',
+                '.home-recent-summary strong, .home-taxonomy-chip > span, .home-friends strong, .home-project-copy strong',
             )
             .forEach(
                 (el) =>
