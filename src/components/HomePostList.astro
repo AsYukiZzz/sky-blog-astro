@@ -1,6 +1,5 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { taxonomy } from '../lib/content';
 import { routeFor } from '../lib/content-model';
 import { formatDate } from '../lib/format';
 import Icon from './Icon.astro';
@@ -27,10 +26,7 @@ const { posts, label } = Astro.props;
                         </time>
                         {post.data.categories[0] && (
                             <span class="home-recent-category">
-                                {taxonomy.categories.find(
-                                    (category) =>
-                                        category.id === post.data.categories[0],
-                                )?.name ?? post.data.categories[0]}
+                                {post.data.categories[0]}
                             </span>
                         )}
                     </small>

@@ -1,5 +1,5 @@
 ---
-import { getPosts, taxonomy } from '../lib/content';
+import { getPosts } from '../lib/content';
 import { archiveGroups, dateKey, routeFor } from '../lib/content-model';
 import { site } from '../config/site';
 import ListingLayout from '../layouts/ListingLayout.astro';
@@ -91,13 +91,7 @@ const weekday = (date: Date) =>
                                                                 name="folder"
                                                                 size={14}
                                                             />
-                                                            {
-                                                                taxonomy.categories.find(
-                                                                    (item) =>
-                                                                        item.id ===
-                                                                        id,
-                                                                )?.name
-                                                            }
+                                                            {id}
                                                         </a>
                                                     ))}
                                                 {post.data.tags
@@ -113,13 +107,7 @@ const weekday = (date: Date) =>
                                                                 name="tag"
                                                                 size={14}
                                                             />
-                                                            {
-                                                                taxonomy.tags.find(
-                                                                    (item) =>
-                                                                        item.id ===
-                                                                        id,
-                                                                )?.name
-                                                            }
+                                                            {id}
                                                         </a>
                                                     ))}
                                             </div>

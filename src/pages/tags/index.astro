@@ -1,9 +1,9 @@
 ---
-import { getPosts, taxonomy } from '../../lib/content';
+import { getPosts } from '../../lib/content';
 import { publicTaxonomy } from '../../lib/content-model';
 import TaxonomyLayout from '../../layouts/TaxonomyLayout.astro';
 const posts = await getPosts();
-const { tags } = publicTaxonomy(posts, taxonomy);
+const { tags } = publicTaxonomy(posts);
 ---
 
 <TaxonomyLayout

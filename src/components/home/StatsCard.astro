@@ -3,12 +3,12 @@ import type { HomeCardContentProps } from '../../lib/home-cards';
 import Icon from '../Icon.astro';
 type Props = HomeCardContentProps;
 const { headingId } = Astro.props;
-import { getPosts, getMoments, taxonomy } from '../../lib/content';
+import { getPosts, getMoments } from '../../lib/content';
 import { publicTaxonomy } from '../../lib/content-model';
 import { operatingDays } from '../../lib/site-metrics';
 import { site } from '../../config/site';
 const [posts, moments] = await Promise.all([getPosts(), getMoments()]);
-const { tags } = publicTaxonomy(posts, taxonomy);
+const { tags } = publicTaxonomy(posts);
 const days = operatingDays(site.startedAt, site.timezone);
 const stats = [
     {

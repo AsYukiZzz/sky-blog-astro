@@ -5,7 +5,7 @@ import ArticleTocTree from '../components/ArticleTocTree.astro';
 import ArticlePostsTabs from '../components/ArticlePostsTabs.astro';
 import Comments from '../components/Comments.astro';
 import Icon from '../components/Icon.astro';
-import { authors, taxonomy } from '../lib/content';
+import { authors } from '../lib/content';
 import { routeFor } from '../lib/content-model';
 import { formatDate, readingTime } from '../lib/format';
 import { buildToc } from '../lib/toc';
@@ -58,11 +58,7 @@ const toc = buildToc(headings);
                 <div class="article-heading">
                     <div class="article-breadcrumb">
                         {categories.map((id) => (
-                            <a href={routeFor('categories', id)}>
-                                {taxonomy.categories.find(
-                                    (category) => category.id === id,
-                                )?.name ?? id}
-                            </a>
+                            <a href={routeFor('categories', id)}>{id}</a>
                         ))}
                         {entry.collection !== 'moments' &&
                             tags.slice(0, 4).map((id) => (
@@ -70,9 +66,7 @@ const toc = buildToc(headings);
                                     class="article-tag"
                                     href={routeFor('tags', id)}
                                 >
-                                    #
-                                    {taxonomy.tags.find((tag) => tag.id === id)
-                                        ?.name ?? id}
+                                    #{id}
                                 </a>
                             ))}
                     </div>

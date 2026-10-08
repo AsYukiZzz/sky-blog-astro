@@ -5,14 +5,12 @@ import {
     validateContent,
     validateCollection,
 } from './content-model';
-import { authors, taxonomy, popularSlugs } from '../data/index';
+import { authors, popularSlugs } from '../data/index';
 
 export async function getPosts() {
     const entries = await getCollection('posts');
     validateContent(entries, {
         authors: authors.map((author) => author.id),
-        categories: taxonomy.categories.map((category) => category.id),
-        tags: taxonomy.tags.map((tag) => tag.id),
     });
     return sortPosts(entries.filter((entry) => isPublicContent(entry.data)));
 }
@@ -46,4 +44,4 @@ export async function getPages() {
     );
     return sortPosts(entries.filter((entry) => isPublicContent(entry.data)));
 }
-export { authors, taxonomy };
+export { authors };

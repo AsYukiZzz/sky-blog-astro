@@ -119,37 +119,28 @@ export function validateCollection(
 
 export function validateContent(
     entries: ContentEntry[],
-    refs: { authors: string[]; categories: string[]; tags: string[] },
+    refs: { authors: string[] },
 ): void {
     validateCollection(entries, 'posts', refs.authors);
     for (const entry of entries) {
         for (const category of entry.data.categories ?? [])
-            if (!refs.categories.includes(category))
-                throw new Error(`${entry.id}: unknown category ${category}`);
-        for (const tag of entry.data.tags ?? [])
-            if (!refs.tags.includes(tag))
-                throw new Error(`${entry.id}: unknown tag ${tag}`);
+            routeFor('categories', category);
+        for (const tag of entry.data.tags ?? []) routeFor('tags', tag);
     }
 }
 
-export function publicTaxonomy<
-    C extends { id: string },
-    T extends { id: string },
->(
+export function publicTaxonomy(
     entries: ContentEntry[],
-    registry: { categories: C[]; tags: T[] },
     now = new Date(),
-): { categories: C[]; tags: T[] } {
+): { categories: string[]; tags: string[] } {
     const posts = entries.filter((entry) => isPublicContent(entry.data, now));
     const categories = new Set(
         posts.flatMap((entry) => entry.data.categories ?? []),
     );
     const tags = new Set(posts.flatMap((entry) => entry.data.tags ?? []));
     return {
-        categories: registry.categories.filter((item) =>
-            categories.has(item.id),
-        ),
-        tags: registry.tags.filter((item) => tags.has(item.id)),
+        categories: [...categories],
+        tags: [...tags],
     };
 }
 

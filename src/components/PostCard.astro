@@ -1,6 +1,5 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { taxonomy } from '../lib/content';
 import { routeFor } from '../lib/content-model';
 import { formatDate, readingTime } from '../lib/format';
 import Icon from './Icon.astro';
@@ -10,9 +9,7 @@ interface Props {
 }
 const { post, index = 0 } = Astro.props;
 const path = routeFor('posts', post.data.slug);
-const category = taxonomy.categories.find(
-    (category) => category.id === post.data.categories[0],
-);
+const category = post.data.categories[0];
 ---
 
 <article class="glass-card post-card" data-post-card>
@@ -37,9 +34,9 @@ const category = taxonomy.categories.find(
             {category && (
                 <a
                     class="post-category"
-                    href={routeFor('categories', category.id)}
+                    href={routeFor('categories', category)}
                 >
-                    {category.name}
+                    {category}
                 </a>
             )}
             <h2>
@@ -62,10 +59,7 @@ const category = taxonomy.categories.find(
         <div class="post-card-bottom">
             <div class="post-tags">
                 {post.data.tags.slice(0, 3).map((id) => (
-                    <a href={routeFor('tags', id)}>
-                        #
-                        {taxonomy.tags.find((tag) => tag.id === id)?.name ?? id}
-                    </a>
+                    <a href={routeFor('tags', id)}>#{id}</a>
                 ))}
             </div>
             <a

@@ -1,6 +1,6 @@
 ---
 import { theme } from '../config/theme';
-import { getPosts, getPopularPosts, taxonomy } from '../lib/content';
+import { getPosts, getPopularPosts } from '../lib/content';
 import { routeFor } from '../lib/content-model';
 import { formatDate } from '../lib/format';
 import Icon from './Icon.astro';
@@ -130,14 +130,7 @@ const Container = expanded ? 'dialog' : 'section';
                                         </time>
                                         {post.data.categories[0] && (
                                             <span>
-                                                {
-                                                    taxonomy.categories.find(
-                                                        (category) =>
-                                                            category.id ===
-                                                            post.data
-                                                                .categories[0],
-                                                    )?.name
-                                                }
+                                                {post.data.categories[0]}
                                             </span>
                                         )}
                                     </small>

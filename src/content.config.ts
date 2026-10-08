@@ -44,8 +44,8 @@ const common = z.object({
 const posts = defineCollection({
     loader: publicContentLoader('./src/content/posts', publicationCutoff),
     schema: common.extend({
-        categories: z.array(z.string()).default([]),
-        tags: z.array(z.string()).default([]),
+        categories: z.array(slug).default([]),
+        tags: z.array(slug).default([]),
         pinned: z.boolean().default(false),
         legacyPath: z.string().optional(),
         copyright: z

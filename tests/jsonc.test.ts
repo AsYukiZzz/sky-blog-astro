@@ -40,10 +40,7 @@ test('malformed JSONC reports its file and line instead of returning partial dat
 
 test('empty or comments-only configuration is rejected', () => {
     for (const source of ['', '// 尚未填写', '/* 尚未填写 */']) {
-        assert.throws(
-            () => parseJsonc(source, 'taxonomy.jsonc'),
-            /taxonomy\.jsonc/,
-        );
+        assert.throws(() => parseJsonc(source, 'links.jsonc'), /links\.jsonc/);
     }
 });
 

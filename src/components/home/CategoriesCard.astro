@@ -3,10 +3,10 @@ import type { HomeCardContentProps } from '../../lib/home-cards';
 import Icon from '../Icon.astro';
 type Props = HomeCardContentProps;
 const { headingId, maxPreviewItems } = Astro.props;
-import { getPosts, taxonomy } from '../../lib/content';
+import { getPosts } from '../../lib/content';
 import { publicTaxonomy, routeFor } from '../../lib/content-model';
 const posts = await getPosts();
-const { categories } = publicTaxonomy(posts, taxonomy);
+const { categories } = publicTaxonomy(posts);
 ---
 
 <header class="home-card-header home-card-heading">
@@ -33,15 +33,14 @@ const { categories } = publicTaxonomy(posts, taxonomy);
             <a
                 class="home-taxonomy-chip"
                 data-home-item
-                href={routeFor('categories', category.id)}
-                title={category.description}
+                href={routeFor('categories', category)}
             >
                 <Icon name="folder" size={14} />
-                <span>{category.name}</span>
+                <span>{category}</span>
                 <small>
                     {
                         posts.filter((post) =>
-                            post.data.categories.includes(category.id),
+                            post.data.categories.includes(category),
                         ).length
                     }
                 </small>

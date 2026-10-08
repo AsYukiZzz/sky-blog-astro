@@ -1,6 +1,6 @@
 ---
 import { site } from '../config/site';
-import { getPosts, getMoments, getPages, taxonomy } from '../lib/content';
+import { getPosts, getMoments, getPages } from '../lib/content';
 import { publicTaxonomy, routeFor } from '../lib/content-model';
 import ListingLayout from '../layouts/ListingLayout.astro';
 const [posts, moments, pages] = await Promise.all([
@@ -8,7 +8,7 @@ const [posts, moments, pages] = await Promise.all([
     getMoments(),
     getPages(),
 ]);
-const { categories, tags } = publicTaxonomy(posts, taxonomy);
+const { categories, tags } = publicTaxonomy(posts);
 const primary = site.navigation
     .flatMap((item) => [item, ...(item.children ?? [])])
     .filter(
@@ -29,15 +29,15 @@ const groups = [
     {
         title: '文章分类',
         links: categories.map((category) => ({
-            title: category.name,
-            href: routeFor('categories', category.id),
+            title: category,
+            href: routeFor('categories', category),
         })),
     },
     {
         title: '文章标签',
         links: tags.map((tag) => ({
-            title: tag.name,
-            href: routeFor('tags', tag.id),
+            title: tag,
+            href: routeFor('tags', tag),
         })),
     },
     {

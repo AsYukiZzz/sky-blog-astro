@@ -196,13 +196,10 @@ test('loader publication decisions survive the deadline and separate query conte
             (await query()).map((entry) => entry.id),
             ['published'],
         );
-    assert.deepEqual(
-        publicTaxonomy(restored.values('posts'), {
-            categories: [{ id: 'development' }, { id: 'life' }],
-            tags: [{ id: 'astro' }, { id: 'life' }],
-        }),
-        { categories: [{ id: 'development' }], tags: [{ id: 'astro' }] },
-    );
+    assert.deepEqual(publicTaxonomy(restored.values('posts')), {
+        categories: ['development'],
+        tags: ['astro'],
+    });
     assert.equal(
         recentWritingActivity(
             restored.values('posts'),

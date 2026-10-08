@@ -100,11 +100,9 @@ test('archives use the configured timezone at month boundaries', () => {
     );
 });
 
-test('content validation rejects duplicate URLs and unresolved author or taxonomy references', () => {
+test('content validation rejects duplicate URLs and unresolved authors', () => {
     const refs = {
         authors: ['sky'],
-        categories: ['development'],
-        tags: ['astro'],
     };
     assert.throws(
         () =>
@@ -115,22 +113,39 @@ test('content validation rejects duplicate URLs and unresolved author or taxonom
         /duplicate/,
     );
     assert.throws(
-        () =>
-            validateContent(
-                [make('missing', { categories: ['unknown'] })],
-                refs,
-            ),
-        /category/,
-    );
-    assert.throws(
         () => validateContent([make('missing', { author: 'unknown' })], refs),
         /author/,
     );
-    assert.throws(
-        () => validateContent([make('missing', { tags: ['unknown'] })], refs),
-        /tag/,
-    );
     assert.doesNotThrow(() => validateContent([make('valid')], refs));
+});
+
+test('content validation accepts taxonomy IDs without a registry', () => {
+    assert.doesNotThrow(() =>
+        validateContent(
+            [
+                make('new-taxonomy', {
+                    categories: ['开发/随手记'],
+                    tags: ['新标签', 'new-topic'],
+                }),
+            ],
+            { authors: ['sky'] },
+        ),
+    );
+});
+
+test('content validation rejects taxonomy IDs that cannot form local routes', () => {
+    for (const field of ['categories', 'tags']) {
+        for (const id of ['', ' ', '..', 'foo//bar', 'foo?bar', '/absolute']) {
+            assert.throws(
+                () =>
+                    validateContent([make('invalid', { [field]: [id] })], {
+                        authors: ['sky'],
+                    }),
+                /Invalid slug/,
+                `${field} must reject ${JSON.stringify(id)}`,
+            );
+        }
+    }
 });
 
 test('activity counts include all posts and roll over in the site timezone', () => {
@@ -188,14 +203,11 @@ test('all content collections reject explicitly blank author references', () => 
 });
 
 test('public taxonomy never reveals categories or tags exclusive to non-public content', () => {
-    const registry = {
-        categories: [{ id: 'development' }, { id: 'secret-category' }],
-        tags: [{ id: 'astro' }, { id: 'secret-tag' }],
-    };
     const entries = [
         make('public'),
         ...[
             { visibility: 'private' },
+            { visibility: 'restricted' },
             { draft: true },
             { publishedAt: new Date('2099-01-01') },
         ].map((state, index) =>
@@ -206,12 +218,61 @@ test('public taxonomy never reveals categories or tags exclusive to non-public c
             }),
         ),
     ];
-    assert.deepEqual(publicTaxonomy(entries, registry, now), {
-        categories: [{ id: 'development' }],
-        tags: [{ id: 'astro' }],
+    assert.deepEqual(publicTaxonomy(entries, now), {
+        categories: ['development'],
+        tags: ['astro'],
     });
-    assert.deepEqual(publicTaxonomy([], registry, now), {
+    assert.deepEqual(publicTaxonomy([], now), {
         categories: [],
         tags: [],
     });
+});
+
+test('public taxonomy uses article values and removes duplicates', () => {
+    const entries = [
+        make('one', {
+            categories: ['开发/随手记', 'development', '开发/随手记'],
+            tags: ['新标签', 'astro', '新标签'],
+        }),
+        make('two', {
+            categories: ['development'],
+            tags: ['astro', 'new-topic'],
+        }),
+    ];
+    assert.deepEqual(publicTaxonomy(entries, now), {
+        categories: ['开发/随手记', 'development'],
+        tags: ['新标签', 'astro', 'new-topic'],
+    });
+});
+
+test('public taxonomy preserves article occurrence order without mutating entries', () => {
+    const entries = [
+        make('one', {
+            categories: ['new-category', 'development', 'design'],
+            tags: ['new-tag', 'astro'],
+        }),
+        make('two', { categories: ['design'], tags: ['astro'] }),
+    ];
+    const snapshot = structuredClone(entries);
+    assert.deepEqual(publicTaxonomy(entries, now), {
+        categories: ['new-category', 'development', 'design'],
+        tags: ['new-tag', 'astro'],
+    });
+    assert.deepEqual(entries, snapshot);
+});
+
+test('articles without categories or tags produce empty taxonomy', () => {
+    assert.deepEqual(
+        publicTaxonomy(
+            [
+                make('missing', { categories: undefined, tags: undefined }),
+                make('empty', { categories: [], tags: [] }),
+            ],
+            now,
+        ),
+        {
+            categories: [],
+            tags: [],
+        },
+    );
 });

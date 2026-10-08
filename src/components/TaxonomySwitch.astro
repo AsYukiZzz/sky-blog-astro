@@ -1,5 +1,5 @@
 ---
-import { getPosts, taxonomy } from '../lib/content';
+import { getPosts } from '../lib/content';
 import { publicTaxonomy, routeFor } from '../lib/content-model';
 import Icon from './Icon.astro';
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 }
 const { kind, active } = Astro.props;
 const posts = await getPosts();
-const items = publicTaxonomy(posts, taxonomy)[kind];
+const items = publicTaxonomy(posts)[kind];
 const maxVisible = kind === 'categories' ? 10 : 12;
 const countFor = (id: string) =>
     posts.filter((post) => post.data[kind].includes(id)).length;
@@ -24,18 +24,18 @@ const countFor = (id: string) =>
     </a>
     {items.slice(0, maxVisible).map((item) => (
         <a
-            href={routeFor(kind, item.id)}
-            aria-current={active === item.id ? 'page' : undefined}
+            href={routeFor(kind, item)}
+            aria-current={active === item ? 'page' : undefined}
         >
             <Icon name={kind === 'categories' ? 'folder' : 'tag'} size={14} />
-            {item.name}
-            <small>{countFor(item.id)}</small>
+            {item}
+            <small>{countFor(item)}</small>
         </a>
     ))}
     {items.length > maxVisible && (
         <details
             class="taxonomy-more"
-            open={items.slice(maxVisible).some((item) => item.id === active)}
+            open={items.slice(maxVisible).some((item) => item === active)}
         >
             <summary
                 aria-label={kind === 'categories' ? '更多分类' : '更多标签'}
@@ -45,11 +45,11 @@ const countFor = (id: string) =>
             <div>
                 {items.slice(maxVisible).map((item) => (
                     <a
-                        href={routeFor(kind, item.id)}
-                        aria-current={active === item.id ? 'page' : undefined}
+                        href={routeFor(kind, item)}
+                        aria-current={active === item ? 'page' : undefined}
                     >
-                        {item.name}
-                        <small>{countFor(item.id)}</small>
+                        {item}
+                        <small>{countFor(item)}</small>
                     </a>
                 ))}
             </div>
