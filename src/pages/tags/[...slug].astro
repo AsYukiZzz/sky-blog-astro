@@ -1,26 +1,35 @@
 ---
 import { getPosts } from '../../lib/content';
-import { paginateItems, publicTaxonomy } from '../../lib/content-model';
+import {
+    paginateItems,
+    publicTaxonomy,
+    taxonomyPageSegment,
+} from '../../lib/content-model';
 import { site } from '../../config/site';
 import TaxonomyLayout from '../../layouts/TaxonomyLayout.astro';
 export async function getStaticPaths() {
     const posts = await getPosts();
-    return publicTaxonomy(posts).tags.flatMap((tag) => {
+    const tags = publicTaxonomy(posts).tags;
+    return tags.flatMap((tag) => {
         const entries = posts.filter((post) => post.data.tags.includes(tag));
         const pages = paginateItems(entries, site.pageSize);
+        const pageSegment = taxonomyPageSegment(tag, tags, pages.length);
         return pages.map((items, index) => ({
-            params: { slug: index ? `${tag}/page/${index + 1}` : tag },
+            params: {
+                slug: index ? `${tag}/${pageSegment}/${index + 1}` : tag,
+            },
             props: {
                 tag,
                 posts: items,
                 count: entries.length,
                 current: index + 1,
                 total: pages.length,
+                pageSegment,
             },
         }));
     });
 }
-const { tag, posts, count, current, total } = Astro.props;
+const { tag, posts, count, current, total, pageSegment } = Astro.props;
 ---
 
 <TaxonomyLayout
@@ -31,4 +40,5 @@ const { tag, posts, count, current, total } = Astro.props;
     active={tag}
     current={current}
     total={total}
+    pageSegment={pageSegment}
 />

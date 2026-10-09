@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { publicContentLoader } from './lib/public-content-loader';
 import { z } from 'astro/zod';
 import { authors } from './data/index';
+import { site } from './config/site';
 
 // Every collection in this build uses this cutoff. Development watcher reloads
 // deliberately refresh their entry snapshots inside the loader.
@@ -39,7 +40,7 @@ const common = z.object({
                 authors.some((author) => author.id === value),
             'author must reference a configured author',
         )
-        .default('sky'),
+        .prefault(site.author),
 });
 const posts = defineCollection({
     loader: publicContentLoader('./src/content/posts', publicationCutoff),

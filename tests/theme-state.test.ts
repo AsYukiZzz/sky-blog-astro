@@ -1,11 +1,28 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import test from 'node:test';
+import { themeCatalog } from '../src/config/theme-catalog.ts';
 import {
     initialThemeScript,
     themeColorScheme,
     themeState,
 } from '../src/lib/theme-state.ts';
+
+test('palette schemes match the installed DaisyUI definitions', () => {
+    for (const { name } of themeCatalog) {
+        const css = readFileSync(
+            new URL(
+                `../node_modules/daisyui/theme/${name}.css`,
+                import.meta.url,
+            ),
+            'utf8',
+        );
+        const expected = css.match(/color-scheme:\s*(light|dark)/)?.[1];
+        assert.ok(expected, `${name} must declare its color scheme`);
+        assert.equal(themeColorScheme(name), expected, `${name} color scheme`);
+    }
+});
 
 test('a saved dark palette wins over a light system preference', () => {
     assert.deepEqual(themeState('night', false), {

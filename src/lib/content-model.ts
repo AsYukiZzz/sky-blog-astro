@@ -69,6 +69,20 @@ export function paginateItems<T>(entries: T[], pageSize: number): T[][] {
     );
 }
 
+export function taxonomyPageSegment(
+    slug: string,
+    taxonomy: string[],
+    total: number,
+): 'page' | '@page' {
+    const names = new Set(taxonomy.map((name) => name.normalize('NFC')));
+    const normalizedSlug = slug.normalize('NFC');
+    for (let page = 2; page <= total; page++)
+        if (names.has(`${normalizedSlug}/page/${page}`))
+            // Content slugs cannot contain @, so this segment stays unambiguous.
+            return '@page';
+    return 'page';
+}
+
 export function dateKey(date: Date, timeZone: string): string {
     const parts = new Intl.DateTimeFormat('en-CA', {
         timeZone,

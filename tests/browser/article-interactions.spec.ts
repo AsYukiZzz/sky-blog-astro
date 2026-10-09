@@ -127,3 +127,31 @@ test('an invalid persisted theme falls back to a valid light palette before use'
         'light',
     );
 });
+
+for (const [palette, scheme, next] of [
+    ['cyberpunk', 'light', 'dark'],
+    ['aqua', 'dark', 'light'],
+] as const) {
+    test(`${palette} switches to the opposite color scheme`, async ({
+        page,
+    }) => {
+        await page.addInitScript(
+            (name) => localStorage.setItem('sky-theme', name),
+            palette,
+        );
+        await page.goto(articlePath);
+        await expect(page.locator('html')).toHaveAttribute(
+            'data-color-scheme',
+            scheme,
+        );
+        await expect(
+            page.getByRole('button', { name: previewName, exact: true }),
+        ).toHaveCount(1);
+        await page.locator('[data-theme-toggle]').first().click();
+        await expect(page.locator('html')).toHaveAttribute('data-theme', next);
+        await expect(page.locator('html')).toHaveAttribute(
+            'data-color-scheme',
+            next,
+        );
+    });
+}

@@ -73,6 +73,8 @@ const { markdownContentEntryType } = await import(
 );
 const { getPosts, getPages, getMoments } =
     await import('../src/lib/content.ts');
+const { site } = await import('../src/config/site.ts');
+const { authors } = await import('../src/data/index.ts');
 const cutoff = new Date('2026-10-01T12:00:00Z');
 const afterCutoff = new Date('2026-10-01T12:00:02Z');
 const collectionNames = ['posts', 'pages', 'moments'] as const;
@@ -286,5 +288,49 @@ test('collection schemas reject blank and unknown authors while defaulting omitt
                 false,
                 `${collection} must reject ${JSON.stringify(author)}`,
             );
+    }
+});
+
+test('all collections default omitted authors to the configured site author', async (t) => {
+    const originalAuthor = site.author;
+    const author = authors.find((entry) => entry.id === originalAuthor);
+    assert.ok(author);
+    try {
+        author.id = 'alice';
+        site.author = 'alice';
+        const { collections } = await fixture(t);
+        for (const collection of collectionNames) {
+            const data = collections[collection].schema.parse({
+                title: 'Configured author',
+                slug: 'configured-author',
+                publishedAt: '2020-01-01T00:00:00Z',
+            });
+            assert.equal(data.author, 'alice', collection);
+        }
+    } finally {
+        author.id = originalAuthor;
+        site.author = originalAuthor;
+    }
+});
+
+test('all collections validate omitted authors against the configured author table', async (t) => {
+    const originalAuthor = site.author;
+    try {
+        for (const author of ['', 'unconfigured-author']) {
+            site.author = author;
+            const { collections } = await fixture(t);
+            for (const collection of collectionNames) {
+                const result = collections[collection].schema.safeParse({
+                    title: 'Invalid default author',
+                    slug: 'invalid-default-author',
+                    publishedAt: '2020-01-01T00:00:00Z',
+                });
+                assert.equal(result.success, false, collection);
+                if (!result.success)
+                    assert.equal(result.error.issues[0]?.path[0], 'author');
+            }
+        }
+    } finally {
+        site.author = originalAuthor;
     }
 });

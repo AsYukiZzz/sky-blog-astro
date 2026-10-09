@@ -15,6 +15,7 @@ interface Props {
     active?: string;
     current?: number;
     total?: number;
+    pageSegment?: 'page' | '@page';
 }
 const {
     kind,
@@ -26,6 +27,7 @@ const {
     active,
     current = 1,
     total = 1,
+    pageSegment = 'page',
 } = Astro.props;
 const first = active ? routeFor(kind, active) : `/${kind}/`;
 const summary =
@@ -50,6 +52,6 @@ const summary =
         current={current}
         total={total}
         first={first}
-        base={`${first}page`}
+        base={`${first}${pageSegment}`}
     />
 </ListingLayout>
