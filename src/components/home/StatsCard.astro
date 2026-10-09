@@ -4,43 +4,10 @@ import Icon from '../Icon.astro';
 type Props = HomeCardContentProps;
 const { headingId } = Astro.props;
 import { getPosts, getMoments } from '../../lib/content';
-import { publicTaxonomy } from '../../lib/content-model';
-import { operatingDays } from '../../lib/site-metrics';
+import { blogStats } from '../../lib/site-metrics';
 import { site } from '../../config/site';
 const [posts, moments] = await Promise.all([getPosts(), getMoments()]);
-const { tags } = publicTaxonomy(posts);
-const days = operatingDays(site.startedAt, site.timezone);
-const stats = [
-    {
-        href: '/archives/',
-        count: posts.length,
-        label: '篇文章',
-        icon: 'document',
-        color: 'primary',
-    },
-    {
-        href: undefined,
-        count: days ?? '—',
-        label: '运营天数',
-        icon: 'calendar',
-        color: 'secondary',
-        uptime: true,
-    },
-    {
-        href: '/tags/',
-        count: tags.length,
-        label: '个标签',
-        icon: 'tag',
-        color: 'accent',
-    },
-    {
-        href: '/moments/',
-        count: moments.length,
-        label: '篇随笔',
-        icon: 'message',
-        color: 'info',
-    },
-];
+const stats = blogStats(posts, moments, site);
 ---
 
 <header class="home-card-header home-card-heading">
@@ -66,13 +33,7 @@ const stats = [
                     href={stat.href}
                     class="home-stat"
                     style={`--stat-color: var(--color-${stat.color})`}
-                    title={
-                        stat.uptime
-                            ? site.startedAt
-                                ? `自 ${site.startedAt} 开始运营，当天计为第 1 天`
-                                : '建站日期尚未设置'
-                            : undefined
-                    }
+                    title={stat.title}
                 >
                     <Icon name={stat.icon} size={18} />
                     <strong

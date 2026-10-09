@@ -4,35 +4,14 @@ import { theme } from '../config/theme';
 import { authors, getPosts, getMoments } from '../lib/content';
 import { dateKey, publicTaxonomy, routeFor } from '../lib/content-model';
 import { formatDate } from '../lib/format';
-import { operatingDays } from '../lib/site-metrics';
+import { blogStats } from '../lib/site-metrics';
 import Icon from './Icon.astro';
 const posts = await getPosts();
 const moments = await getMoments();
 const author =
     authors.find((author) => author.id === site.author) ?? authors[0];
 const { categories, tags } = publicTaxonomy(posts);
-const stats = [
-    {
-        href: '/archives/',
-        count: posts.length,
-        label: '篇文章',
-        icon: 'document',
-    },
-    {
-        href: undefined,
-        count: operatingDays(site.startedAt, site.timezone) ?? '—',
-        label: '运营天数',
-        icon: 'calendar',
-        uptime: true,
-    },
-    { href: '/tags/', count: tags.length, label: '个标签', icon: 'tag' },
-    {
-        href: '/moments/',
-        count: moments.length,
-        label: '篇随笔',
-        icon: 'message',
-    },
-];
+const stats = blogStats(posts, moments, site);
 ---
 
 <aside class="sidebar" data-pagefind-ignore>
@@ -64,7 +43,12 @@ const stats = [
                     {stats.map((stat) => {
                         const Tile = stat.href ? 'a' : 'div';
                         return (
-                            <Tile href={stat.href} class="stats-item">
+                            <Tile
+                                href={stat.href}
+                                class="stats-item"
+                                style={`--stat-color: var(--color-${stat.color})`}
+                                title={stat.title}
+                            >
                                 <Icon name={stat.icon} size={20} />
                                 <strong
                                     data-site-uptime={stat.uptime}

@@ -236,9 +236,10 @@ html[data-color-scheme='dark'] .dark-icon {
 }
 
 .dropdown-panel {
+    --dropdown-gap: 12px;
     position: absolute;
     z-index: 60;
-    top: 100%;
+    top: calc(100% + var(--dropdown-gap));
     right: 0;
     min-width: 168px;
     padding: 8px;
@@ -248,6 +249,15 @@ html[data-color-scheme='dark'] .dark-icon {
     background: color-mix(in oklch, var(--color-base-100) 95%, transparent);
     backdrop-filter: blur(24px);
     box-shadow: 0 20px 25px -5px #0002;
+}
+
+.dropdown-panel::before {
+    /* Keep the menu open while the pointer crosses the gap above the panel. */
+    content: '';
+    position: absolute;
+    inset-inline: -1px;
+    bottom: 100%;
+    height: calc(var(--dropdown-gap) + 2px);
 }
 
 .dropdown-panel a {

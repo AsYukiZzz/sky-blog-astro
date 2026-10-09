@@ -59,7 +59,6 @@ const specs = {
         headingId: 'home-stats-title',
         baseCssVars: { '--home-card-stats-columns': 2 },
         sizes: {
-            '2x2': size('compact', 2, 2),
             '2x3': size('full', 2, 3),
         },
     },

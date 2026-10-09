@@ -57,13 +57,13 @@ test('disabling preserves partial gaps and columns, only removing newly empty ro
         },
     });
     assert.equal(withBlank.layouts.compact.areas[0], '. .');
-    assert.equal(withBlank.layouts.compact.rows, 26);
+    assert.equal(withBlank.layouts.compact.rows, 27);
     const withoutMoments = compile({
         preset: 'default',
         disabled: ['moments'],
     });
     assert.ok(withoutMoments.cards.every((card) => card.id !== 'moments'));
-    assert.equal(withoutMoments.layouts.medium.rows, 26);
+    assert.equal(withoutMoments.layouts.medium.rows, 27);
 });
 
 test('all disabled cards produce no grid or residual blank height', () => {
@@ -133,9 +133,9 @@ test('every layout retains the card set while visual order can differ', () => {
         layouts: {
             compact: {
                 areas: [
-                    ...areas.slice(4, 6),
+                    ...areas.slice(4, 7),
                     ...areas.slice(0, 4),
-                    ...areas.slice(6),
+                    ...areas.slice(7),
                 ],
             },
         },
