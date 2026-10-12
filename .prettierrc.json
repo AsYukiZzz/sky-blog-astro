@@ -3,6 +3,7 @@
     "tabWidth": 4,
     "useTabs": false,
     "singleQuote": true,
+    "endOfLine": "lf",
     "overrides": [
         {
             "files": "*.astro",
