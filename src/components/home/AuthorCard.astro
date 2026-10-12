@@ -5,20 +5,10 @@ type Props = HomeCardContentProps;
 const { headingId } = Astro.props;
 import { site } from '../../config/site';
 import { authors } from '../../lib/content';
-interface HomeAuthor {
-    id: string;
-    name: string;
-    avatar: string;
-    bio: string;
-    description?: string;
-    location?: string;
-    role?: string;
-    interests?: string[];
-}
-const author: HomeAuthor =
+const author =
     authors.find((author) => author.id === site.author) ?? authors[0];
 const location = author.location?.trim();
-const contactLinks = site.social
+const contactLinks = author.social
     .filter((link) => link.href.trim())
     .filter(
         (link, index, links) =>

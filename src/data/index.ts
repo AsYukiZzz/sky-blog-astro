@@ -14,6 +14,15 @@ const authorSchema = z.object({
     description: z.string().optional(),
     role: z.string().optional(),
     interests: z.array(z.string()).optional(),
+    social: z
+        .array(
+            z.object({
+                label: z.string(),
+                href: z.string(),
+                icon: z.string(),
+            }),
+        )
+        .default([]),
 });
 const friendSchema = z.object({
     name: z.string(),

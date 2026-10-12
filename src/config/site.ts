@@ -25,21 +25,6 @@ export const site = {
         { label: '随笔', href: '/moments/', icon: 'sparkles' },
         { label: '朋友', href: '/links/', icon: 'users' },
     ],
-    social: [
-        // 首页作者卡片按每排 4 个图标展示；填写 5–8 个链接时分为两排，href 留空时隐藏。
-        { label: '电子邮箱', href: '', icon: 'mail' }, // mailto:你的邮箱
-        { label: 'Bilibili', href: '', icon: 'bilibili' }, // https://space.bilibili.com/你的UID
-        {
-            label: 'GitHub',
-            href: 'https://github.com/sky121666',
-            icon: 'github',
-        },
-        { label: '微信', href: '', icon: 'wechat' }, // 微信二维码图片或联系页面的地址
-        { label: 'QQ', href: '', icon: 'message' }, // QQ 联系链接或联系页面的地址
-        { label: 'Telegram', href: '', icon: 'telegram' }, // https://t.me/你的用户名
-        { label: '知乎', href: '', icon: 'zhihu' }, // 你的知乎个人主页地址
-        { label: 'X', href: '', icon: 'x' }, // https://x.com/你的用户名
-    ],
     footer: {
         copyrightOwner: '', // 留空时使用站点名称。
         icp: '',

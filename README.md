@@ -29,15 +29,17 @@ pnpm preview
 
 | 文件                                                         | 用途                                                                         |
 | ------------------------------------------------------------ | ---------------------------------------------------------------------------- |
-| [src/config/site.ts](src/config/site.ts)                     | 站点名称、域名、导航、联系方式、页脚和时区                                   |
+| [src/config/site.ts](src/config/site.ts)                     | 站点名称、域名、默认作者、导航、页脚和时区                                   |
 | [src/config/theme.ts](src/config/theme.ts)                   | 首屏、侧栏、Sakana 挂件和 Giscus 评论                                        |
 | [src/config/home.ts](src/config/home.ts)                     | 首页布局与禁用卡片；完整模板见 [home-presets.ts](src/config/home-presets.ts) |
-| [src/data/authors.jsonc](src/data/authors.jsonc)             | 作者资料                                                                     |
+| [src/data/authors.jsonc](src/data/authors.jsonc)             | 作者资料与联系方式                                                           |
 | [src/data/links.jsonc](src/data/links.jsonc)                 | 友链                                                                         |
 | [src/data/projects.jsonc](src/data/projects.jsonc)           | 首页项目展示，名称、简介和仓库或网站链接                                     |
 | [src/data/popular-posts.jsonc](src/data/popular-posts.jsonc) | 精选文章的 slug 列表                                                         |
 
 数据文件使用 JSONC，支持 `//` 行注释、`/* */` 块注释和末尾逗号。友链的 `logo` 可省略或设为空串，会显示默认占位图标。
+
+每位作者的联系方式在 `src/data/authors.jsonc` 的 `social` 数组中配置，每项包含 `label`、`href` 和 `icon`。首页作者卡片展示 `site.author` 对应作者的联系方式；省略 `social` 或设为 `[]` 时隐藏联系方式区域，`href` 留空时隐藏该项，重复链接仅显示一次。
 
 项目通过 `src/data/projects.jsonc` 配置 `name`、`description`、`url` 和可选的 `logo`，链接支持 HTTP/HTTPS 仓库或网站地址，点击项目会在新标签页打开。`logo` 支持本地路径或远程图片链接，省略、设为空串或 `null` 时使用项目专用默认图标 `/images/project-default.svg`；图片加载失败也会回退到这张默认图。全部项目按数组顺序展示，内容较多时在卡片内滚动；空数组显示空状态。wide 的项目卡片以 2×3 位于左下角，友链卡片以 4×3 位于右下角；medium 的两张卡片均为 4×3，compact 均为 2×3。
 
