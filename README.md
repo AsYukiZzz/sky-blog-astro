@@ -2,7 +2,7 @@
 
 基于 Astro 的静态博客主题，移植自 [Sky Blog](https://github.com/sky121666/halo-theme-sky-blog-1)。使用 Markdown/MDX、Tailwind CSS、DaisyUI 和 Pagefind，可部署到 Cloudflare Pages。
 
-- 响应式首页卡片、35 种配色、明暗切换与悬浮 Dock。
+- 响应式首页卡片、黑白两种主题、明暗切换与悬浮 Dock。
 - 文章、随笔、独立页面、分类、标签、友链和项目展示。
 - 文章目录、阅读进度、图片预览和中英文站内搜索。
 - RSS、网站地图，可选 Giscus 评论和 Sakana 挂件。
@@ -30,7 +30,7 @@ pnpm preview
 | 文件                                                         | 用途                                                                         |
 | ------------------------------------------------------------ | ---------------------------------------------------------------------------- |
 | [src/config/site.ts](src/config/site.ts)                     | 站点名称、域名、导航、联系方式、页脚和时区                                   |
-| [src/config/theme.ts](src/config/theme.ts)                   | 配色、首屏、侧栏、Sakana 挂件和 Giscus 评论                                  |
+| [src/config/theme.ts](src/config/theme.ts)                   | 首屏、侧栏、Sakana 挂件和 Giscus 评论                                        |
 | [src/config/home.ts](src/config/home.ts)                     | 首页布局与禁用卡片；完整模板见 [home-presets.ts](src/config/home-presets.ts) |
 | [src/data/authors.jsonc](src/data/authors.jsonc)             | 作者资料                                                                     |
 | [src/data/links.jsonc](src/data/links.jsonc)                 | 友链                                                                         |

@@ -28,10 +28,6 @@ export function setupDialogs(signal: AbortSignal) {
             const target =
                 event.target instanceof Element ? event.target : null;
             if (!target) return;
-            if (target.closest('[data-theme-picker]'))
-                document
-                    .querySelector<HTMLDialogElement>('#theme-picker')
-                    ?.showModal();
             if (target.closest('[data-open-toc]')) {
                 const dialog = document.querySelector<HTMLDialogElement>(
                     '#article-toc-dialog',

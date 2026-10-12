@@ -1,12 +1,8 @@
-import { themeCatalog } from './theme-catalog.ts';
 import type { ThemeConfig } from './theme-types.ts';
 
 export type { ThemeConfig } from './theme-types.ts';
 
 export const theme: ThemeConfig = {
-    light: 'light',
-    dark: 'dark',
-    themes: themeCatalog.map((palette) => palette.name),
     fonts: { body: 'serif' },
     hero: {
         title: 'sky blog',

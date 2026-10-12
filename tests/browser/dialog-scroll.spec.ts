@@ -11,7 +11,7 @@ async function settleScroll(page: Page) {
     );
 }
 
-for (const kind of ['image', 'theme'] as const) {
+for (const kind of ['image', 'search'] as const) {
     for (const close of ['Escape', 'button', 'backdrop'] as const) {
         test(`${kind} preview locks background scrolling and keeps position after ${close}`, async ({
             page,
@@ -27,7 +27,7 @@ for (const kind of ['image', 'theme'] as const) {
                           name: '查看图片：远山与傍晚的光',
                           exact: true,
                       })
-                    : page.locator('[data-theme-picker]').first();
+                    : page.locator('[data-open-search]').first();
             // Keyboard activation also covers an image that had zero size before the fix.
             await trigger.focus();
             await settleScroll(page);
@@ -42,7 +42,7 @@ for (const kind of ['image', 'theme'] as const) {
             }));
             await page.keyboard.press('Enter');
             const dialog = page.locator(
-                kind === 'image' ? '#image-lightbox' : '#theme-picker',
+                kind === 'image' ? '#image-lightbox' : '#search-dialog',
             );
             await expect(dialog).toBeVisible();
             expect(
@@ -85,35 +85,11 @@ for (const kind of ['image', 'theme'] as const) {
     }
 }
 
-test('theme content scrolls internally on mobile while the page stays still', async ({
-    page,
-}) => {
-    await page.setViewportSize({ width: 390, height: 600 });
-    await page.goto('/posts/format-example/');
-    await page.evaluate(() =>
-        window.scrollTo({ top: 180, behavior: 'instant' }),
-    );
-    await page.locator('[data-theme-picker]').first().click();
-    const dialog = page.locator('#theme-picker');
-    await expect(dialog).toBeVisible();
-    const original = await page.evaluate(() => window.scrollY);
-    const box = (await dialog.boundingBox())!;
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.mouse.wheel(0, 500);
-    await expect
-        .poll(() => dialog.evaluate((element) => element.scrollTop))
-        .toBeGreaterThan(0);
-    expect(await page.evaluate(() => window.scrollY)).toBe(original);
-    await page.keyboard.press('Escape');
-    await expect(dialog).not.toBeVisible();
-    expect(await page.evaluate(() => window.scrollY)).toBe(original);
-});
-
 test('another modal keeps the lock and navigation releases it', async ({
     page,
 }) => {
     await page.goto('/posts/format-example/');
-    await page.locator('[data-theme-picker]').first().click();
+    await page.locator('[data-open-search]').first().click();
     await page.evaluate(() =>
         document
             .querySelector<HTMLDialogElement>('#image-lightbox')!
@@ -121,7 +97,7 @@ test('another modal keeps the lock and navigation releases it', async ({
     );
     await page.keyboard.press('Escape');
     await expect(page.locator('#image-lightbox')).not.toBeVisible();
-    await expect(page.locator('#theme-picker')).toBeVisible();
+    await expect(page.locator('#search-dialog')).toBeVisible();
     expect(
         await page
             .locator('html')
@@ -130,7 +106,7 @@ test('another modal keeps the lock and navigation releases it', async ({
     await page.evaluate(() => {
         const anchor = document.createElement('a');
         anchor.href = '/';
-        document.querySelector('#theme-picker')!.append(anchor);
+        document.querySelector('#search-dialog')!.append(anchor);
         anchor.click();
     });
     await expect(page.locator('.home-hero')).toBeVisible();

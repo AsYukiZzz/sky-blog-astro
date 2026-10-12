@@ -1,7 +1,4 @@
 export interface ThemeConfig {
-    light: string;
-    dark: string;
-    themes: string[];
     fonts: { body: 'serif' | 'sans' };
     hero: {
         title: string;

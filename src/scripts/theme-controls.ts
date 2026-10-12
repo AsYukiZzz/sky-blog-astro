@@ -1,4 +1,3 @@
-import { theme } from '../config/theme';
 import { themeState } from '../lib/theme-state';
 import { browserStorage } from './browser-storage';
 import { updateCommentTheme } from './comments';
@@ -11,15 +10,7 @@ export function setupThemeControls(signal: AbortSignal) {
         document.documentElement.dataset.theme = state.name;
         document.documentElement.dataset.colorScheme = state.colorScheme;
         if (save) browserStorage.set('sky-theme', state.name);
-        document
-            .querySelectorAll<HTMLElement>('[data-set-theme]')
-            .forEach((button) =>
-                button.setAttribute(
-                    'aria-pressed',
-                    String(button.dataset.setTheme === state.name),
-                ),
-            );
-        updateCommentTheme(state.name);
+        updateCommentTheme(state.colorScheme);
     };
 
     applyTheme(
@@ -36,12 +27,9 @@ export function setupThemeControls(signal: AbortSignal) {
             if (target.closest('[data-theme-toggle]'))
                 applyTheme(
                     document.documentElement.dataset.colorScheme === 'dark'
-                        ? theme.light
-                        : theme.dark,
+                        ? 'light'
+                        : 'dark',
                 );
-            const option = target.closest<HTMLElement>('[data-set-theme]');
-            const name = option?.dataset.setTheme;
-            if (name && theme.themes.includes(name)) applyTheme(name);
         },
         { signal },
     );

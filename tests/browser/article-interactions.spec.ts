@@ -48,9 +48,9 @@ test('tall viewports report full reading progress at the end of the document', a
 test('client navigation and history preserve theme and do not duplicate image controls', async ({
     page,
 }) => {
-    await page.addInitScript(() => localStorage.setItem('sky-theme', 'night'));
+    await page.addInitScript(() => localStorage.setItem('sky-theme', 'dark'));
     await page.goto(articlePath);
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'night');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await expect(
         page.getByRole('button', { name: previewName, exact: true }),
     ).toHaveCount(1);
@@ -60,7 +60,7 @@ test('client navigation and history preserve theme and do not duplicate image co
     });
     await page.locator('.site-nav a[href="/"]').first().click();
     await expect(page).toHaveURL('http://127.0.0.1:4399/');
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'night');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     expect(
         await page.evaluate(
             () =>
@@ -77,7 +77,7 @@ test('client navigation and history preserve theme and do not duplicate image co
     await expect(page.getByRole('dialog', { name: '图片预览' })).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(button).toBeFocused();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'night');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 
 test('images already inside a link retain their link without nested preview buttons', async ({
@@ -114,36 +114,49 @@ test('images already inside a link retain their link without nested preview butt
     await expect(page).toHaveURL('http://127.0.0.1:4399/images/dusk.svg');
 });
 
-test('an invalid persisted theme falls back to a valid light palette before use', async ({
-    page,
-}) => {
-    await page.addInitScript(() =>
-        localStorage.setItem('sky-theme', 'removed-palette'),
-    );
-    await page.goto(articlePath);
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-    await expect(page.locator('html')).toHaveAttribute(
-        'data-color-scheme',
-        'light',
-    );
-});
-
-for (const [palette, scheme, next] of [
-    ['cyberpunk', 'light', 'dark'],
-    ['aqua', 'dark', 'light'],
+for (const [stored, systemScheme] of [
+    ['night', 'light'],
+    ['cupcake', 'dark'],
 ] as const) {
-    test(`${palette} switches to the opposite color scheme`, async ({
+    test(`removed ${stored} theme falls back to the ${systemScheme} system scheme`, async ({
         page,
     }) => {
+        await page.emulateMedia({ colorScheme: systemScheme });
         await page.addInitScript(
             (name) => localStorage.setItem('sky-theme', name),
-            palette,
+            stored,
         );
         await page.goto(articlePath);
         await expect(page.locator('html')).toHaveAttribute(
+            'data-theme',
+            systemScheme,
+        );
+        await expect(page.locator('html')).toHaveAttribute(
             'data-color-scheme',
+            systemScheme,
+        );
+    });
+}
+
+for (const [scheme, next] of [
+    ['light', 'dark'],
+    ['dark', 'light'],
+] as const) {
+    test(`${scheme} theme switches to ${next} and saves the choice`, async ({
+        page,
+    }) => {
+        await page.addInitScript((name) => {
+            if (!localStorage.getItem('sky-theme'))
+                localStorage.setItem('sky-theme', name);
+        }, scheme);
+        await page.goto(articlePath);
+        await expect(page.locator('html')).toHaveAttribute(
+            'data-theme',
             scheme,
         );
+        await expect(
+            page.locator('[data-theme-picker], #theme-picker'),
+        ).toHaveCount(0);
         await expect(
             page.getByRole('button', { name: previewName, exact: true }),
         ).toHaveCount(1);
@@ -153,5 +166,18 @@ for (const [palette, scheme, next] of [
             'data-color-scheme',
             next,
         );
+        expect(
+            await page.evaluate(() => localStorage.getItem('sky-theme')),
+        ).toBe(next);
+        await page.reload();
+        await expect(page.locator('html')).toHaveAttribute('data-theme', next);
+        await page.locator('.sky-dock [data-theme-toggle]').click();
+        await expect(page.locator('html')).toHaveAttribute(
+            'data-theme',
+            scheme,
+        );
+        expect(
+            await page.evaluate(() => localStorage.getItem('sky-theme')),
+        ).toBe(scheme);
     });
 }

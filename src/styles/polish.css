@@ -57,7 +57,7 @@ body.background-grid {
     color: var(--color-base-content);
 }
 
-/* A quiet selected surface keeps the navigation readable in every palette. */
+/* A quiet selected surface keeps the navigation readable in both themes. */
 .site-nav,
 .mobile-navigation {
     --sky-nav-selected-bg: color-mix(
@@ -229,8 +229,7 @@ html[data-color-scheme='dark'] :is(.site-nav, .mobile-navigation) {
 /* Crisp surfaces and small, deliberate feedback. */
 .icon-button,
 .pagination a,
-.tag-cloud a,
-.theme-option {
+.tag-cloud a {
     transition:
         color 0.2s,
         background-color 0.2s,
@@ -240,7 +239,6 @@ html[data-color-scheme='dark'] :is(.site-nav, .mobile-navigation) {
         scale 0.2s var(--sky-ease);
 }
 .icon-button:active,
-.theme-option:active,
 .pagination a:active {
     scale: 0.95;
 }
@@ -336,10 +334,6 @@ html[data-color-scheme='dark'] :is(.site-nav, .mobile-navigation) {
 }
 .mobile-navigation nav > div:nth-child(5) {
     animation-delay: 140ms;
-}
-.theme-option[aria-pressed='true'] {
-    box-shadow: 0 0 0 2px
-        color-mix(in oklch, var(--color-primary) 18%, transparent);
 }
 .toast-status:not([hidden]) {
     animation: sky-toast-in 0.24s var(--sky-ease);
@@ -513,7 +507,6 @@ body[data-motion-paused] .sf-badge-dot {
         scale: none;
     }
     .icon-button,
-    .theme-option,
     .pagination a {
         scale: none !important;
         translate: none !important;

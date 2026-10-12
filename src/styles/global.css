@@ -18,5 +18,7 @@
 @source "../../.astro/public-content/pages.mdx";
 @source "../../.astro/public-content/moments.mdx";
 @plugin "daisyui" {
-    themes: all;
+    themes:
+        light --default,
+        dark --prefersdark;
 }

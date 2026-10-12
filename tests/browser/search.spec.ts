@@ -184,13 +184,18 @@ test('search highlights English matches in titles and excerpts and updates them 
 test('search highlights Chinese matches with readable colors in light and dark themes', async ({
     page,
 }) => {
-    for (const theme of ['light', 'night']) {
+    for (const theme of ['light', 'dark']) {
         await page.goto(articlePath);
         await page.evaluate(
             (value) => localStorage.setItem('sky-theme', value),
             theme,
         );
         await page.reload();
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        await expect(page.locator('html')).toHaveAttribute(
+            'data-color-scheme',
+            theme,
+        );
         await page.keyboard.press('Control+k');
         const dialog = page.getByRole('dialog', {
             name: '搜索内容',

@@ -1,12 +1,12 @@
-import { themeColorScheme } from '../lib/theme-state';
+import type { ColorScheme } from '../lib/theme-state';
 
-export function updateCommentTheme(name: string) {
+export function updateCommentTheme(colorScheme: ColorScheme) {
     document
         .querySelector<HTMLIFrameElement>('.giscus-frame')
         ?.contentWindow?.postMessage(
             {
                 giscus: {
-                    setConfig: { theme: themeColorScheme(name) },
+                    setConfig: { theme: colorScheme },
                 },
             },
             'https://giscus.app',
@@ -34,7 +34,10 @@ export function setupComments(signal: AbortSignal) {
         reactionsEnabled: '1',
         emitMetadata: '0',
         inputPosition: 'top',
-        theme: themeColorScheme(document.documentElement.dataset.theme ?? ''),
+        theme:
+            document.documentElement.dataset.colorScheme === 'dark'
+                ? 'dark'
+                : 'light',
         lang: 'zh-CN',
         loading: 'lazy',
     });

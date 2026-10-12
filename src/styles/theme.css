@@ -1860,7 +1860,7 @@ html[data-color-scheme='dark'] .astro-code span {
     border-left: 3px solid var(--color-primary);
 }
 
-/* Original floating dock, theme dialog and image viewer. Footer lives in footer.css. */
+/* Original floating dock and image viewer. Footer lives in footer.css. */
 .sky-dock {
     position: fixed;
     bottom: 24px;
@@ -1930,37 +1930,6 @@ body:has(.home-hero):not([data-home-scrolled]) .sky-dock {
 .dialog-heading p {
     font-size: 14px;
     color: var(--sky-muted);
-}
-
-.theme-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.theme-option {
-    padding: 4px;
-    border: 1px solid var(--sky-border);
-    border-radius: 12px;
-    overflow: hidden;
-    background: transparent;
-    text-align: left;
-}
-
-.theme-option img {
-    width: 100%;
-    border-radius: 8px;
-}
-
-.theme-option span {
-    display: block;
-    font-size: 12px;
-    padding: 8px 4px;
-}
-
-.theme-option:hover,
-.theme-option[aria-pressed='true'] {
-    border-color: var(--color-primary);
 }
 
 .lightbox-dialog {
@@ -2185,10 +2154,6 @@ body:has(.home-hero):not([data-home-scrolled]) .sky-dock {
 
     .page-header p {
         font-size: 14px;
-    }
-
-    .theme-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
