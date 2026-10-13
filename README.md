@@ -1,113 +1,72 @@
 # Sky Blog Theme · Astro
 
-基于 Astro 的静态博客主题，移植自 [Sky Blog](https://github.com/sky121666/halo-theme-sky-blog-1)。使用 Markdown/MDX、Tailwind CSS、DaisyUI 和 Pagefind，可部署到 Cloudflare Pages。
+以响应式卡片首页为核心的静态个人博客主题，基于 [Astro](https://astro.build) 和 Tailwind CSS，参考 [Sky Blog](https://github.com/sky121666/halo-theme-sky-blog-1) 的设计。
 
-- 响应式首页卡片、黑白两种主题、明暗切换与悬浮 Dock。
-- 文章、随笔、独立页面、分类、标签、友链和项目展示。
-- 文章目录、阅读进度、图片预览和中英文站内搜索。
-- RSS、网站地图，可选 Giscus 评论和 Sakana 挂件。
+[配置说明](docs/guide/configuration.md) · [内容发布](docs/guide/content.md) · [部署指南](docs/guide/deployment.md)
 
-## 快速开始
+## ✨ 功能特性
 
-使用 Node.js 24.14.0 和 pnpm 11.22.0：
+- **卡片式首页**：作者资料、统计、热力图、文章、随笔、项目与友链组合展示。
+- **响应式网格**：卡片按屏幕空间重排，支持不同占格规格和显示组合。
+- **阅读体验**：文章目录、阅读进度、图片预览、明暗切换与页面过渡。
+- **内容组织**：Markdown / MDX、独立页面、分类、标签及随笔。
+- **静态搜索**：Pagefind 中英文站内搜索、RSS 和网站地图。
+- **可选功能**：Giscus 评论、Sakana 挂件与悬浮快捷 Dock。
 
-```sh
-pnpm install
-pnpm dev
-```
+## 🧩 首页卡片布局
 
-构建并预览：
+首页由封面和卡片区组成。封面展示博客标题与介绍，卡片区将个人资料、写作动态和作品放在同一页，让读者从多个入口浏览博客。
 
-```sh
-pnpm build
-pnpm preview
-```
+宽屏下，卡片以不同大小并排组合；窗口变窄时逐步重排，手机上依次叠放。卡片宽度随容器变化，占格规格控制高度与内部展示：文章卡片可展示更多摘要，友链与项目卡片可适配不同列数。
 
-搜索索引随构建生成，请在 `pnpm preview` 下验证搜索功能。
+可以选择显示哪些卡片、调整排列与受支持的尺寸，并分别设置不同宽度下的布局。详细参数和约束见 [首页卡片配置](docs/guide/configuration.md#322-卡片themehomecard)。
 
-## 配置
+## 🚀 快速开始
 
-| 文件                                                         | 用途                                                                         |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------------- |
-| [src/config/site.ts](src/config/site.ts)                     | 站点名称、域名、默认作者、导航、页脚和时区                                   |
-| [src/config/theme.ts](src/config/theme.ts)                   | 首屏、侧栏、Sakana 挂件和 Giscus 评论                                        |
-| [src/config/home.ts](src/config/home.ts)                     | 首页布局与禁用卡片；完整模板见 [home-presets.ts](src/config/home-presets.ts) |
-| [src/data/authors.jsonc](src/data/authors.jsonc)             | 作者资料与联系方式                                                           |
-| [src/data/links.jsonc](src/data/links.jsonc)                 | 友链                                                                         |
-| [src/data/projects.jsonc](src/data/projects.jsonc)           | 首页项目展示，名称、简介和仓库或网站链接                                     |
-| [src/data/popular-posts.jsonc](src/data/popular-posts.jsonc) | 精选文章的 slug 列表                                                         |
+使用 Node.js **24.14.0** 和 pnpm **11.22.0**。
 
-数据文件使用 JSONC，支持 `//` 行注释、`/* */` 块注释和末尾逗号。友链的 `logo` 可省略或设为空串，会显示默认占位图标。
+1. Fork 或克隆本仓库，进入项目目录。
+2. 安装依赖并启动开发服务：
 
-每位作者的联系方式在 `src/data/authors.jsonc` 的 `social` 数组中配置，每项包含 `label`、`href` 和 `icon`。首页作者卡片展示 `site.author` 对应作者的联系方式；省略 `social` 或设为 `[]` 时隐藏联系方式区域，`href` 留空时隐藏该项，重复链接仅显示一次。
+    ```sh
+    pnpm install
+    pnpm dev
+    ```
 
-项目通过 `src/data/projects.jsonc` 配置 `name`、`description`、`url` 和可选的 `logo`，链接支持 HTTP/HTTPS 仓库或网站地址，点击项目会在新标签页打开。`logo` 支持本地路径或远程图片链接，省略、设为空串或 `null` 时使用项目专用默认图标 `/images/project-default.svg`；图片加载失败也会回退到这张默认图。全部项目按数组顺序展示，内容较多时在卡片内滚动；空数组显示空状态。wide 的项目卡片以 2×3 位于左下角，友链卡片以 4×3 位于右下角；medium 的两张卡片均为 4×3，compact 均为 2×3。
+3. 编辑 `src/config.ts` 自定义博客，字段说明见 [配置说明](docs/guide/configuration.md)。
+4. 在 `src/content/posts/`、`src/content/pages/` 或 `src/content/moments/` 中创建内容，在 `src/data/` 中维护友链、项目和精选文章，具体说明见 [内容发布](docs/guide/content.md)。
+5. 构建并预览网站：
 
-上线前替换示例内容、作者资料和图片，并修改站点域名。Giscus 默认关闭；启用时填写 `theme.comments` 中的仓库及分类信息。
+    ```sh
+    pnpm build
+    pnpm preview
+    ```
 
-## 写作
+搜索索引随构建生成，请在预览服务中验证搜索功能。
 
-文章放在 `src/content/posts/`，独立页面放在 `src/content/pages/`，随笔放在 `src/content/moments/`。支持 Markdown 和 MDX，文章示例：
+## ☁️ 部署
 
-```markdown
----
-title: 我的文章
-slug: notes/my-post
-publishedAt: 2026-10-01T09:00:00+08:00
-author: sky
-categories: [development]
-tags: [astro]
-draft: false
-visibility: public
----
+将构建产物 `dist/` 部署到 Cloudflare Pages 或其他静态托管平台。运行版本、站点域名和部署参数见 [部署指南](docs/guide/deployment.md)。
 
-正文从这里开始。
-```
+## ⚡ 常用命令
 
-分类和标签会从公开文章的 `categories` 和 `tags` 自动收集、去重，并生成归档页。显示名称直接使用文章中填写的值，按文章中的首次出现顺序排列，无需额外配置。分类、标签和 slug 均支持中文和嵌套路径，作者 ID 仍需在 `src/data/authors.jsonc` 中登记。
+在项目根目录执行：
 
-省略 `author` 时使用 `src/config/site.ts` 中的 `site.author`，该 ID 也必须在作者表中登记。分类、标签分页通常使用 `/page/2/`；如果该地址已被嵌套名称占用，对应归档的分页改用 `/@page/2/`，嵌套名称的地址保持不变。
+- `pnpm install`：安装依赖并配置 Git 钩子。
+- `pnpm dev`：启动本地开发服务。
+- `pnpm build`：检查类型、构建网站、生成搜索索引并校验产物。
+- `pnpm preview`：预览构建产物。
+- `pnpm check`：运行 Astro 类型检查。
+- `pnpm test`：运行单元测试。
+- `pnpm format`：统一代码格式。
+- `pnpm format:check`：检查代码格式。
 
-草稿、非公开内容和未来发布内容不会进入页面、分类标签汇总、RSS、搜索、统计或正文样式产物，未来内容到期后需重新构建。
+每次提交前依次执行 `pnpm format`、`pnpm format:check`；检查通过后又修改文件时，需要重新执行。
 
-`public/` 中的文件始终公开。需要随文章控制发布的图片放在 `src/assets/`，在正文中使用相对路径引用。内容的发布设置不会阻止 Git 提交，请勿向公开仓库提交真实私密内容。
+浏览器回归检查及浏览器通道设置见 [部署指南](docs/guide/deployment.md#3-浏览器检查)。
 
-## 部署
-
-Cloudflare Pages 使用以下设置：
-
-| 设置           | 值                                               |
-| -------------- | ------------------------------------------------ |
-| 构建命令       | `pnpm build`                                     |
-| 输出目录       | `dist`                                           |
-| `NODE_VERSION` | `24.14.0`                                        |
-| `PNPM_VERSION` | `11.22.0`                                        |
-| `SITE_URL`     | 正式 HTTPS 域名，例如 `https://blog.example.com` |
-
-未设置 `SITE_URL` 时使用 `src/config/site.ts` 的 `url`。项目为纯静态输出，不需要 SSR 适配器；也可将 `dist/` 部署到其他静态托管服务。评论使用独立的 Giscus 服务。
-
-## 检查
-
-```sh
-pnpm check
-pnpm test
-pnpm format:check
-```
-
-每次提交前必须先执行 `pnpm format`，再执行 `pnpm format:check`，两条命令均成功且格式检查无误后才能提交。检查通过后若又修改了待提交文件，需重新执行这两条命令。
-
-浏览器回归需先构建并安装测试浏览器：
-
-```sh
-pnpm exec playwright install chromium
-pnpm build
-pnpm test:browser
-```
-
-Windows 可设置 `$env:PLAYWRIGHT_BROWSER_CHANNEL = 'msedge'` 使用已安装的 Edge。
-
-## 许可证
+## 📄 致谢与许可
 
 本项目保留原主题的 [GPL-3.0 许可证](LICENSE)，原作者为 sky。
 
-Sakana 使用 [dsrkafuu/sakana-widget](https://github.com/dsrkafuu/sakana-widget)，接入参考 [Lentinel 的 Halo 插件](https://github.com/Lentinel/plugin-Sakana-widget-Halo)。其代码采用 MIT 许可证，内置角色插画由大伏アオ（[@blue00f4](https://twitter.com/blue00f4)）创作，仅允许非商业使用。详见 [署名及许可说明](public/licenses/sakana-widget.txt)。
+Sakana 使用 [dsrkafuu/sakana-widget](https://github.com/dsrkafuu/sakana-widget)，接入参考 [Lentinel 的 Halo 插件](https://github.com/Lentinel/plugin-Sakana-widget-Halo)。代码采用 MIT 许可证，角色插画由大伏アオ（[@blue00f4](https://twitter.com/blue00f4)）创作，仅允许非商业使用。详见 [署名及许可说明](public/licenses/sakana-widget.txt)。
