@@ -1,6 +1,5 @@
-import type { HomePreset, HomePresetName } from '../lib/home-cards.ts';
+import type { HomePreset, HomePresetName } from '../types/home.ts';
 
-// Each card occupies one rectangle; wide columns stack independently without gaps.
 export const homePresets = {
     default: {
         compact: {

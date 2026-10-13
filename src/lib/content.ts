@@ -5,22 +5,17 @@ import {
     validateContent,
     validateCollection,
 } from './content-model';
-import { authors, popularSlugs } from '../data/index';
+import { popularSlugs } from '../data/index';
+import { getAuthor } from './author';
 
 export async function getPosts() {
     const entries = await getCollection('posts');
-    validateContent(entries, {
-        authors: authors.map((author) => author.id),
-    });
+    validateContent(entries, getAuthor().id);
     return sortPosts(entries.filter((entry) => isPublicContent(entry.data)));
 }
 export async function getMoments() {
     const entries = await getCollection('moments');
-    validateCollection(
-        entries,
-        'moments',
-        authors.map((author) => author.id),
-    );
+    validateCollection(entries, 'moments', getAuthor().id);
     return sortPosts(entries.filter((entry) => isPublicContent(entry.data)));
 }
 // Use the configured order until a live readership ranking is available.
@@ -37,11 +32,6 @@ export async function getPopularPosts(limit = 5) {
 }
 export async function getPages() {
     const entries = await getCollection('pages');
-    validateCollection(
-        entries,
-        'pages',
-        authors.map((author) => author.id),
-    );
+    validateCollection(entries, 'pages', getAuthor().id);
     return sortPosts(entries.filter((entry) => isPublicContent(entry.data)));
 }
-export { authors };

@@ -281,7 +281,7 @@ test('general build verification permits different homepage presentation', (t) =
         'index.html',
         html(
             '/',
-            '<div class="post-list hero-moments-wrap"><nav aria-label="文章分页"><a href="/posts/target/">Target</a></nav></div>',
+            '<div class="hero-moments-wrap"><nav aria-label="文章分页"><a href="/posts/target/">Target</a></nav></div>',
         ),
     );
 

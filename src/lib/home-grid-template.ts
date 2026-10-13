@@ -1,21 +1,4 @@
-export type GridSize = `${number}x${number}`;
-
-export interface HomeGridPlacement<Id extends string = string> {
-    id: Id;
-    row: number;
-    column: number;
-    rowSpan: number;
-    columnSpan: number;
-    size: GridSize;
-}
-
-export interface ParsedHomeGrid<Id extends string = string> {
-    columns: number;
-    rows: number;
-    areas: string[];
-    order: Id[];
-    placements: HomeGridPlacement<Id>[];
-}
+import type { GridSize, ParsedHomeGrid } from '../types/home.ts';
 
 export function homeLayoutError(
     code: string,

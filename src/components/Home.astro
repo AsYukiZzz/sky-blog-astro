@@ -3,11 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HomeHero from './HomeHero.astro';
 import HomeOverview from './HomeOverview.astro';
 import SakanaWidget from './SakanaWidget.astro';
-import { home } from '../config/home';
-import { homePresets } from '../config/home-presets';
+import { theme } from '../config';
+import { homePresets } from '../presets/home-card';
 import { homeCardSpecs } from './home/card-specs';
 import { compileHomeLayout } from '../lib/home-layout';
-const plan = compileHomeLayout(home, homeCardSpecs, homePresets);
+const plan = compileHomeLayout(theme.home.card, homeCardSpecs, homePresets);
 ---
 
 <BaseLayout>

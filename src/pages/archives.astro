@@ -1,7 +1,7 @@
 ---
 import { getPosts } from '../lib/content';
 import { archiveGroups, dateKey, routeFor } from '../lib/content-model';
-import { site } from '../config/site';
+import { site } from '../config';
 import ListingLayout from '../layouts/ListingLayout.astro';
 import Icon from '../components/Icon.astro';
 const posts = await getPosts();
@@ -21,7 +21,6 @@ const weekday = (date: Date) =>
 ---
 
 <ListingLayout
-    sidebar={false}
     title="文章归档"
     description={`共 ${years.length} 个年份的文章记录`}
     icon="calendar"

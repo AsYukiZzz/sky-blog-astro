@@ -1,11 +1,11 @@
 ---
-import type { HomeCardContentProps } from '../../lib/home-cards';
+import type { HomeCardContentProps } from '../../types/home';
 import Icon from '../Icon.astro';
 type Props = HomeCardContentProps;
 const { headingId } = Astro.props;
 import { getPosts, getMoments } from '../../lib/content';
 import { blogStats } from '../../lib/site-metrics';
-import { site } from '../../config/site';
+import { site } from '../../config';
 const [posts, moments] = await Promise.all([getPosts(), getMoments()]);
 const stats = blogStats(posts, moments, site);
 ---

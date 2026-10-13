@@ -1,4 +1,4 @@
-import { site } from '../config/site';
+import { site } from '../config';
 export function formatDate(value: Date, short = false): string {
     return new Intl.DateTimeFormat(site.language, {
         timeZone: site.timezone,

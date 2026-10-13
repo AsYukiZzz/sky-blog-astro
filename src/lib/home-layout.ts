@@ -1,27 +1,23 @@
+import type { HomeCardConfig } from '../types/config.ts';
 import type {
     HomeCardSpec,
-    HomeConfig,
     HomeLayout,
     HomeLayoutName,
     HomeLayoutPlan,
     HomePreset,
     HomePresetName,
     CompiledHomeLayout,
-} from './home-cards.ts';
+    ParsedHomeGrid,
+} from '../types/home.ts';
 import {
     homeLayoutError,
     parseHomeGridTemplate,
-    type ParsedHomeGrid,
 } from './home-grid-template.ts';
 
 export const homeLayoutNames = ['compact', 'medium', 'wide'] as const;
 const presetNames = ['default'];
 const layoutFields = ['minWidth', 'rowHeight', 'gap', 'areas'];
 const minContentWidth = 288;
-
-export function defineHome<T extends HomeConfig>(config: T): T {
-    return config;
-}
 
 function record(
     value: unknown,
@@ -236,7 +232,7 @@ function filterDisabled<Id extends string>(
 
 /** Validate raw layouts before disabling so disabled cards cannot mask mistakes. */
 export function compileHomeLayout<Id extends string>(
-    config: HomeConfig<Id>,
+    config: HomeCardConfig<Id>,
     specs: Readonly<Record<Id, HomeCardSpec>>,
     presets: Readonly<Record<HomePresetName, HomePreset>>,
 ): HomeLayoutPlan<Id> {

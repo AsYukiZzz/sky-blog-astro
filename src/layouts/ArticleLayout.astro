@@ -5,7 +5,7 @@ import ArticleTocTree from '../components/ArticleTocTree.astro';
 import ArticlePostsTabs from '../components/ArticlePostsTabs.astro';
 import Comments from '../components/Comments.astro';
 import Icon from '../components/Icon.astro';
-import { authors } from '../lib/content';
+import { getAuthor } from '../lib/author';
 import { routeFor } from '../lib/content-model';
 import { formatDate, readingTime } from '../lib/format';
 import { buildToc } from '../lib/toc';
@@ -17,8 +17,8 @@ interface Props {
     next?: CollectionEntry<'posts'>;
 }
 const { entry, headings, previous, next } = Astro.props;
-const author = authors.find((author) => author.id === entry.data.author);
-if (!author)
+const author = getAuthor();
+if (author.id !== entry.data.author)
     throw new Error(`${entry.id}: unknown author ${entry.data.author}`);
 const categories = 'categories' in entry.data ? entry.data.categories : [];
 const tags = 'tags' in entry.data ? entry.data.tags : [];

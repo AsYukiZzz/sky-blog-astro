@@ -33,8 +33,8 @@ test('malformed JSONC reports its file and line instead of returning partial dat
         },
     );
     assert.throws(
-        () => parseJsonc('{"name":"Sky"} true', 'authors.jsonc'),
-        /authors\.jsonc/,
+        () => parseJsonc('{"name":"Sky"} true', 'links.jsonc'),
+        /links\.jsonc/,
     );
 });
 

@@ -9,7 +9,6 @@
 @import './theme.css';
 @import './polish.css';
 @import './search.css';
-@import './post-cards.css';
 @import './home.css';
 @import './footer.css';
 @source "../**/*.{astro,ts}";

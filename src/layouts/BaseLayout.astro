@@ -1,7 +1,6 @@
 ---
 import { ClientRouter, fade } from 'astro:transitions';
-import { site } from '../config/site';
-import { theme } from '../config/theme';
+import { site, theme } from '../config';
 import { initialThemeScript } from '../lib/theme-state';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -83,7 +82,7 @@ const schema = {
     <body
         class:list={[
             `background-${theme.background}`,
-            `body-font-${theme.fonts.body}`,
+            `body-font-${theme.font}`,
         ]}
         transition:animate="none"
     >

@@ -1,4 +1,4 @@
-import { theme } from '../config/theme';
+import { theme } from '../config';
 import { createSakanaLifecycle } from '../lib/sakana-lifecycle';
 import { sakanaFooterLift } from '../lib/sakana-position';
 import type { SakanaWidgetVisibility } from 'sakana-widget';
@@ -11,7 +11,7 @@ export function setupSakana(signal: AbortSignal) {
     );
     const anchor = root?.querySelector<HTMLElement>('.home-sakana-anchor');
     if (
-        !theme.sakana.enabled ||
+        !theme.extra.sakana.enabled ||
         !root ||
         !host ||
         !restore ||
@@ -25,13 +25,13 @@ export function setupSakana(signal: AbortSignal) {
     const lifecycle = createSakanaLifecycle(async () => {
         const { default: SakanaWidget } = await import('sakana-widget');
         const widget = new SakanaWidget({
-            character: theme.sakana.character,
+            character: theme.extra.sakana.character,
             autoFit: true,
             title: true,
             saveState: true,
             stateKey: 'sky-sakana-visibility',
         });
-        let autoMode = theme.sakana.autoMode;
+        let autoMode = theme.extra.sakana.autoMode;
         const onState = (state: SakanaWidgetVisibility) => {
             const focused = document.activeElement;
             restore.hidden = state !== 'hide';
@@ -111,7 +111,7 @@ export function setupSakana(signal: AbortSignal) {
         if (signal.aborted) return;
         const active =
             !document.hidden &&
-            (!mobile.matches || theme.sakana.showOnMobile) &&
+            (!mobile.matches || theme.extra.sakana.showOnMobile) &&
             !reducedMotion.matches;
         root.hidden = !active;
         if (active) schedulePosition();

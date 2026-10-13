@@ -1,8 +1,8 @@
 ---
-import { site } from '../config/site';
+import { site, theme } from '../config';
 import { copyrightYears } from '../lib/site-metrics';
 import Icon from './Icon.astro';
-const { footer } = site;
+const { footer } = theme;
 const links = [
     { label: '隐私政策', href: footer.privacyUrl },
     { label: '使用条款', href: footer.termsUrl },

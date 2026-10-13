@@ -1,9 +1,9 @@
 ---
 import { getPosts } from '../../lib/content';
 import { paginateItems } from '../../lib/content-model';
-import { site } from '../../config/site';
+import { site } from '../../config';
 import ListingLayout from '../../layouts/ListingLayout.astro';
-import PostList from '../../components/PostList.astro';
+import ContentPreviewList from '../../components/ContentPreviewList.astro';
 import Pagination from '../../components/Pagination.astro';
 export async function getStaticPaths() {
     const posts = await getPosts();
@@ -22,11 +22,12 @@ const { posts, current, total, count } = Astro.props;
 ---
 
 <ListingLayout
+    variant="archive"
     title={`文章 · 第 ${current} 页`}
     description="继续阅读博客里的故事与记录。"
     icon="document"
     count={count}
 >
-    <PostList posts={posts} />
+    <ContentPreviewList entries={posts} />
     <Pagination current={current} total={total} first="/archives/" />
 </ListingLayout>

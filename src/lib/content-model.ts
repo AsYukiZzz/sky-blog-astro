@@ -115,7 +115,7 @@ export function archiveGroups<T extends ContentEntry>(
 export function validateCollection(
     entries: ContentEntry[],
     collection: string,
-    authors: string[],
+    authorId: string,
 ): void {
     const urls = new Set<string>();
     for (const entry of entries) {
@@ -125,7 +125,7 @@ export function validateCollection(
         urls.add(path);
         if (
             entry.data.author !== undefined &&
-            (!entry.data.author.trim() || !authors.includes(entry.data.author))
+            (!entry.data.author.trim() || entry.data.author !== authorId)
         )
             throw new Error(`${entry.id}: unknown author ${entry.data.author}`);
     }
@@ -133,9 +133,9 @@ export function validateCollection(
 
 export function validateContent(
     entries: ContentEntry[],
-    refs: { authors: string[] },
+    authorId: string,
 ): void {
-    validateCollection(entries, 'posts', refs.authors);
+    validateCollection(entries, 'posts', authorId);
     for (const entry of entries) {
         for (const category of entry.data.categories ?? [])
             routeFor('categories', category);

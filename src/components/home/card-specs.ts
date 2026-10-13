@@ -2,7 +2,7 @@ import type {
     HomeCardSpec,
     HomeCardSizeSpec,
     HomeCssVars,
-} from '../../lib/home-cards.ts';
+} from '../../types/home.ts';
 
 function size(
     profile: string,

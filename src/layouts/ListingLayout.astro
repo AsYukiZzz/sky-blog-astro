@@ -1,6 +1,5 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import Sidebar from '../components/Sidebar.astro';
 import PageHeader from '../components/PageHeader.astro';
 import '../styles/listing.css';
 interface Props {
@@ -11,7 +10,6 @@ interface Props {
     eyebrow?: string;
     icon?: string;
     count?: number;
-    sidebar?: boolean;
     variant?: 'default' | 'archive';
 }
 const {
@@ -22,7 +20,6 @@ const {
     eyebrow,
     icon,
     count,
-    sidebar = true,
     variant = 'default',
 } = Astro.props;
 ---
@@ -34,7 +31,6 @@ const {
                 'content-grid',
                 `page-${icon ?? 'default'}`,
                 {
-                    'without-sidebar': !sidebar,
                     'page-archive': variant === 'archive',
                 },
             ]}
@@ -51,7 +47,6 @@ const {
                 />
                 <slot />
             </div>
-            {sidebar && <Sidebar />}
         </div>
     </div>
 </BaseLayout>

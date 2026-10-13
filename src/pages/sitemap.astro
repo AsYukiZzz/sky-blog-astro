@@ -1,5 +1,5 @@
 ---
-import { site } from '../config/site';
+import { site } from '../config';
 import { getPosts, getMoments, getPages } from '../lib/content';
 import { publicTaxonomy, routeFor } from '../lib/content-model';
 import ListingLayout from '../layouts/ListingLayout.astro';
@@ -61,7 +61,6 @@ const groups = [
     title="网站地图"
     description="从这里找到本站的文章、随笔与页面。"
     icon="grid"
-    sidebar={false}
     variant="archive"
 >
     <div class="sitemap-directory" data-pagefind-body>

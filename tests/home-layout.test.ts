@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { homeCardSpecs } from '../src/components/home/card-specs.ts';
-import { homePresets } from '../src/config/home-presets.ts';
+import { homePresets } from '../src/presets/home-card.ts';
 import { compileHomeLayout } from '../src/lib/home-layout.ts';
 import { homeLayoutCss } from '../src/lib/home-layout-css.ts';
-import type { HomeConfig } from '../src/lib/home-cards.ts';
+import type { HomeCardConfig } from '../src/types/config.ts';
 
-const compile = (config: HomeConfig) =>
+const compile = (config: HomeCardConfig) =>
     compileHomeLayout(config, homeCardSpecs, homePresets);
 const ids = Object.keys(homeCardSpecs) as (keyof typeof homeCardSpecs)[];
 
@@ -23,7 +23,7 @@ test('source previews cover the largest capacity across all layouts', () => {
 });
 
 test('scalar inheritance and whole-template replacement never mutate input or presets', () => {
-    const config: HomeConfig = {
+    const config: HomeCardConfig = {
         preset: 'default',
         layouts: {
             wide: {
@@ -91,11 +91,14 @@ test('configuration rejects unknown keys and invalid finite integer breakpoints'
         { preset: 'default', disabled: 'author' },
     ];
     for (const config of configs)
-        assert.throws(() => compile(config as unknown as HomeConfig), /HOME_/);
+        assert.throws(
+            () => compile(config as unknown as HomeCardConfig),
+            /HOME_/,
+        );
 });
 
 test('unsupported size is rejected before disabling with allowed sizes in diagnostics', () => {
-    const config: HomeConfig = {
+    const config: HomeCardConfig = {
         preset: 'default',
         disabled: ['author'],
         layouts: {

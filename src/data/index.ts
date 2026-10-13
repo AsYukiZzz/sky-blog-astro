@@ -1,29 +1,9 @@
 import { z } from 'astro/zod';
 import { parseJsonc } from '../lib/jsonc';
-import authorsSource from './authors.jsonc?raw';
 import linksSource from './links.jsonc?raw';
 import projectsSource from './projects.jsonc?raw';
 import popularPostsSource from './popular-posts.jsonc?raw';
 
-const authorSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-    bio: z.string(),
-    avatar: z.string(),
-    location: z.string().optional(),
-    description: z.string().optional(),
-    role: z.string().optional(),
-    interests: z.array(z.string()).optional(),
-    social: z
-        .array(
-            z.object({
-                label: z.string(),
-                href: z.string(),
-                icon: z.string(),
-            }),
-        )
-        .default([]),
-});
 const friendSchema = z.object({
     name: z.string(),
     description: z.string(),
@@ -57,11 +37,6 @@ function readData<T>(
     return result.data;
 }
 
-export const authors = readData(
-    authorsSource,
-    'src/data/authors.jsonc',
-    z.array(authorSchema),
-);
 export const links = readData(
     linksSource,
     'src/data/links.jsonc',

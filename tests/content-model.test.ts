@@ -101,22 +101,21 @@ test('archives use the configured timezone at month boundaries', () => {
 });
 
 test('content validation rejects duplicate URLs and unresolved authors', () => {
-    const refs = {
-        authors: ['sky'],
-    };
+    const authorId = 'sky';
     assert.throws(
         () =>
             validateContent(
                 [make('one', { slug: 'same' }), make('two', { slug: 'same' })],
-                refs,
+                authorId,
             ),
         /duplicate/,
     );
     assert.throws(
-        () => validateContent([make('missing', { author: 'unknown' })], refs),
+        () =>
+            validateContent([make('missing', { author: 'unknown' })], authorId),
         /author/,
     );
-    assert.doesNotThrow(() => validateContent([make('valid')], refs));
+    assert.doesNotThrow(() => validateContent([make('valid')], authorId));
 });
 
 test('content validation accepts taxonomy IDs without a registry', () => {
@@ -128,7 +127,7 @@ test('content validation accepts taxonomy IDs without a registry', () => {
                     tags: ['新标签', 'new-topic'],
                 }),
             ],
-            { authors: ['sky'] },
+            'sky',
         ),
     );
 });
@@ -138,9 +137,10 @@ test('content validation rejects taxonomy IDs that cannot form local routes', ()
         for (const id of ['', ' ', '..', 'foo//bar', 'foo?bar', '/absolute']) {
             assert.throws(
                 () =>
-                    validateContent([make('invalid', { [field]: [id] })], {
-                        authors: ['sky'],
-                    }),
+                    validateContent(
+                        [make('invalid', { [field]: [id] })],
+                        'sky',
+                    ),
                 /Invalid slug/,
                 `${field} must reject ${JSON.stringify(id)}`,
             );
@@ -169,7 +169,7 @@ test('all content collections reject duplicate routes and unresolved authors', (
                         make('two', { slug: 'same' }),
                     ],
                     collection,
-                    ['sky'],
+                    'sky',
                 ),
             /duplicate/,
         );
@@ -178,7 +178,7 @@ test('all content collections reject duplicate routes and unresolved authors', (
                 validateCollection(
                     [make('unknown-author', { author: 'unknown' })],
                     collection,
-                    ['sky'],
+                    'sky',
                 ),
             /author/,
         );
@@ -193,7 +193,7 @@ test('all content collections reject explicitly blank author references', () => 
                     validateCollection(
                         [make('blank-author', { author })],
                         collection,
-                        ['sky'],
+                        'sky',
                     ),
                 /author/,
                 `${collection} must reject ${JSON.stringify(author)}`,

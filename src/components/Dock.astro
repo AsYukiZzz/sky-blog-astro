@@ -1,9 +1,9 @@
 ---
 import Icon from './Icon.astro';
-import { theme } from '../config/theme';
+import { theme } from '../config';
 ---
 
-{theme.dock && (
+{theme.extra.dock && (
     <aside
         class="sky-dock dock-container"
         aria-label="快捷操作"

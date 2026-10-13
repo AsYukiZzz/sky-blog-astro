@@ -1,9 +1,7 @@
 // Keep homepage cards and previews opaque: revealing already-painted content
 // from opacity 0 makes skipped cards flash when scrolling back up.
 const entranceTargets = [
-    '.post-card',
     '.content-preview-card',
-    '.sidebar > *',
     '.page-header',
     '.essay-card',
     '.link-grid > *',

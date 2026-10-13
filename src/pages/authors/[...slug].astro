@@ -1,40 +1,41 @@
 ---
-import { getPosts, authors } from '../../lib/content';
+import { getPosts } from '../../lib/content';
+import { getAuthor } from '../../lib/author';
 import { paginateItems, routeFor } from '../../lib/content-model';
-import { site } from '../../config/site';
+import { site } from '../../config';
 import ListingLayout from '../../layouts/ListingLayout.astro';
-import PostList from '../../components/PostList.astro';
+import ContentPreviewList from '../../components/ContentPreviewList.astro';
 import Pagination from '../../components/Pagination.astro';
 export async function getStaticPaths() {
     const posts = await getPosts();
-    return authors.flatMap((author) => {
-        const entries = posts.filter((post) => post.data.author === author.id);
-        const pages = paginateItems(entries, site.pageSize);
-        return pages.map((items, index) => ({
-            params: {
-                slug: index ? `${author.id}/page/${index + 1}` : author.id,
-            },
-            props: {
-                author,
-                posts: items,
-                count: entries.length,
-                current: index + 1,
-                total: pages.length,
-            },
-        }));
-    });
+    const author = getAuthor();
+    const entries = posts.filter((post) => post.data.author === author.id);
+    const pages = paginateItems(entries, site.pageSize);
+    return pages.map((items, index) => ({
+        params: {
+            slug: index ? `${author.id}/page/${index + 1}` : author.id,
+        },
+        props: {
+            author,
+            posts: items,
+            count: entries.length,
+            current: index + 1,
+            total: pages.length,
+        },
+    }));
 }
 const { author, posts, count, current, total } = Astro.props;
 ---
 
 <ListingLayout
+    variant="archive"
     title={author.name}
     description={author.bio}
     eyebrow="THE PERSON BEHIND THE WORDS"
     icon="user"
     count={count}
 >
-    <PostList posts={posts} />
+    <ContentPreviewList entries={posts} />
     <Pagination
         current={current}
         total={total}

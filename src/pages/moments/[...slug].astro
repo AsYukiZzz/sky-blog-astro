@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
-import { getMoments, authors } from '../../lib/content';
+import { getMoments } from '../../lib/content';
+import { getAuthor } from '../../lib/author';
 import { routeFor } from '../../lib/content-model';
 import { formatDate } from '../../lib/format';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -14,8 +15,8 @@ export async function getStaticPaths() {
 }
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const author = authors.find((author) => author.id === entry.data.author);
-if (!author)
+const author = getAuthor();
+if (author.id !== entry.data.author)
     throw new Error(`${entry.id}: unknown author ${entry.data.author}`);
 ---
 

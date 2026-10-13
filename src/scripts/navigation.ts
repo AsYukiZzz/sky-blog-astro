@@ -1,5 +1,3 @@
-import { browserStorage } from './browser-storage';
-
 export function setupNavigation(signal: AbortSignal) {
     if (signal.aborted) return;
     const menu =
@@ -25,26 +23,6 @@ export function setupNavigation(signal: AbortSignal) {
                         ? 'instant'
                         : 'smooth',
                 });
-            const style = target.closest<HTMLElement>('[data-list-style]');
-            if (style?.dataset.listStyle) {
-                const wrapper = style.closest('[data-post-list-wrapper]');
-                const list = wrapper?.querySelector<HTMLElement>('.post-list');
-                if (list) {
-                    list.dataset.style = style.dataset.listStyle;
-                    browserStorage.set(
-                        'sky-post-layout',
-                        style.dataset.listStyle,
-                    );
-                    wrapper
-                        ?.querySelectorAll<HTMLElement>('[data-list-style]')
-                        .forEach((button) =>
-                            button.setAttribute(
-                                'aria-pressed',
-                                String(button === style),
-                            ),
-                        );
-                }
-            }
             if (!target.closest('.nav-dropdown'))
                 document
                     .querySelectorAll<HTMLDetailsElement>('.nav-dropdown[open]')
@@ -80,24 +58,6 @@ export function setupNavigation(signal: AbortSignal) {
                     { signal },
                 );
             });
-    const selectedStyle = browserStorage.get('sky-post-layout');
-    if (
-        selectedStyle &&
-        ['card', 'list', 'magazine', 'minimal'].includes(selectedStyle)
-    ) {
-        document
-            .querySelectorAll<HTMLElement>('[data-remember-layout] .post-list')
-            .forEach((list) => (list.dataset.style = selectedStyle));
-        document
-            .querySelectorAll<HTMLElement>('[data-list-style]')
-            .forEach((button) =>
-                button.setAttribute(
-                    'aria-pressed',
-                    String(button.dataset.listStyle === selectedStyle),
-                ),
-            );
-    }
-
     let scrollFrame = 0;
     const updateHomeScroll = () => {
         scrollFrame = 0;

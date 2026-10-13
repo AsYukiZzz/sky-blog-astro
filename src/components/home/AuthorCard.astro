@@ -1,12 +1,10 @@
 ---
-import type { HomeCardContentProps } from '../../lib/home-cards';
+import type { HomeCardContentProps } from '../../types/home';
 import Icon from '../Icon.astro';
 type Props = HomeCardContentProps;
 const { headingId } = Astro.props;
-import { site } from '../../config/site';
-import { authors } from '../../lib/content';
-const author =
-    authors.find((author) => author.id === site.author) ?? authors[0];
+import { getAuthor } from '../../lib/author';
+const author = getAuthor();
 const location = author.location?.trim();
 const contactLinks = author.social
     .filter((link) => link.href.trim())

@@ -1,9 +1,9 @@
 ---
-import type { HomeCardContentProps } from '../../lib/home-cards';
+import type { HomeCardContentProps } from '../../types/home';
 import { getPosts } from '../../lib/content';
 import { recentWritingActivity } from '../../lib/writing-activity';
 import { formatDate } from '../../lib/format';
-import { site } from '../../config/site';
+import { site } from '../../config';
 import Icon from '../Icon.astro';
 
 type Props = HomeCardContentProps;

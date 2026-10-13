@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { homeCardSpecs } from '../src/components/home/card-specs.ts';
-import { homePresets } from '../src/config/home-presets.ts';
+import { homePresets } from '../src/presets/home-card.ts';
 import { compileHomeLayout } from '../src/lib/home-layout.ts';
-import type { HomeConfig } from '../src/lib/home-cards.ts';
+import type { HomeCardConfig } from '../src/types/config.ts';
 import {
     expectedHomeOrder,
     expectedHomePlacements,
@@ -40,7 +40,7 @@ test('removed presets cannot be selected', () => {
         assert.throws(
             () =>
                 compileHomeLayout(
-                    { preset } as unknown as HomeConfig,
+                    { preset } as unknown as HomeCardConfig,
                     homeCardSpecs,
                     homePresets,
                 ),

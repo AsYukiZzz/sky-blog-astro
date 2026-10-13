@@ -1,7 +1,7 @@
 ---
-import { theme } from '../config/theme';
+import { theme } from '../config';
 import Icon from './Icon.astro';
-const config = theme.comments;
+const config = theme.post.comment;
 const enabled =
     config.enabled && config.repo && config.repoId && config.categoryId;
 ---

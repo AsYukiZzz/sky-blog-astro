@@ -1,4 +1,4 @@
-import type { CompiledHomeLayout, HomeLayoutPlan } from './home-cards.ts';
+import type { CompiledHomeLayout, HomeLayoutPlan } from '../types/home.ts';
 import { homeLayoutNames } from './home-layout.ts';
 
 function layoutCss(layout: CompiledHomeLayout): string {

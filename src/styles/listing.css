@@ -1,5 +1,5 @@
 /* The archive's title and column width also frame essays and taxonomy pages. */
-.page-archive.without-sidebar {
+.page-archive {
     max-width: 896px;
     margin: auto;
 }

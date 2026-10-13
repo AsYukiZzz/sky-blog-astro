@@ -1,5 +1,5 @@
 ---
-import { theme } from '../config/theme';
+import { theme } from '../config';
 import Icon from './Icon.astro';
 ---
 
@@ -7,8 +7,8 @@ import Icon from './Icon.astro';
     class:list={[
         'home-hero',
         'home-intro',
-        `home-intro-${theme.hero.size}`,
-        `hero-background-${theme.hero.background}`,
+        `home-intro-${theme.home.hero.size}`,
+        `hero-background-${theme.home.hero.background}`,
     ]}
     aria-label="首页封面"
 >
@@ -16,10 +16,10 @@ import Icon from './Icon.astro';
         <div class="hero-glow hero-glow-primary"></div>
         <div class="hero-glow hero-glow-accent"></div>
     </div>
-    {theme.hero.background === 'image' && theme.hero.image && (
-        <img class="hero-media" src={theme.hero.image} alt="" />
+    {theme.home.hero.background === 'image' && theme.home.hero.image && (
+        <img class="hero-media" src={theme.home.hero.image} alt="" />
     )}
-    {theme.hero.background === 'starry-sky' && (
+    {theme.home.hero.background === 'starry-sky' && (
         <div class="effect-starry-sky" aria-hidden="true">
             <div class="effect-bg-base"></div>
             <div class="star-field">
@@ -38,16 +38,16 @@ import Icon from './Icon.astro';
         <h1
             class:list={[
                 'hero-title effect-base effect-particles',
-                theme.hero.titleEffect,
-                `title-font-${theme.hero.titleFont}`,
+                theme.home.hero.titleEffect,
+                `title-font-${theme.home.hero.titleFont}`,
             ]}
             style="--title-color: var(--color-primary)"
         >
             <span>
-                <span>{theme.hero.title}</span>
+                <span>{theme.home.hero.title}</span>
             </span>
         </h1>
-        <p class="hero-subtitle">{theme.hero.subtitle}</p>
+        <p class="hero-subtitle">{theme.home.hero.subtitle}</p>
     </div>
     <span class="hero-scroll-hint" aria-hidden="true">
         向下滚动

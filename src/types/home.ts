@@ -1,9 +1,21 @@
-import type { HomeCardId } from '../components/home/card-specs.ts';
-import type {
-    GridSize,
-    HomeGridPlacement,
-    ParsedHomeGrid,
-} from './home-grid-template.ts';
+export type GridSize = `${number}x${number}`;
+
+export interface HomeGridPlacement<Id extends string = string> {
+    id: Id;
+    row: number;
+    column: number;
+    rowSpan: number;
+    columnSpan: number;
+    size: GridSize;
+}
+
+export interface ParsedHomeGrid<Id extends string = string> {
+    columns: number;
+    rows: number;
+    areas: string[];
+    order: Id[];
+    placements: HomeGridPlacement<Id>[];
+}
 
 export type HomeLayoutName = 'compact' | 'medium' | 'wide';
 export type HomePresetName = 'default';
@@ -38,11 +50,6 @@ export interface HomeLayout {
 }
 
 export type HomePreset = Readonly<Record<HomeLayoutName, HomeLayout>>;
-export interface HomeConfig<Id extends string = HomeCardId> {
-    preset: HomePresetName;
-    disabled?: readonly Id[];
-    layouts?: Partial<Record<HomeLayoutName, Partial<HomeLayout>>>;
-}
 
 export interface CompiledHomePlacement<
     Id extends string = string,
