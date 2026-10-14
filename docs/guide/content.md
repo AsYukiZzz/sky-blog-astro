@@ -8,7 +8,19 @@
 
 ### 1.1 创建文章
 
-在 `src/content/posts/` 中新建文件，例如 `first-post.md`。文件名用于组织内容，访问地址由 `slug` 决定。下面的示例地址是 `/posts/notes/first-post/`。
+在项目根目录执行以下命令，自动在 `src/content/posts/` 中创建文章：
+
+```sh
+pnpm new-post first-post
+pnpm new-post notes/first-post.mdx
+pnpm new-post "我的第一篇文章"
+```
+
+省略扩展名时使用 `.md`；指定 `.md` 或 `.mdx` 时使用对应格式，并自动创建子目录。命令不会覆盖已有文章，同名的 `.md` 和 `.mdx` 文件也会视为重复。创建前还会检查当前文章目录中已有内容的实际 `slug`，即使文件名不同，也不会创建地址相同的文章。运行 `pnpm new-post --help` 查看用法。
+
+生成的元信息包含标题、`slug`、当前发布时间、空摘要和封面、空分类和标签，以及 `pinned: false`、`draft: false`、`visibility: public`。标题取输入中不带扩展名的文件名；文件路径和 `slug` 保留中文和子目录，将空格等不适合地址的字符替换为连字符。例如 `pnpm new-post "hello world"` 创建 `hello-world.md`，标题为 `hello world`，`slug` 为 `hello-world`。写作期间可将 `draft` 改为 `true`，完成后再改回 `false`。
+
+也可以手动新建 `.md` 或 `.mdx` 文件。文件名用于组织内容，访问地址由 `slug` 决定。下面的示例地址是 `/posts/notes/first-post/`。
 
 ```markdown
 ---
@@ -62,7 +74,17 @@ copyright:
 
 ### 2.1 创建随笔
 
-在 `src/content/moments/` 中新建文件，例如 `first-moment.md`。下面的示例地址是 `/moments/daily/first-moment/`。随笔也需要标题，正文可以直接写简短文字。
+在项目根目录执行以下命令，自动在 `src/content/moments/` 中创建随笔：
+
+```sh
+pnpm new-moment first-moment
+pnpm new-moment daily/first-moment.mdx
+pnpm new-moment "今天的一点记录"
+```
+
+省略扩展名时使用 `.md`，支持 `.md`、`.mdx` 和子目录。命令自动生成标题、`slug`、当前发布时间、空摘要和封面、空标签和图片数组（`images: []`），以及 `draft: false`、`visibility: public`。命名、草稿和重复文件保护规则与文章命令一致；运行 `pnpm new-moment --help` 查看用法。
+
+也可以手动新建 `.md` 或 `.mdx` 文件。下面的示例地址是 `/moments/daily/first-moment/`。随笔也需要标题，正文可以直接写简短文字。
 
 ```markdown
 ---

@@ -34,7 +34,7 @@
     ```
 
 3. 编辑 `src/config.ts` 自定义博客，字段说明见 [配置说明](docs/guide/configuration.md)。
-4. 在 `src/content/posts/`、`src/content/pages/` 或 `src/content/moments/` 中创建内容，在 `src/data/` 中维护友链、项目和精选文章，具体说明见 [内容发布](docs/guide/content.md)。
+4. 执行 `pnpm new-post first-post` 创建文章，或执行 `pnpm new-moment first-moment` 创建随笔。独立页面放在 `src/content/pages/` 中，在 `src/data/` 中维护友链、项目和精选文章，具体说明见 [内容发布](docs/guide/content.md)。
 5. 构建并预览网站：
 
     ```sh
@@ -54,6 +54,8 @@
 
 - `pnpm install`：安装依赖并配置 Git 钩子。
 - `pnpm dev`：启动本地开发服务。
+- `pnpm new-post <文件名>`：创建文章，自动生成元信息，支持 `.md`、`.mdx` 和子目录。
+- `pnpm new-moment <文件名>`：创建随笔，自动生成元信息，支持 `.md`、`.mdx` 和子目录。
 - `pnpm build`：检查类型、构建网站、生成搜索索引并校验产物。
 - `pnpm preview`：预览构建产物。
 - `pnpm check`：运行 Astro 类型检查。
