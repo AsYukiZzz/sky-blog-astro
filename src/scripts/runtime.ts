@@ -10,6 +10,7 @@ import { setupMotion } from './motion';
 import { setupArticleTabs } from './article-tabs';
 import { setupSiteStatus } from './site-status';
 import { setupSakana } from './sakana';
+import { setupHeroImage } from './home-hero';
 
 let pageController: AbortController | undefined;
 let routeStartedAt: number | undefined;
@@ -52,5 +53,10 @@ document.addEventListener('astro:before-preparation', (event) => {
         },
         { once: true },
     );
+});
+setupHeroImage();
+document.addEventListener('astro:after-swap', setupHeroImage);
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) setupHeroImage();
 });
 document.addEventListener('astro:page-load', mountPage);

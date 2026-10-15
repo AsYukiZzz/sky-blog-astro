@@ -69,7 +69,7 @@ export interface HomeConfig {
         titleFont: 'condensed' | 'titan-one';
         titleEffect: string;
         background: 'reference' | 'starry-sky' | 'image';
-        image: string;
+        image: string | string[];
     };
     card: HomeCardConfig;
 }

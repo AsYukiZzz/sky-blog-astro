@@ -64,6 +64,7 @@ export const theme: ThemeConfig = {
             titleFont: 'condensed',
             titleEffect: 'effect-marker-pop',
             background: 'reference',
+            // 图片模式可填写单个路径或路径数组，每次进入首页随机显示一张。
             image: '',
         },
         card: {

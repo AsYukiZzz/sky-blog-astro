@@ -27,7 +27,9 @@ const {
 } = Astro.props;
 const pageTitle = title
     ? `${title} · ${site.title}`
-    : `${site.title} · ${site.subtitle}`;
+    : site.subtitle
+      ? `${site.title} · ${site.subtitle}`
+      : site.title;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 const absoluteImage = new URL(image, Astro.site ?? site.url).href;
 const schema = {

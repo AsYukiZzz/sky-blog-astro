@@ -1,6 +1,9 @@
 ---
 import { theme } from '../config';
+import { heroImageSources } from '../lib/hero-images';
 import Icon from './Icon.astro';
+
+const images = heroImageSources(theme.home.hero.image);
 ---
 
 <section
@@ -16,8 +19,22 @@ import Icon from './Icon.astro';
         <div class="hero-glow hero-glow-primary"></div>
         <div class="hero-glow hero-glow-accent"></div>
     </div>
-    {theme.home.hero.background === 'image' && theme.home.hero.image && (
-        <img class="hero-media" src={theme.home.hero.image} alt="" />
+    {theme.home.hero.background === 'image' && images.length > 0 && (
+        <>
+            <img
+                class="hero-media"
+                src={images.length === 1 ? images[0] : undefined}
+                data-hero-images={
+                    images.length > 1 ? JSON.stringify(images) : undefined
+                }
+                alt=""
+            />
+            {images.length > 1 && (
+                <noscript>
+                    <img class="hero-media" src={images[0]} alt="" />
+                </noscript>
+            )}
+        </>
     )}
     {theme.home.hero.background === 'starry-sky' && (
         <div class="effect-starry-sky" aria-hidden="true">

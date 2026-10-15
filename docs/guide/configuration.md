@@ -112,7 +112,18 @@
 
 `titleFont` 选择 `condensed`（Impact / Arial Black）或 `titan-one`（Titan One）。`titleEffect` 使用已定义的 CSS 特效类，具体样式见 [标题特效样式](../../src/styles/original/index-title-effects.css)；留空只取消附加类，内置粒子装饰仍保留。
 
-`background` 可选 `reference`（深色渐变）、`starry-sky`（动态星空）或 `image`（图片）。图片模式下，`image` 非空时插入背景图片，并按封面区域覆盖裁切。
+`background` 可选 `reference`（深色渐变）、`starry-sky`（动态星空）或 `image`（图片）。图片模式下，`image` 支持单个路径或路径数组，图片按封面区域覆盖裁切。空路径会被忽略，没有有效路径时不插入背景图片。
+
+```ts
+background: 'image',
+image: [
+    '/images/hero-1.webp',
+    '/images/hero-2.webp',
+    'https://example.com/hero-3.webp',
+],
+```
+
+填写多个路径时，每次打开、刷新或返回首页（包括浏览器前进、后退恢复页面），都会随机选择一张，本次停留期间保持不变；随机结果可能与上一次相同。未启用 JavaScript 时显示第一张。原有的 `image: '/images/hero.webp'` 单图配置仍可使用。
 
 影响范围：
 
