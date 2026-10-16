@@ -1,12 +1,21 @@
-import { getPosts, getPages, getMoments } from '../lib/content';
+import { getPosts, getPages, getMoments, getColumns } from '../lib/content';
 import { routeFor } from '../lib/content-model';
+import { columnPages } from '../lib/columns-pages';
+import { site } from '../config';
 export async function GET() {
-    const [posts, pages, moments] = await Promise.all([
+    const [posts, pages, moments, columns] = await Promise.all([
         getPosts(),
         getPages(),
         getMoments(),
+        getColumns(),
     ]);
     return Response.json({
+        columns: [
+            { path: '/columns/' },
+            ...columnPages(columns, site.pageSize).map(({ path }) => ({
+                path,
+            })),
+        ],
         posts: posts.map((entry) => ({
             path: routeFor('posts', entry.data.slug),
             title: entry.data.title,

@@ -23,6 +23,7 @@ export const site: SiteConfig = {
                 { label: '文章标签', href: '/tags/' },
             ],
         },
+        { label: '专栏', href: '/columns/', icon: 'book' },
         { label: '随笔', href: '/moments/', icon: 'sparkles' },
         { label: '朋友', href: '/links/', icon: 'users' },
     ],

@@ -1,0 +1,67 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { PublicColumn } from '../lib/columns-model';
+import { routeFor } from '../lib/content-model';
+import Icon from './Icon.astro';
+interface Props {
+    columns: PublicColumn<CollectionEntry<'posts'>>[];
+}
+const { columns } = Astro.props;
+---
+
+<div class="columns-overview">
+    {columns.map((column) => (
+        <section
+            class="glass-card column-overview"
+            data-column-overview={column.slug}
+            aria-labelledby={`column-title-${column.slug}`}
+        >
+            <div class="column-overview-heading">
+                <a
+                    class="column-overview-cover"
+                    href={routeFor('columns', column.slug)}
+                    aria-label={`浏览专栏 ${column.name}`}
+                >
+                    <img
+                        src={column.cover}
+                        alt=""
+                        width="480"
+                        height="300"
+                        loading="lazy"
+                    />
+                </a>
+                <div class="column-overview-copy">
+                    <h2 id={`column-title-${column.slug}`}>
+                        <a href={routeFor('columns', column.slug)}>
+                            {column.name}
+                        </a>
+                    </h2>
+                    {column.description && <p>{column.description}</p>}
+                </div>
+            </div>
+            {column.posts.length > 0 ? (
+                <ol
+                    class="column-directory"
+                    aria-label={`${column.name}文章目录`}
+                >
+                    {column.posts.map((post) => (
+                        <li>
+                            <a href={routeFor('posts', post.data.slug)}>
+                                {post.data.title}
+                            </a>
+                        </li>
+                    ))}
+                </ol>
+            ) : (
+                <p class="columns-empty">暂无已公开文章</p>
+            )}
+        </section>
+    ))}
+    {columns.length === 0 && (
+        <div class="empty-state">
+            <Icon name="book" size={36} />
+            <h2>还没有专栏</h2>
+            <p>新的主题与故事正在酝酿。</p>
+        </div>
+    )}
+</div>

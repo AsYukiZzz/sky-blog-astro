@@ -71,8 +71,9 @@ const { globalDataStore } = await import(
 const { markdownContentEntryType } = await import(
     astroModule('vite-plugin-markdown/content-entry-type.js').href
 );
-const { getPosts, getPages, getMoments } =
+const { getPosts, getPages, getMoments, getColumns } =
     await import('../src/lib/content.ts');
+const { columnConfigs } = await import('../src/data/index.ts');
 const config = await import('../src/config.ts');
 const cutoff = new Date('2026-10-01T12:00:00Z');
 const afterCutoff = new Date('2026-10-01T12:00:02Z');
@@ -229,6 +230,30 @@ test('loader publication decisions survive the deadline and separate query conte
         for (const id of ['future', 'private', 'restricted', 'draft'])
             assert.equal(styleSource.includes(`STYLE_${id}`), false);
     }
+});
+
+test('columns validate hidden references against the complete collection and preserve publication snapshots', async (t) => {
+    t.mock.timers.enable({ apis: ['Date'], now: cutoff.getTime() });
+    const original = [...columnConfigs];
+    t.after(() => columnConfigs.splice(0, columnConfigs.length, ...original));
+    columnConfigs.splice(0, columnConfigs.length, {
+        slug: 'guide',
+        name: 'Guide',
+        description: '',
+        cover: '',
+        posts: ['published', 'future', 'private'],
+    });
+    const { store, load, write } = await fixture(t);
+    await write('posts', 'published');
+    await write('posts', 'future', { publishedAt: '2026-10-01T12:00:01Z' });
+    await write('posts', 'private', { visibility: 'private' });
+    await load('posts');
+    globalDataStore.set(await MutableDataStore.fromString(store.toString()));
+    t.mock.timers.setTime(afterCutoff.getTime());
+    assert.deepEqual(
+        (await getColumns())[0].posts.map((entry) => entry.id),
+        ['published'],
+    );
 });
 
 test('development reloads restore future content with its body and can hide it again', async (t) => {

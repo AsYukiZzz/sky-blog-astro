@@ -1,12 +1,21 @@
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import {
     isPublicContent,
     sortPosts,
     validateContent,
     validateCollection,
 } from './content-model';
-import { popularSlugs } from '../data/index';
+import { popularSlugs, columnConfigs } from '../data/index';
 import { getAuthor } from './author';
+import { resolveColumns, type PublicColumn } from './columns-model';
+
+export async function getColumns(): Promise<
+    PublicColumn<CollectionEntry<'posts'>>[]
+> {
+    const entries = await getCollection('posts');
+    validateContent(entries, getAuthor().id);
+    return resolveColumns(columnConfigs, entries);
+}
 
 export async function getPosts() {
     const entries = await getCollection('posts');

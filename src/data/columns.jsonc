@@ -1,0 +1,9 @@
+[
+    {
+        "slug": "theme-guide",
+        "name": "主题使用指南",
+        "description": "围绕主题写作与使用的示例文章。",
+        "cover": "/images/mist.svg",
+        "posts": ["format-example"]
+    }
+]

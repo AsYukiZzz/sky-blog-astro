@@ -1,12 +1,13 @@
 ---
 import { site } from '../config';
-import { getPosts, getMoments, getPages } from '../lib/content';
+import { getPosts, getMoments, getPages, getColumns } from '../lib/content';
 import { publicTaxonomy, routeFor } from '../lib/content-model';
 import ListingLayout from '../layouts/ListingLayout.astro';
-const [posts, moments, pages] = await Promise.all([
+const [posts, moments, pages, columns] = await Promise.all([
     getPosts(),
     getMoments(),
     getPages(),
+    getColumns(),
 ]);
 const { categories, tags } = publicTaxonomy(posts);
 const primary = site.navigation
@@ -38,6 +39,13 @@ const groups = [
         links: tags.map((tag) => ({
             title: tag,
             href: routeFor('tags', tag),
+        })),
+    },
+    {
+        title: '专栏',
+        links: columns.map((column) => ({
+            title: column.name,
+            href: routeFor('columns', column.slug),
         })),
     },
     {

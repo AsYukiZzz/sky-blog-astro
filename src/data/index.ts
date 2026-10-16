@@ -3,6 +3,8 @@ import { parseJsonc } from '../lib/jsonc';
 import linksSource from './links.jsonc?raw';
 import projectsSource from './projects.jsonc?raw';
 import popularPostsSource from './popular-posts.jsonc?raw';
+import columnsSource from './columns.jsonc?raw';
+import { columnsSchema } from '../lib/columns-model';
 
 const friendSchema = z.object({
     name: z.string(),
@@ -51,4 +53,10 @@ export const popularSlugs = readData(
     popularPostsSource,
     'src/data/popular-posts.jsonc',
     z.array(z.string()),
+);
+
+export const columnConfigs = readData(
+    columnsSource,
+    'src/data/columns.jsonc',
+    columnsSchema,
 );

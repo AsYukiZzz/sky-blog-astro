@@ -42,6 +42,7 @@ function fixture(t: TestContext) {
         '',
         'archives',
         'categories',
+        'columns',
         'tags',
         'links',
         'moments',
@@ -303,7 +304,15 @@ test('general build verification accepts additional manifest collections', (t) =
     assert.equal(result.status, 0, result.output);
 });
 
-for (const collection of ['posts', 'pages', 'moments', 'docs']) {
+test('general build verification requires the columns overview', (t) => {
+    const build = fixture(t);
+    build.remove('columns/index.html');
+    const result = build.run('verify-build');
+    assert.notEqual(result.status, 0);
+    assert.match(result.output, /columns\/index\.html/);
+});
+
+for (const collection of ['posts', 'pages', 'moments', 'docs', 'columns']) {
     test(`general build verification rejects a missing ${collection} manifest route`, (t) => {
         const build = fixture(t);
         build.manifest({

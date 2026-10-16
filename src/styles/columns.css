@@ -1,0 +1,184 @@
+.column-info {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 28px;
+    padding: 24px;
+    border: 1px solid var(--sky-border);
+    border-inline-start: 4px solid var(--color-primary);
+    border-radius: 16px;
+    background: color-mix(
+        in oklch,
+        var(--color-primary) 6%,
+        var(--color-base-100)
+    );
+}
+.column-info-cover,
+.column-overview-cover img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 8 / 5;
+    object-fit: cover;
+    border-radius: 14px;
+}
+.column-info-copy,
+.column-overview-copy {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.column-info-copy h2 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+.column-info-copy p,
+.column-overview-copy p {
+    margin: 12px 0 0;
+    color: var(--sky-muted);
+    font-size: 14px;
+    line-height: 1.8;
+}
+.columns-switch,
+.columns-more > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+.columns-switch {
+    margin-bottom: 28px;
+}
+.columns-switch a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 38px;
+    max-width: 100%;
+    padding: 8px 13px;
+    border: 1px solid var(--sky-border);
+    border-radius: 10px;
+    background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
+    color: var(--sky-muted);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+.columns-switch a > span {
+    min-width: 0;
+}
+.columns-switch svg,
+.columns-switch small {
+    flex-shrink: 0;
+}
+.columns-switch small {
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: color-mix(in oklch, var(--color-base-content) 4%, transparent);
+    font:
+        10px/1.5 system-ui,
+        sans-serif;
+}
+.columns-switch a[aria-current='page'] {
+    color: var(--color-base-content);
+    border-color: color-mix(in oklch, var(--color-primary) 24%, transparent);
+    background: color-mix(
+        in oklch,
+        var(--color-primary) 9%,
+        var(--color-base-100)
+    );
+}
+.columns-more {
+    max-width: 100%;
+}
+.columns-more[open] {
+    flex-basis: 100%;
+}
+.columns-more summary {
+    cursor: pointer;
+    padding: 8px 12px;
+    color: var(--sky-muted);
+    font-size: 13px;
+}
+.columns-more > div {
+    padding-top: 8px;
+}
+.columns-overview {
+    display: grid;
+    gap: 24px;
+}
+.column-overview {
+    padding: 28px;
+}
+.column-overview-heading {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+}
+.column-overview-copy h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+.column-directory {
+    list-style: decimal;
+    margin: 24px 0 0;
+    padding: 18px 0 0 28px;
+    border-top: 1px solid var(--sky-border);
+}
+.column-directory li {
+    padding-left: 6px;
+    overflow-wrap: anywhere;
+}
+.column-directory li::marker {
+    color: var(--sky-muted);
+    font:
+        12px system-ui,
+        sans-serif;
+}
+.column-directory a {
+    display: block;
+    padding: 7px 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.columns-empty {
+    padding-block: 20px;
+    margin: 0;
+    color: var(--sky-muted);
+    font-size: 14px;
+}
+@media (hover: hover) and (pointer: fine) {
+    .columns-switch a:hover,
+    .column-overview a:hover {
+        color: var(--color-primary);
+    }
+}
+@media (max-width: 540px) {
+    .column-info,
+    .column-overview-heading {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+    .column-info {
+        margin-bottom: 24px;
+        padding: 20px;
+    }
+    .column-info-copy h2 {
+        font-size: 24px;
+    }
+    .column-overview {
+        padding: 20px;
+    }
+    .columns-switch {
+        gap: 8px;
+        margin-bottom: 24px;
+    }
+    .columns-switch a {
+        padding-inline: 10px;
+        font-size: 12px;
+    }
+}

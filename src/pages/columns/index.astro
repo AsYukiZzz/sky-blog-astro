@@ -1,0 +1,10 @@
+---
+import { getColumns } from '../../lib/content';
+import ColumnsLayout from '../../layouts/ColumnsLayout.astro';
+import ColumnsOverview from '../../components/ColumnsOverview.astro';
+const columns = await getColumns();
+---
+
+<ColumnsLayout columns={columns}>
+    <ColumnsOverview columns={columns} />
+</ColumnsLayout>

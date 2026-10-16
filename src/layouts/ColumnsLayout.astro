@@ -1,0 +1,59 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { PublicColumn } from '../lib/columns-model';
+import BaseLayout from './BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ColumnsSwitch from '../components/ColumnsSwitch.astro';
+import '../styles/listing.css';
+import '../styles/columns.css';
+
+interface Props {
+    columns: PublicColumn<CollectionEntry<'posts'>>[];
+    column?: PublicColumn<CollectionEntry<'posts'>>;
+}
+const { columns, column } = Astro.props;
+const title = column ? `专栏：${column.name}` : '专栏';
+---
+
+<BaseLayout
+    title={title}
+    description={column?.description || '按专栏阅读，串联文章与思考。'}
+    image={column?.cover}
+>
+    <div class="site-container listing-container">
+        <div class="content-grid page-archive page-columns">
+            <div class="content-column">
+                <div data-columns-header>
+                    <PageHeader
+                        title={title}
+                        count={column ? column.posts.length : columns.length}
+                        description={
+                            column ? undefined : `共 ${columns.length} 个专栏`
+                        }
+                    />
+                </div>
+                <ColumnsSwitch columns={columns} active={column?.slug} />
+                {column && (
+                    <section
+                        class="column-info"
+                        aria-labelledby="column-title"
+                        data-column-info
+                    >
+                        <img
+                            class="column-info-cover"
+                            src={column.cover}
+                            alt=""
+                            width="480"
+                            height="300"
+                        />
+                        <div class="column-info-copy">
+                            <h2 id="column-title">{column.name}</h2>
+                            {column.description && <p>{column.description}</p>}
+                        </div>
+                    </section>
+                )}
+                <slot />
+            </div>
+        </div>
+    </div>
+</BaseLayout>

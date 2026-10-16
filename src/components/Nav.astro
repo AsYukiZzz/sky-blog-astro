@@ -2,6 +2,11 @@
 import { site } from '../config';
 import Icon from './Icon.astro';
 const path = Astro.url.pathname;
+const inColumns = (href: string) =>
+    href === '/columns/' && path.startsWith(href);
+const isActive = (href: string) => path === href || inColumns(href);
+const current = (href: string) =>
+    path === href ? 'page' : inColumns(href) ? 'location' : undefined;
 ---
 
 <header
@@ -61,9 +66,9 @@ const path = Astro.url.pathname;
                         href={item.href}
                         class:list={[
                             'nav-menu-item',
-                            { active: path === item.href },
+                            { active: isActive(item.href) },
                         ]}
-                        aria-current={path === item.href ? 'page' : undefined}
+                        aria-current={current(item.href)}
                     >
                         <Icon name={item.icon} size={16} />
                         {item.label}
@@ -109,10 +114,7 @@ const path = Astro.url.pathname;
     <nav aria-label="移动端主导航">
         {site.navigation.map((item) => (
             <div>
-                <a
-                    href={item.href}
-                    aria-current={path === item.href ? 'page' : undefined}
-                >
+                <a href={item.href} aria-current={current(item.href)}>
                     <Icon name={item.icon} size={18} />
                     {item.label}
                 </a>

@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getColumns } from '../../lib/content';
+import { columnPages, type ColumnPage } from '../../lib/columns-pages';
+import { routeFor } from '../../lib/content-model';
+import { site } from '../../config';
+import ColumnsLayout from '../../layouts/ColumnsLayout.astro';
+import ContentPreviewList from '../../components/ContentPreviewList.astro';
+import Pagination from '../../components/Pagination.astro';
+
+export async function getStaticPaths() {
+    return columnPages(await getColumns(), site.pageSize).map(
+        ({ params, props }) => ({ params, props }),
+    );
+}
+type Props = ColumnPage<CollectionEntry<'posts'>>['props'];
+const { columns, column, posts, current, total } = Astro.props;
+const first = routeFor('columns', column.slug);
+---
+
+<ColumnsLayout columns={columns} column={column}>
+    {posts.length > 0 ? (
+        <ContentPreviewList entries={posts} />
+    ) : (
+        <p class="columns-empty">暂无已公开文章</p>
+    )}
+    <Pagination
+        current={current}
+        total={total}
+        first={first}
+        base={`${first}page`}
+    />
+</ColumnsLayout>

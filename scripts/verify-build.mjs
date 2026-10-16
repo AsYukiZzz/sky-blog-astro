@@ -8,6 +8,7 @@ const required = [
     'index.html',
     'archives/index.html',
     'categories/index.html',
+    'columns/index.html',
     'tags/index.html',
     'links/index.html',
     'moments/index.html',

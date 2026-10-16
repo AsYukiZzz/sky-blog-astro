@@ -326,7 +326,8 @@ html[data-color-scheme='dark'] .dark-icon {
     font-size: 16px;
 }
 
-.mobile-navigation a[aria-current='page'] {
+.mobile-navigation a[aria-current='page'],
+.mobile-navigation a[aria-current='location'] {
     color: var(--color-primary);
     background: color-mix(in oklch, var(--color-primary) 8%, transparent);
 }

@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { PublicColumn } from '../lib/columns-model';
+import { routeFor } from '../lib/content-model';
+import Icon from './Icon.astro';
+interface Props {
+    columns: PublicColumn<CollectionEntry<'posts'>>[];
+    active?: string;
+}
+const { columns, active } = Astro.props;
+const visible = columns.slice(0, 10);
+const more = columns.slice(10);
+---
+
+<nav class="columns-switch" aria-label="专栏切换">
+    <a href="/columns/" aria-current={!active ? 'page' : undefined}>
+        <Icon name="grid" size={14} />
+        全部
+    </a>
+    {visible.map((column) => (
+        <a
+            href={routeFor('columns', column.slug)}
+            aria-current={active === column.slug ? 'page' : undefined}
+        >
+            <Icon name="book" size={14} />
+            <span>{column.name}</span>
+            <small>{column.posts.length}</small>
+        </a>
+    ))}
+    {more.length > 0 && (
+        <details
+            class="columns-more"
+            open={more.some((column) => column.slug === active)}
+        >
+            <summary aria-label="更多专栏">+{more.length}</summary>
+            <div>
+                {more.map((column) => (
+                    <a
+                        href={routeFor('columns', column.slug)}
+                        aria-current={
+                            active === column.slug ? 'page' : undefined
+                        }
+                    >
+                        <span>{column.name}</span>
+                        <small>{column.posts.length}</small>
+                    </a>
+                ))}
+            </div>
+        </details>
+    )}
+</nav>
