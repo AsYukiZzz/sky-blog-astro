@@ -52,7 +52,8 @@
 
 在项目根目录执行：
 
-- `pnpm install`：安装依赖并配置 Git 钩子。
+- `pnpm install`：安装依赖。
+- `pnpm hooks:install`：手动启用提交消息检查钩子（默认不安装）。
 - `pnpm dev`：启动本地开发服务。
 - `pnpm new-post <文件名>`：创建文章，自动生成元信息，支持 `.md`、`.mdx` 和子目录。
 - `pnpm new-moment <文件名>`：创建随笔，自动生成元信息，支持 `.md`、`.mdx` 和子目录。

@@ -12,6 +12,7 @@ const types = new Set([
     'ci',
     'chore',
     'revert',
+    'merge',
 ]);
 
 function reject(reason) {
@@ -38,13 +39,13 @@ const title =
         .find((line) => line.trim())
         ?.trim() ?? '';
 const match =
-    /^([a-z]+)\(([a-z][a-z0-9]*(?:-[a-z0-9]+)*)\)[:：][ \t]*(\S.*)$/u.exec(
+    /^([a-z]+)\(([a-z0-9][a-z0-9]*(?:-[a-z0-9]+)*)\)[:：][ \t]*(\S.*)$/u.exec(
         title,
     );
 
 if (!match || !types.has(match[1])) {
     reject(
-        '类型须为 feat、fix、docs、style、refactor、perf、test、build、ci、chore 或 revert；范围须为英文小写名称。',
+        '类型须为 feat、fix、docs、style、refactor、perf、test、build、ci、chore、revert 或 merge；范围须为英文小写名称。',
     );
 }
 if (!/\p{Script=Han}/u.test(match[3])) {

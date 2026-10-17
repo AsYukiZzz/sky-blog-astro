@@ -1,3 +1,4 @@
+// 提交消息检查默认不启用，只有用户主动执行 `pnpm hooks:install` 时才安装。
 import { spawnSync } from 'node:child_process';
 import { chmodSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -42,3 +43,4 @@ if (installed.error || installed.status !== 0) {
     process.exit(1);
 }
 console.log('已启用提交消息检查：type(scope): 中文说明。');
+console.log('如需关闭，执行 git config --unset core.hooksPath。');

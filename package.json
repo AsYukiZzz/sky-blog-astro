@@ -9,7 +9,6 @@
         "node": ">=22.18.0"
     },
     "scripts": {
-        "prepare": "node scripts/install-git-hooks.mjs",
         "hooks:install": "node scripts/install-git-hooks.mjs",
         "dev": "astro dev --host 127.0.0.1",
         "new-post": "node scripts/new-post.mjs",

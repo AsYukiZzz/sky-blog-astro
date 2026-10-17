@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, rmSync } from 'node:fs';
+import {
+    cpSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -45,6 +51,21 @@ function install(directory: string) {
         [join(directory, 'scripts', 'install-git-hooks.mjs')],
         { cwd: directory, encoding: 'utf8' },
     );
+}
+
+function checkMessage(message: string) {
+    const directory = mkdtempSync(join(tmpdir(), 'sky-blog message-'));
+    try {
+        const file = join(directory, 'message.txt');
+        writeFileSync(file, `${message}\n`);
+        return spawnSync(
+            process.execPath,
+            [join(projectRoot, 'scripts', 'check-commit-message.mjs'), file],
+            { encoding: 'utf8' },
+        );
+    } finally {
+        rmSync(directory, { recursive: true, force: true });
+    }
 }
 
 test('installed Git hooks reject invalid commits and allow Chinese commit descriptions', () => {
@@ -138,4 +159,44 @@ test('hook installation succeeds without Git metadata in downloaded source archi
         assert.equal(setup.status, 0, setup.stderr);
         assert.match(setup.stdout, /未检测到 Git 仓库/u);
     });
+});
+
+test('dependency installation does not install Git hooks unless requested', () => {
+    const manifest = JSON.parse(
+        readFileSync(join(projectRoot, 'package.json'), 'utf8'),
+    ) as { scripts?: Record<string, string> };
+    const scripts = manifest.scripts ?? {};
+
+    // 安装依赖只会执行这些安装期脚本，它们都不应改动 Git 钩子配置。
+    for (const name of ['preinstall', 'install', 'postinstall', 'prepare']) {
+        assert.doesNotMatch(
+            scripts[name] ?? '',
+            /install-git-hooks|check-commit-message|hooksPath/u,
+            `安装期脚本 ${name} 不应安装 Git 钩子`,
+        );
+    }
+    assert.equal(
+        scripts['hooks:install'],
+        'node scripts/install-git-hooks.mjs',
+    );
+});
+
+test('message checker accepts merge commits and scopes that begin with digits', () => {
+    for (const message of [
+        'merge(main): 合并 main 分支',
+        'fix(404): 修复 404 页面',
+    ]) {
+        const result = checkMessage(message);
+        assert.equal(result.status, 0, result.stderr);
+    }
+});
+
+test('message checker rejects undeclared types and raw Git merge messages', () => {
+    for (const message of [
+        'merged(main): 合并 main 分支',
+        "Merge branch 'main' into dev",
+    ]) {
+        const result = checkMessage(message);
+        assert.equal(result.status, 1, `应拒绝：${message}`);
+    }
 });
