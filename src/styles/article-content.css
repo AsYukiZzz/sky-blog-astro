@@ -11,9 +11,8 @@
     overflow-wrap: break-word;
     word-break: break-word;
 
-    /* 两端对齐（中文排版标准） */
-    text-align: justify;
-    text-justify: inter-ideograph;
+    /* 自然对齐，避免两端对齐拉大字距 */
+    text-align: start;
 
     /* 标点优化 */
     hanging-punctuation: allow-end;
