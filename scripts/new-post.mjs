@@ -1,3 +1,4 @@
+import { DEFAULT_COPYRIGHT } from '../src/lib/copyright.ts';
 import {
     readConfiguredAuthor,
     runNewContent,
@@ -29,6 +30,9 @@ async function frontmatter({ title, publishedAt }) {
         'pinned: false',
         'draft: false',
         'visibility: public',
+        'copyright:',
+        `    type: ${DEFAULT_COPYRIGHT.type}`,
+        `    license: ${yamlScalar(DEFAULT_COPYRIGHT.license)}`,
     ].join('\n');
 }
 

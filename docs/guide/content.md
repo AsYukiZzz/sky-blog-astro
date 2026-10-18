@@ -18,7 +18,7 @@ pnpm new-post "我的第一篇文章"
 
 省略扩展名时使用 `.md`；指定 `.md` 或 `.mdx` 时使用对应格式，并自动创建子目录。命令不会覆盖已有文章，同名的 `.md` 和 `.mdx` 文件也会视为重复。`slug` 不再从文件名派生；构建时会校验它是否填写、格式是否合法，以及是否与已有文章地址重复。运行 `pnpm new-post --help` 查看用法。
 
-生成的元信息按固定顺序包含标题、留空的 `slug`、留空的摘要和封面、当前发布时间与相同的更新时间、站主作者（读取 `src/config.ts` 中的 `author.id`）、空分类和标签、`pinned: false`、`draft: false`、`visibility: public`。值通常不加引号，只有可能被 YAML 误读的标题才会自动加上引号。标题取输入中不带扩展名的文件名；文件路径保留中文和子目录，将空格等不适合地址的字符替换为连字符，例如 `pnpm new-post "hello world"` 创建 `hello-world.md`，标题为 `hello world`。`slug` 留空是有意为之：请在构建或预览前手动填写，构建会拒绝空值。写作期间可将 `draft` 改为 `true`，完成后再改回 `false`。
+生成的元信息按固定顺序包含标题、留空的 `slug`、留空的摘要和封面、当前发布时间与相同的更新时间、站主作者（读取 `src/config.ts` 中的 `author.id`）、空分类和标签、`pinned: false`、`draft: false`、`visibility: public`，以及版权声明。版权信息不可省略：每篇博文都必须包含 `copyright`，其中 `type` 和 `license` 必填；生成器会默认写入 `copyright.type: original` 和 `copyright.license: CC BY-NC-SA 4.0`。值通常不加引号，只有可能被 YAML 误读的标题才会自动加上引号。标题取输入中不带扩展名的文件名；文件路径保留中文和子目录，将空格等不适合地址的字符替换为连字符，例如 `pnpm new-post "hello world"` 创建 `hello-world.md`，标题为 `hello world`。`slug` 留空是有意为之：请在构建或预览前手动填写，构建会拒绝空值。写作期间可将 `draft` 改为 `true`，完成后再改回 `false`。
 
 也可以手动新建 `.md` 或 `.mdx` 文件。文件名用于组织内容，访问地址由必填的 `slug` 决定。下面的示例是命令生成后的默认形态，其中的 `slug` 需要在构建前填写（例如填写 `slug: first-post`，地址即 `/posts/first-post/`）。
 
@@ -36,6 +36,9 @@ tags: []
 pinned: false
 draft: false
 visibility: public
+copyright:
+    type: original
+    license: CC BY-NC-SA 4.0
 ---
 
 ## 正文标题
@@ -43,30 +46,32 @@ visibility: public
 从这里开始写文章正文。
 ```
 
-`title`、`slug`、`publishedAt` 必填，其他字段可按需省略。`author` 必须与 `src/config.ts` 的 `author.id` 一致，示例中的 `sky` 是当前配置值。如果 `slug` 是纯数字（例如文章编号 `001`），需要加引号写成 `slug: '001'`，否则 YAML 会把它解析成数字。正文通常从二级标题开始，文章标题由 `title` 生成。
+`title`、`slug`、`publishedAt` 必填；`copyright` 块不可省略，`copyright.type` 和 `copyright.license` 也必填。`repost`/`derivative` 还必须填写 `copyright.source`，`custom` 还必须填写 `copyright.note`。其他字段可按需省略。`author` 必须与 `src/config.ts` 的 `author.id` 一致，示例中的 `sky` 是当前配置值。如果 `slug` 是纯数字（例如文章编号 `001`），需要加引号写成 `slug: '001'`，否则 YAML 会把它解析成数字。正文通常从二级标题开始，文章标题由 `title` 生成。
 
 ### 1.2 元信息字段
 
-| 字段                | 解释                                                                                               |
-| ------------------- | -------------------------------------------------------------------------------------------------- |
-| `title`             | 文章标题，必填。                                                                                   |
-| `slug`              | 访问地址标识，决定 `/posts/{slug}/`，必填；由作者填写，构建时校验格式和唯一性。                    |
-| `publishedAt`       | 发布时间，必填。                                                                                   |
-| `updatedAt`         | 更新日期，用于文章详情显示和页面元信息；命令生成时与发布时间相同。                                 |
-| `description`       | 文章摘要和页面描述，也用于 RSS 简介。                                                              |
-| `cover`             | 封面图片地址，用于文章头图、列表和分享。                                                           |
-| `author`            | 作者 ID，须与 `src/config.ts` 的 `author.id` 一致；省略时使用站主。                                |
-| `categories`        | 分类数组，自动生成分类归档。                                                                       |
-| `tags`              | 标签数组，自动生成标签归档。                                                                       |
-| `pinned`            | 是否在分类、标签、作者和分页文章列表中置顶。                                                       |
-| `draft`             | 是否为草稿，`true` 时不发布。                                                                      |
-| `visibility`        | 可见性：`public` 公开，`private`、`restricted` 不发布。                                            |
-| `legacyPath`        | 旧文章地址，构建时生成到本篇文章的 301 跳转。                                                      |
-| `copyright`         | 版权声明配置对象。                                                                                 |
-| `copyright.type`    | 声明类型：`original` 原创、`repost` 转载、`ai` AI 辅助、`derivative` 二次创作、`custom` 创作声明。 |
-| `copyright.license` | 许可协议文字。                                                                                     |
-| `copyright.source`  | 来源链接，使用 HTTP/HTTPS 地址。                                                                   |
-| `copyright.note`    | 自定义声明，填写后替代许可说明。                                                                   |
+| 字段                | 解释                                                                                                     |
+| ------------------- | -------------------------------------------------------------------------------------------------------- |
+| `title`             | 文章标题，必填。                                                                                         |
+| `slug`              | 访问地址标识，决定 `/posts/{slug}/`，必填；由作者填写，构建时校验格式和唯一性。                          |
+| `publishedAt`       | 发布时间，必填。                                                                                         |
+| `updatedAt`         | 更新日期，用于文章详情显示和页面元信息；命令生成时与发布时间相同。                                       |
+| `description`       | 文章摘要和页面描述，也用于 RSS 简介。                                                                    |
+| `cover`             | 封面图片地址，用于文章头图、列表和分享。                                                                 |
+| `author`            | 作者 ID，须与 `src/config.ts` 的 `author.id` 一致；省略时使用站主。                                      |
+| `categories`        | 分类数组，自动生成分类归档。                                                                             |
+| `tags`              | 标签数组，自动生成标签归档。                                                                             |
+| `pinned`            | 是否在分类、标签、作者和分页文章列表中置顶。                                                             |
+| `draft`             | 是否为草稿，`true` 时不发布。                                                                            |
+| `visibility`        | 可见性：`public` 公开，`private`、`restricted` 不发布。                                                  |
+| `legacyPath`        | 旧文章地址，构建时生成到本篇文章的 301 跳转。                                                            |
+| `copyright`         | 版权声明配置对象，必填，不可省略。                                                                       |
+| `copyright.type`    | 声明类型，必填：`original` 原创、`repost` 转载、`ai` AI 辅助、`derivative` 二次创作、`custom` 创作声明。 |
+| `copyright.license` | 许可协议文字，必填。                                                                                     |
+| `copyright.source`  | 来源链接，使用 HTTP/HTTPS 地址；`repost`、`derivative` 必填，其他类型可选。                              |
+| `copyright.note`    | 自定义声明；`custom` 必填，其他类型可选；填写后替代按类型生成的默认文案。                                |
+
+默认文案按 `type` 区分：`original` 显示许可协议，`repost` 显示“版权归原作者所有”，`ai` 注明 AI 辅助，`derivative` 注明二次创作，`custom` 直接展示 `note`。已有站点升级后需要为每篇文章补上 `copyright` 块，否则构建会失败。
 
 ## 2 随笔
 
@@ -102,7 +107,7 @@ visibility: public
 傍晚出去走了走，留下今天的一点记录。
 ```
 
-`title`、`slug`、`publishedAt` 必填，其他字段可按需省略。
+`title`、`slug`、`publishedAt` 必填，其他字段可按需省略。随笔的 `copyright` 可选：不填时按 `original` + `CC BY-NC-SA 4.0` 在详情页显示一行紧凑声明；需要转载、AI 辅助或自定义声明时，按文章相同的 `copyright` 结构填写，`repost`/`derivative` 仍需 `source`，`custom` 仍需 `note`。
 
 ### 2.2 元信息字段
 
@@ -115,6 +120,7 @@ visibility: public
 | `description` | 随笔摘要和页面描述，首页随笔卡片优先展示此内容。                    |
 | `cover`       | 随笔列表封面，省略时取 `images` 中的图片。                          |
 | `author`      | 作者 ID，须与 `src/config.ts` 的 `author.id` 一致；省略时使用站主。 |
+| `copyright`   | 版权声明，可选；省略时显示默认原创 + CC BY-NC-SA 4.0 的紧凑声明。   |
 | `tags`        | 文字标签数组，只展示标签，不生成文章标签归档。                      |
 | `images`      | 图片地址数组，按顺序生成画廊，第一张用于分享。                      |
 | `draft`       | 是否为草稿，`true` 时不发布。                                       |
@@ -137,7 +143,7 @@ description: 本站的介绍。
 在这里介绍博客与站主。
 ```
 
-地址为 `/pages/about/`；`slug` 必填，不会从文件名自动生成。需要菜单或页脚入口时，在 `src/config.ts` 中配置对应页面地址。
+地址为 `/pages/about/`；`slug` 必填，不会从文件名自动生成。页面不显示版权卡片，使用站点页脚和默认许可说明，不需要填写 `copyright`。需要菜单或页脚入口时，在 `src/config.ts` 中配置对应页面地址。
 
 ### 3.2 元信息字段
 
@@ -245,7 +251,7 @@ description: 本站的介绍。
 
 ## 5 预览、发布与图片
 
-保存文件后运行 `pnpm dev` 预览。`slug` 必须已经填写；空 `slug` 会在内容校验阶段报错。内容需同时满足 `draft: false`、`visibility: public`、`publishedAt` 不晚于构建时间，才会生成页面并进入相应列表、搜索与统计；RSS 收录公开文章。
+保存文件后运行 `pnpm dev` 预览。`slug` 必须已经填写；空 `slug` 会在内容校验阶段报错。每篇文章还必须包含 `copyright`，缺失时同样会导致预览或构建失败。内容需同时满足 `draft: false`、`visibility: public`、`publishedAt` 不晚于构建时间，才会生成页面并进入相应列表、搜索与统计；RSS 收录公开文章。
 
 草稿、非公开内容和未来发布内容会被排除。未来内容到期后需重新构建，正式发布步骤见 [部署指南](deployment.md)。
 

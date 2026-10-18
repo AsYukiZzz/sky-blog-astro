@@ -12,6 +12,7 @@ import {
 import { createServer } from 'node:http';
 import { basename, dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DEFAULT_COPYRIGHT } from '../../src/lib/copyright.ts';
 
 export const longColumnName =
     '这是一段用于验证专栏标题在手机上正常换行的中文名称'.repeat(3);
@@ -53,6 +54,7 @@ export async function createColumnsSite(options: { empty?: boolean } = {}) {
                 title: `文章 ${id}`,
                 slug: id,
                 publishedAt: '2020-01-01T00:00:00Z',
+                copyright: DEFAULT_COPYRIGHT,
                 ...data,
             };
             const metadata = Object.entries(fields)

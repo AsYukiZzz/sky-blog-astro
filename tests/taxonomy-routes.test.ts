@@ -11,6 +11,7 @@ import {
 import { basename, dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { DEFAULT_COPYRIGHT } from '../src/lib/copyright.ts';
 
 const project = fileURLToPath(new URL('../', import.meta.url));
 const scratch = join(project, '.cache');
@@ -42,6 +43,7 @@ test(
                 title: id,
                 slug: id,
                 publishedAt: '2020-01-01T00:00:00Z',
+                copyright: DEFAULT_COPYRIGHT,
                 ...data,
             })
                 .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)

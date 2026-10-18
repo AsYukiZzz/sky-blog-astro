@@ -10,6 +10,7 @@ import test, { after, type TestContext } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { LoaderContext } from 'astro/loaders';
 import { isPublicContent, publicTaxonomy } from '../src/lib/content-model.ts';
+import { DEFAULT_COPYRIGHT } from '../src/lib/copyright.ts';
 import { recentWritingActivity } from '../src/lib/writing-activity.ts';
 
 const astroPackage = new URL(import.meta.resolve('astro/package.json'));
@@ -139,12 +140,14 @@ async function fixture(t: TestContext) {
             title: id,
             slug: id,
             publishedAt: '2026-09-20T00:00:00Z',
+            ...(collection === 'posts' ? { copyright: DEFAULT_COPYRIGHT } : {}),
             ...data,
         };
         const frontmatter = Object.entries(fields)
             .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
             .join('\n');
         const path = join(base, `${id}.md`);
+        await mkdir(dirname(path), { recursive: true });
         await writeFile(
             path,
             `---\n${frontmatter}\n---\nBody for ${id}.\n![Image](./${id}.svg)\n<div class="before:content-['STYLE_${id}']"></div>\n`,
@@ -301,6 +304,9 @@ test('every collection requires an explicit slug and defaults empty optional fie
                 title: 'Explicit slug',
                 ...(slug === undefined ? {} : { slug }),
                 publishedAt: '2026-09-20T00:00:00Z',
+                ...(collection === 'posts'
+                    ? { copyright: DEFAULT_COPYRIGHT }
+                    : {}),
             });
             assert.equal(
                 result.success,
@@ -315,6 +321,7 @@ test('every collection requires an explicit slug and defaults empty optional fie
             description: null,
             cover: null,
             publishedAt: '2026-09-20T00:00:00Z',
+            ...(collection === 'posts' ? { copyright: DEFAULT_COPYRIGHT } : {}),
         });
         assert.equal(data.slug, 'hello-world', collection);
         assert.equal(data.description, '', collection);
@@ -322,15 +329,121 @@ test('every collection requires an explicit slug and defaults empty optional fie
     }
 });
 
-test('collection schemas reject blank and unknown authors while defaulting omitted IDs', async (t) => {
+test('posts require copyright metadata', async (t) => {
     const { collections } = await fixture(t);
+    const schema = collections.posts.schema;
     const metadata = {
-        title: 'Author validation',
-        slug: 'author-validation',
+        title: 'Copyright validation',
+        slug: 'copyright-validation',
         publishedAt: '2026-09-20T00:00:00Z',
     };
+    const missing = schema.safeParse(metadata);
+    assert.equal(missing.success, false);
+    assert.match(JSON.stringify(missing.error), /copyright|版权/u);
+    for (const copyright of [
+        null,
+        {},
+        { type: 'original' },
+        { license: 'CC BY-NC-SA 4.0' },
+    ]) {
+        const result = schema.safeParse({ ...metadata, copyright });
+        assert.equal(result.success, false, JSON.stringify(copyright));
+    }
+    const data = schema.parse({ ...metadata, copyright: DEFAULT_COPYRIGHT });
+    assert.deepEqual(data.copyright, DEFAULT_COPYRIGHT);
+});
+
+test('copyright types require attribution and normalize optional fields', async (t) => {
+    const { collections } = await fixture(t);
+    const schema = collections.posts.schema;
+    const metadata = {
+        title: 'Copyright rules',
+        slug: 'copyright-rules',
+        publishedAt: '2026-09-20T00:00:00Z',
+    };
+    const parse = (copyright: unknown) =>
+        schema.safeParse({ ...metadata, copyright });
+    const license = DEFAULT_COPYRIGHT.license;
+    for (const type of ['repost', 'derivative'] as const) {
+        const missing = parse({ type, license });
+        assert.equal(missing.success, false, type);
+        assert.match(JSON.stringify(missing.error), /source/u);
+        const valid = parse({
+            type,
+            license,
+            source: 'https://example.com/post',
+        });
+        assert.equal(valid.success, true, type);
+        if (valid.success)
+            assert.equal(
+                valid.data.copyright?.source,
+                'https://example.com/post',
+            );
+    }
+    const customMissing = parse({ type: 'custom', license });
+    assert.equal(customMissing.success, false);
+    assert.match(JSON.stringify(customMissing.error), /note/u);
+    assert.equal(
+        parse({ type: 'custom', license, note: '自定义声明' }).success,
+        true,
+    );
+    assert.equal(parse({ type: 'ai', license }).success, true);
+    assert.equal(parse({ type: 'original', license: '   ' }).success, false);
+
+    const normalized = schema.parse({
+        ...metadata,
+        copyright: {
+            type: 'original',
+            license: '  CC BY  ',
+            source: '   ',
+            note: '   ',
+        },
+    });
+    assert.equal(normalized.copyright?.license, 'CC BY');
+    assert.equal(normalized.copyright?.source, undefined);
+    assert.equal(normalized.copyright?.note, undefined);
+});
+
+test('moments accept optional copyright metadata', async (t) => {
+    const { collections } = await fixture(t);
+    const schema = collections.moments.schema;
+    const metadata = {
+        title: 'Moment',
+        slug: 'moment',
+        publishedAt: '2026-09-20T00:00:00Z',
+    };
+    assert.equal(schema.safeParse(metadata).success, true);
+    const valid = schema.parse({
+        ...metadata,
+        copyright: {
+            ...DEFAULT_COPYRIGHT,
+            type: 'repost',
+            source: 'https://example.com/original',
+        },
+    });
+    assert.equal(valid.copyright?.type, 'repost');
+    assert.equal(valid.copyright?.source, 'https://example.com/original');
+    const missingSource = schema.safeParse({
+        ...metadata,
+        copyright: {
+            type: 'repost',
+            license: DEFAULT_COPYRIGHT.license,
+        },
+    });
+    assert.equal(missingSource.success, false);
+    assert.match(JSON.stringify(missingSource.error), /source/u);
+});
+
+test('collection schemas reject blank and unknown authors while defaulting omitted IDs', async (t) => {
+    const { collections } = await fixture(t);
     for (const collection of collectionNames) {
         const schema = collections[collection].schema;
+        const metadata = {
+            title: 'Author validation',
+            slug: 'author-validation',
+            publishedAt: '2026-09-20T00:00:00Z',
+            ...(collection === 'posts' ? { copyright: DEFAULT_COPYRIGHT } : {}),
+        };
         assert.equal(schema.parse(metadata).author, 'sky');
         assert.equal(
             schema.parse({ ...metadata, author: 'sky' }).author,
@@ -359,6 +472,9 @@ test('all collections default omitted authors to the configured personal author'
                 title: 'Configured author',
                 slug: 'configured-author',
                 publishedAt: '2020-01-01T00:00:00Z',
+                ...(collection === 'posts'
+                    ? { copyright: DEFAULT_COPYRIGHT }
+                    : {}),
             });
             assert.equal(data.author, 'alice', collection);
             assert.equal(

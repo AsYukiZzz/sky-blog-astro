@@ -559,13 +559,13 @@
     text-decoration: underline;
     text-underline-offset: 3px;
 }
-.copyright-box .article-share {
+.article-page .article-share {
     gap: 8px;
     margin-top: 20px;
     padding-top: 16px;
     border-top: 1px solid var(--sky-border);
 }
-.copyright-box .article-share button {
+.article-page .article-share button {
     padding: 7px 13px;
     border-radius: 10px;
     font-size: 12px;
@@ -574,8 +574,8 @@
         border-color 0.2s,
         background 0.2s;
 }
-.copyright-box .article-share button:hover {
-    color: var(--copyright-ink);
+.article-page .article-share button:hover {
+    color: var(--color-primary);
     border-color: color-mix(
         in oklch,
         var(--color-primary) 35%,
@@ -855,7 +855,7 @@
     .article-posts-list a,
     .article-posts-list svg,
     .mobile-toc summary > svg,
-    .copyright-box .article-share button {
+    .article-page .article-share button {
         transition: none;
     }
 }

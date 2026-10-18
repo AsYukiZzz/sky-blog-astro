@@ -14,6 +14,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import test, { type TestContext } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { DEFAULT_COPYRIGHT } from '../src/lib/copyright.ts';
 
 const script = fileURLToPath(
     new URL('../scripts/new-post.mjs', import.meta.url),
@@ -66,6 +67,7 @@ test('new-post creates Markdown with the expected metadata template and the curr
         'pinned',
         'draft',
         'visibility',
+        'copyright',
     ]);
     const { publishedAt, updatedAt, ...metadata } = frontmatter;
     assert.deepEqual(metadata, {
@@ -79,6 +81,10 @@ test('new-post creates Markdown with the expected metadata template and the curr
         pinned: false,
         draft: false,
         visibility: 'public',
+        copyright: {
+            type: DEFAULT_COPYRIGHT.type,
+            license: DEFAULT_COPYRIGHT.license,
+        },
     });
     const published = new Date(publishedAt).getTime();
     assert.ok(published >= before && published <= after);
@@ -89,6 +95,10 @@ test('new-post creates Markdown with the expected metadata template and the curr
     assert.match(raw, /^cover:$/mu);
     assert.match(raw, new RegExp(`^author: ${author.id}$`, 'mu'));
     assert.match(raw, /^publishedAt: \d{4}-\d{2}-\d{2}T[\d:.]+Z$/mu);
+    assert.match(
+        raw,
+        /^copyright:\n {4}type: original\n {4}license: CC BY-NC-SA 4\.0$/mu,
+    );
     assert.doesNotMatch(raw, /['"]/u);
     // The schema requires the author to fill this blank before building.
     assert.match(result.stdout, /slug 留空/u);

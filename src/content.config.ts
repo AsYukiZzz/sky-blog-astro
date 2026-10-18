@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { publicContentLoader } from './lib/public-content-loader';
 import { z } from 'astro/zod';
 import { getAuthor } from './lib/author';
+import { COPYRIGHT_TYPES } from './lib/copyright';
 
 const author = getAuthor();
 
@@ -66,24 +67,63 @@ const common = z.object({
         )
         .prefault(author.id),
 });
+const copyright = z
+    .object({
+        type: z.enum(COPYRIGHT_TYPES),
+        license: z.string().trim().min(1, 'license 不能为空'),
+        source: z.preprocess(
+            (value) => {
+                if (value === null || value === undefined) return undefined;
+                if (typeof value !== 'string') return value;
+                return value.trim() || undefined;
+            },
+            z.url({ protocol: /^https?$/ }).optional(),
+        ),
+        note: z
+            .string()
+            .nullish()
+            .transform((value) => value?.trim() || undefined),
+    })
+    .superRefine((value, context) => {
+        if (
+            (value.type === 'repost' || value.type === 'derivative') &&
+            !value.source
+        ) {
+            context.addIssue({
+                code: 'custom',
+                path: ['source'],
+                message: '转载或二次创作必须填写 source 来源链接',
+            });
+        }
+        if (value.type === 'custom' && !value.note) {
+            context.addIssue({
+                code: 'custom',
+                path: ['note'],
+                message: 'custom 类型必须填写 note 创作声明',
+            });
+        }
+    });
 const posts = defineCollection({
     loader: publicContentLoader('./src/content/posts', publicationCutoff),
-    schema: common.extend({
-        categories: z.array(slug).default([]),
-        tags: z.array(slug).default([]),
-        pinned: z.boolean().default(false),
-        legacyPath: z.string().optional(),
-        copyright: z
-            .object({
-                type: z
-                    .enum(['original', 'repost', 'ai', 'derivative', 'custom'])
-                    .default('original'),
-                license: z.string().default('CC BY-NC-SA 4.0'),
-                source: z.url({ protocol: /^https?$/ }).optional(),
-                note: z.string().optional(),
-            })
-            .optional(),
-    }),
+    schema: common
+        .extend({
+            categories: z.array(slug).default([]),
+            tags: z.array(slug).default([]),
+            pinned: z.boolean().default(false),
+            legacyPath: z.string().optional(),
+            copyright: copyright
+                .nullish()
+                .transform((value) => value ?? undefined),
+        })
+        .superRefine((data, context) => {
+            if (!data.copyright) {
+                context.addIssue({
+                    code: 'custom',
+                    path: ['copyright'],
+                    message: '每篇博文必须填写 copyright 版权信息',
+                });
+            }
+        }),
 });
 const pages = defineCollection({
     loader: publicContentLoader('./src/content/pages', publicationCutoff),
@@ -94,6 +134,7 @@ const moments = defineCollection({
     schema: common.extend({
         tags: z.array(z.string()).default([]),
         images: z.array(z.string()).default([]),
+        copyright: copyright.nullish().transform((value) => value ?? undefined),
     }),
 });
 export const collections = { posts, pages, moments };

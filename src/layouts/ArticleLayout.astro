@@ -6,6 +6,12 @@ import ArticlePostsTabs from '../components/ArticlePostsTabs.astro';
 import Comments from '../components/Comments.astro';
 import Icon from '../components/Icon.astro';
 import { getAuthor } from '../lib/author';
+import {
+    COPYRIGHT_LABELS,
+    DEFAULT_COPYRIGHT,
+    copyrightNote,
+    copyrightSummary,
+} from '../lib/copyright';
 import { routeFor } from '../lib/content-model';
 import { formatDate, readingTime } from '../lib/format';
 import { buildToc } from '../lib/toc';
@@ -23,13 +29,8 @@ if (author.id !== entry.data.author)
 const categories = 'categories' in entry.data ? entry.data.categories : [];
 const tags = 'tags' in entry.data ? entry.data.tags : [];
 const copyright = 'copyright' in entry.data ? entry.data.copyright : undefined;
-const types = {
-    original: '原创',
-    repost: '转载',
-    ai: 'AI 辅助',
-    derivative: '二次创作',
-    custom: '创作声明',
-};
+const noteText = copyrightNote(copyright);
+const summaryText = copyrightSummary(copyright);
 const toc = buildToc(headings);
 ---
 
@@ -139,79 +140,100 @@ const toc = buildToc(headings);
                         <div id="article-content">
                             <slot />
                         </div>
-                        <div class="copyright-box" data-pagefind-ignore>
-                            <div class="copyright-heading">
-                                <span class="copyright-heading-label">
-                                    <span class="copyright-icon">
-                                        <Icon name="document" size={18} />
+                        {entry.collection === 'posts' && (
+                            <div class="copyright-box" data-pagefind-ignore>
+                                <div class="copyright-heading">
+                                    <span class="copyright-heading-label">
+                                        <span class="copyright-icon">
+                                            <Icon name="document" size={18} />
+                                        </span>
+                                        版权声明
                                     </span>
-                                    版权声明
-                                </span>
-                                <span class="copyright-type">
-                                    {types[copyright?.type ?? 'original']}
-                                </span>
-                            </div>
-                            <strong class="copyright-title">
-                                {entry.data.title}
-                            </strong>
-                            <dl class="copyright-meta">
-                                <div>
-                                    <dt>作者</dt>
-                                    <dd>
+                                    <span class="copyright-type">
+                                        {
+                                            COPYRIGHT_LABELS[
+                                                copyright?.type ??
+                                                    DEFAULT_COPYRIGHT.type
+                                            ]
+                                        }
+                                    </span>
+                                </div>
+                                <strong class="copyright-title">
+                                    {entry.data.title}
+                                </strong>
+                                <dl class="copyright-meta">
+                                    <div>
+                                        <dt>作者</dt>
+                                        <dd>
+                                            <a
+                                                href={routeFor(
+                                                    'authors',
+                                                    author.id,
+                                                )}
+                                            >
+                                                <img
+                                                    src={author.avatar}
+                                                    width="24"
+                                                    height="24"
+                                                    alt=""
+                                                    loading="lazy"
+                                                />
+                                                {author.name}
+                                            </a>
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt>发布于</dt>
+                                        <dd>
+                                            <time
+                                                datetime={entry.data.publishedAt.toISOString()}
+                                            >
+                                                {formatDate(
+                                                    entry.data.publishedAt,
+                                                )}
+                                            </time>
+                                        </dd>
+                                    </div>
+                                </dl>
+                                <p class="copyright-note">{noteText}</p>
+                                {copyright?.source && (
+                                    <p class="copyright-source">
+                                        来源：
                                         <a
-                                            href={routeFor(
-                                                'authors',
-                                                author.id,
-                                            )}
+                                            href={copyright.source}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                         >
-                                            <img
-                                                src={author.avatar}
-                                                width="24"
-                                                height="24"
-                                                alt=""
-                                                loading="lazy"
-                                            />
-                                            {author.name}
+                                            原始作品 ↗
                                         </a>
-                                    </dd>
-                                </div>
-                                <div>
-                                    <dt>发布于</dt>
-                                    <dd>
-                                        <time
-                                            datetime={entry.data.publishedAt.toISOString()}
-                                        >
-                                            {formatDate(entry.data.publishedAt)}
-                                        </time>
-                                    </dd>
-                                </div>
-                            </dl>
-                            <p class="copyright-note">
-                                {copyright?.note ??
-                                    `本文采用 ${copyright?.license ?? 'CC BY-NC-SA 4.0'} 协议，转载时请注明作者和出处。`}
-                            </p>
-                            {copyright?.source && (
-                                <p class="copyright-source">
-                                    来源：
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                        {entry.collection === 'moments' && (
+                            <div class="copyright-compact" data-pagefind-ignore>
+                                <Icon name="document" size={15} />
+                                <span>{summaryText}</span>
+                                {copyright?.source && (
                                     <a
                                         href={copyright.source}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        原始作品 ↗
+                                        来源 ↗
                                     </a>
-                                </p>
-                            )}
-                            <div class="article-share">
-                                <button type="button" data-copy-link>
-                                    <Icon name="link" size={16} />
-                                    复制链接
-                                </button>
-                                <button type="button" data-share>
-                                    <Icon name="share" size={16} />
-                                    分享文章
-                                </button>
+                                )}
                             </div>
+                        )}
+                        <div class="article-share" data-pagefind-ignore>
+                            <button type="button" data-copy-link>
+                                <Icon name="link" size={16} />
+                                复制链接
+                            </button>
+                            <button type="button" data-share>
+                                <Icon name="share" size={16} />
+                                分享文章
+                            </button>
                         </div>
                     </article>
                     <div

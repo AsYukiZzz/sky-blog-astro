@@ -1077,6 +1077,32 @@ html[data-color-scheme='dark'] .astro-code span {
     margin: 8px 0;
 }
 
+.copyright-compact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid var(--sky-border);
+    color: var(--sky-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.copyright-compact svg {
+    flex: none;
+}
+
+.copyright-compact a {
+    color: var(--color-primary);
+}
+
+.copyright-compact a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
 .article-share {
     display: flex;
     gap: 12px;
