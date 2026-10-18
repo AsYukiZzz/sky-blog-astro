@@ -9,6 +9,58 @@ import {
 import { dirname, join } from 'node:path';
 import { parseFrontmatter } from 'astro/markdown';
 
+const configUrl = new URL('../src/config.ts', import.meta.url);
+
+/**
+ * Read the single author ID from the site configuration so generated content
+ * passes the same author validation as the rest of the theme.
+ */
+export async function readConfiguredAuthor(url = configUrl) {
+    let config;
+    try {
+        config = await import(url.href);
+    } catch (error) {
+        throw new Error(`无法读取站主配置 src/config.ts：${error.message}`);
+    }
+    const id = config.author?.id;
+    if (typeof id !== 'string' || !id.trim()) {
+        throw new Error('src/config.ts 中的 author.id 不能为空。');
+    }
+    return id.trim();
+}
+
+const unsafeScalarStart = /^[-?:,[\]{}#&*!|>'"%@`=]/u;
+const unsafeScalarBody = /[\u0000-\u001f\u007f]|:\s|\s#|\s$|:$/u;
+const reservedScalar =
+    /^(?:true|false|yes|no|on|off|null|~|[+-]?\.(?:inf|nan))$/iu;
+const dateScalar = /^\d{4}-\d{2}-\d{2}(?:$|[Tt\s])/u;
+
+function quoteScalar(text) {
+    // Prefer single quotes (the repository's Prettier style); fall back to
+    // double quotes when the value itself contains a single quote.
+    return text.includes("'") || /[\u0000-\u001f\u007f]/u.test(text)
+        ? JSON.stringify(text)
+        : `'${text}'`;
+}
+
+/**
+ * Serialize a string as a YAML scalar. Plain values are written without
+ * quotes; only values that YAML would misread are quoted.
+ */
+export function yamlScalar(value) {
+    const text = String(value);
+    if (text === '') return '';
+    const numeric = Number(text);
+    const quote =
+        unsafeScalarStart.test(text) ||
+        unsafeScalarBody.test(text) ||
+        /^\s/u.test(text) ||
+        reservedScalar.test(text) ||
+        dateScalar.test(text) ||
+        (Number.isFinite(numeric) && text.trim() !== '');
+    return quote ? quoteScalar(text) : text;
+}
+
 function isValidSegment(part) {
     return (
         part.trim().length > 0 &&
@@ -49,7 +101,10 @@ function assertSlugAvailable(directory, slug, label) {
     }
 }
 
-function createContent(args, { collection, label, usage, fields }) {
+async function createContent(
+    args,
+    { collection, label, usage, checkSlug = true, frontmatter },
+) {
     if (args.length === 1 && ['--help', '-h'].includes(args[0])) {
         console.log(usage);
         return;
@@ -114,31 +169,27 @@ function createContent(args, { collection, label, usage, fields }) {
         }
     }
     const slug = slugParts.join('/');
-    assertSlugAvailable(base, slug, label);
+    if (checkSlug) assertSlugAvailable(base, slug, label);
 
-    const content = `---
-title: ${JSON.stringify(title)}
-slug: ${JSON.stringify(slug)}
-publishedAt: ${JSON.stringify(new Date().toISOString())}
-description: ''
-cover: ''
-${Object.entries(fields)
-    .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
-    .join('\n')}
-draft: false
-visibility: public
----
-
-`;
+    const publishedAt = new Date().toISOString();
+    const metadata = await frontmatter({
+        title,
+        slug: checkSlug ? slug : null,
+        publishedAt,
+    });
+    const content = `---\n${metadata}\n---\n`;
     mkdirSync(dirname(file), { recursive: true });
     // Exclusive creation also protects existing files when two commands race.
     writeFileSync(file, content, { encoding: 'utf8', flag: 'wx' });
     console.log(`已创建${label}：${file}`);
+    if (!checkSlug) {
+        console.log('提示：slug 留空，请在构建前手动填写。');
+    }
 }
 
-export function runNewContent(options) {
+export async function runNewContent(options) {
     try {
-        createContent(process.argv.slice(2), options);
+        await createContent(process.argv.slice(2), options);
     } catch (error) {
         const message =
             error.code === 'EEXIST'

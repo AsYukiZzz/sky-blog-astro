@@ -23,6 +23,7 @@ const { parseFrontmatter } = await import(
     pathToFileURL(astroRequire.resolve('@astrojs/internal-helpers/frontmatter'))
         .href
 );
+const { author } = await import('../src/config.ts');
 
 function fixture(t: TestContext) {
     const directory = mkdtempSync(join(tmpdir(), 'sky-new-post-'));
@@ -43,22 +44,36 @@ function fixture(t: TestContext) {
     };
 }
 
-test('new-post creates Markdown with usable post metadata and the current publication time', (t) => {
+test('new-post creates Markdown with the expected metadata template and the current publication time', (t) => {
     const post = fixture(t);
     const before = Date.now();
     const result = post.run('first-post');
     const after = Date.now();
 
     assert.equal(result.status, 0, result.stderr);
-    const { frontmatter } = parseFrontmatter(
-        readFileSync(join(post.posts, 'first-post.md'), 'utf8'),
-    );
-    const { publishedAt, ...metadata } = frontmatter;
+    const raw = readFileSync(join(post.posts, 'first-post.md'), 'utf8');
+    const { frontmatter } = parseFrontmatter(raw);
+    assert.deepEqual(Object.keys(frontmatter), [
+        'title',
+        'slug',
+        'description',
+        'publishedAt',
+        'updatedAt',
+        'cover',
+        'author',
+        'categories',
+        'tags',
+        'pinned',
+        'draft',
+        'visibility',
+    ]);
+    const { publishedAt, updatedAt, ...metadata } = frontmatter;
     assert.deepEqual(metadata, {
         title: 'first-post',
-        slug: 'first-post',
-        description: '',
-        cover: '',
+        slug: null,
+        description: null,
+        cover: null,
+        author: author.id,
         categories: [],
         tags: [],
         pinned: false,
@@ -67,47 +82,89 @@ test('new-post creates Markdown with usable post metadata and the current public
     });
     const published = new Date(publishedAt).getTime();
     assert.ok(published >= before && published <= after);
+    assert.equal(new Date(updatedAt).getTime(), published);
+    assert.match(raw, /^title: first-post$/mu);
+    assert.match(raw, /^slug:$/mu);
+    assert.match(raw, /^description:$/mu);
+    assert.match(raw, /^cover:$/mu);
+    assert.match(raw, new RegExp(`^author: ${author.id}$`, 'mu'));
+    assert.match(raw, /^publishedAt: \d{4}-\d{2}-\d{2}T[\d:.]+Z$/mu);
+    assert.doesNotMatch(raw, /['"]/u);
+    // The schema requires the author to fill this blank before building.
+    assert.match(result.stdout, /slug 留空/u);
     assert.match(
         result.stdout,
         /src[\\/]content[\\/]posts[\\/]first-post\.md/u,
     );
 });
 
-for (const [input, file, slug, title] of [
-    [
-        'notes/first-post.md',
-        'notes/first-post.md',
-        'notes/first-post',
-        'first-post',
-    ],
-    [
-        'notes/first-post.mdx',
-        'notes/first-post.mdx',
-        'notes/first-post',
-        'first-post',
-    ],
-    [
-        'notes/first-post.MDX',
-        'notes/first-post.mdx',
-        'notes/first-post',
-        'first-post',
-    ],
-    [
-        'notes\\first-post',
-        'notes/first-post.md',
-        'notes/first-post',
-        'first-post',
-    ],
-    ['随笔/我的文章', '随笔/我的文章.md', '随笔/我的文章', '我的文章'],
-    [
-        "writer's # notes",
-        'writer-s-notes.md',
-        'writer-s-notes',
-        "writer's # notes",
-    ],
-    ['true', 'true.md', 'true', 'true'],
+test('new-post only quotes titles that YAML would otherwise misread', (t) => {
+    const post = fixture(t);
+    let result = post.run("writer's # notes");
+    assert.equal(result.status, 0, result.stderr);
+    let raw = readFileSync(join(post.posts, 'writer-s-notes.md'), 'utf8');
+    assert.match(raw, /^title: "writer's # notes"$/mu);
+    assert.match(raw, /^slug:$/mu);
+
+    result = post.run('2026-10-17');
+    assert.equal(result.status, 0, result.stderr);
+    raw = readFileSync(join(post.posts, '2026-10-17.md'), 'utf8');
+    assert.match(raw, /^title: '2026-10-17'$/mu);
+});
+
+test('YAML scalars preserve special floating-point strings in author metadata', async () => {
+    const { yamlScalar } = await import('../scripts/create-content.mjs');
+    for (const author of [
+        '.inf',
+        '.Inf',
+        '.INF',
+        '+.inf',
+        '-.inf',
+        '.nan',
+        '.NaN',
+        '.NAN',
+    ]) {
+        const { frontmatter } = parseFrontmatter(
+            `---\nauthor: ${yamlScalar(author)}\n---\n`,
+        );
+        assert.equal(frontmatter.author, author);
+    }
+});
+
+test('new-post reads the author from src/config.ts', async (t) => {
+    const { readConfiguredAuthor } =
+        await import('../scripts/create-content.mjs');
+    const directory = mkdtempSync(join(tmpdir(), 'sky-new-post-config-'));
+    t.after(() => {
+        assert.ok(basename(directory).startsWith('sky-new-post-config-'));
+        rmSync(directory, { recursive: true, force: true });
+    });
+    const config = join(directory, 'config.ts');
+    writeFileSync(config, "export const author = { id: 'SaturnHalo' };\n");
+    assert.equal(
+        await readConfiguredAuthor(pathToFileURL(config)),
+        'SaturnHalo',
+    );
+
+    const blank = join(directory, 'blank-config.ts');
+    writeFileSync(blank, "export const author = { id: '   ' };\n");
+    await assert.rejects(
+        readConfiguredAuthor(pathToFileURL(blank)),
+        /author\.id/u,
+    );
+});
+
+for (const [input, file, title] of [
+    ['notes/first-post.md', 'notes/first-post.md', 'first-post'],
+    ['notes/first-post.mdx', 'notes/first-post.mdx', 'first-post'],
+    ['notes/first-post.MDX', 'notes/first-post.mdx', 'first-post'],
+    ['notes\\first-post', 'notes/first-post.md', 'first-post'],
+    ['随笔/我的文章', '随笔/我的文章.md', '我的文章'],
+    ["writer's # notes", 'writer-s-notes.md', "writer's # notes"],
+    ['true', 'true.md', 'true'],
+    ['2026-10-17', '2026-10-17.md', '2026-10-17'],
 ] as const) {
-    test(`new-post handles the filename ${input} without corrupting its YAML or slug`, (t) => {
+    test(`new-post handles the filename ${input} without corrupting its YAML`, (t) => {
         const post = fixture(t);
         const result = post.run(input);
         assert.equal(result.status, 0, result.stderr);
@@ -115,7 +172,7 @@ for (const [input, file, slug, title] of [
             readFileSync(join(post.posts, file), 'utf8'),
         );
         assert.equal(frontmatter.title, title);
-        assert.equal(frontmatter.slug, slug);
+        assert.equal(frontmatter.slug, null);
     });
 }
 
@@ -145,7 +202,7 @@ for (const [first, second] of [
     ['note book/hello world', 'note-book/hello-world.mdx'],
     ['café', 'cafe\u0301'],
 ] as const) {
-    test(`new-post rejects filenames that would reuse the slug of ${first}`, (t) => {
+    test(`new-post rejects filenames that normalize to the same file as ${first}`, (t) => {
         const post = fixture(t);
         assert.equal(post.run(first).status, 0);
         const result = post.run(second);

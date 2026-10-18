@@ -46,10 +46,9 @@ function fixture(t: TestContext, collection: string, command: string) {
     };
 }
 
-for (const [collection, command] of [
-    ['posts', 'new-post'],
-    ['moments', 'new-moment'],
-] as const) {
+// new-post leaves slug blank for the author, so only new-moment has an
+// explicit slug to validate before writing.
+for (const [collection, command] of [['moments', 'new-moment']] as const) {
     for (const extension of ['md', 'mdx']) {
         test(`${command} rejects an existing custom slug in a nested ${extension} file before writing`, (t) => {
             const content = fixture(t, collection, command);

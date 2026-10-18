@@ -9,30 +9,55 @@ const author = getAuthor();
 // deliberately refresh their entry snapshots inside the loader.
 const publicationCutoff = new Date();
 
+const validSlug = (value: string) =>
+    value
+        .split('/')
+        .every(
+            (part) =>
+                /^[\p{L}\p{N}_~.-]+$/u.test(part) &&
+                part !== '.' &&
+                part !== '..',
+        );
 const slug = z
     .string()
     .min(1)
-    .refine(
-        (value) =>
-            value
-                .split('/')
-                .every(
-                    (part) =>
-                        /^[\p{L}\p{N}_~.-]+$/u.test(part) &&
-                        part !== '.' &&
-                        part !== '..',
-                ),
-        'slug must contain valid path segments',
-    );
+    .refine(validSlug, 'slug must contain valid path segments');
+// The generator leaves slug blank so the author can fill it; the build rejects
+// the blank value instead of deriving an address from the file name.
+const contentSlug = z
+    .string()
+    .nullish()
+    .transform((value) => value ?? '')
+    .superRefine((value, context) => {
+        if (!value.trim()) {
+            context.addIssue({
+                code: 'custom',
+                message: 'slug 不能为空，请在文章元信息中填写',
+            });
+            return;
+        }
+        if (!validSlug(value)) {
+            context.addIssue({
+                code: 'custom',
+                message: 'slug must contain valid path segments',
+            });
+        }
+    });
 const common = z.object({
     title: z.string().min(1),
-    slug,
-    description: z.string().default(''),
+    slug: contentSlug,
+    description: z
+        .string()
+        .nullish()
+        .transform((value) => value ?? ''),
     publishedAt: z.coerce.date(),
     updatedAt: z.coerce.date().optional(),
     draft: z.boolean().default(false),
     visibility: z.enum(['public', 'private', 'restricted']).default('public'),
-    cover: z.string().optional(),
+    cover: z
+        .string()
+        .nullish()
+        .transform((value) => value ?? undefined),
     author: z
         .string()
         .refine(

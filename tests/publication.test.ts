@@ -292,6 +292,36 @@ test('development reloads restore future content with its body and can hide it a
     assert.equal((await styleSource()).includes('STYLE_future'), false);
 });
 
+test('every collection requires an explicit slug and defaults empty optional fields', async (t) => {
+    const { collections } = await fixture(t);
+    for (const collection of collectionNames) {
+        const schema = collections[collection].schema;
+        for (const slug of [undefined, null, '', '   ', 'hello world']) {
+            const result = schema.safeParse({
+                title: 'Explicit slug',
+                ...(slug === undefined ? {} : { slug }),
+                publishedAt: '2026-09-20T00:00:00Z',
+            });
+            assert.equal(
+                result.success,
+                false,
+                `${collection}: ${JSON.stringify(slug)}`,
+            );
+            assert.match(JSON.stringify(result.error), /slug|地址/u);
+        }
+        const data = schema.parse({
+            title: 'Explicit slug',
+            slug: 'hello-world',
+            description: null,
+            cover: null,
+            publishedAt: '2026-09-20T00:00:00Z',
+        });
+        assert.equal(data.slug, 'hello-world', collection);
+        assert.equal(data.description, '', collection);
+        assert.equal(data.cover, undefined, collection);
+    }
+});
+
 test('collection schemas reject blank and unknown authors while defaulting omitted IDs', async (t) => {
     const { collections } = await fixture(t);
     const metadata = {

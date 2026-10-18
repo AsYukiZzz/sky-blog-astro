@@ -16,28 +16,26 @@ pnpm new-post notes/first-post.mdx
 pnpm new-post "我的第一篇文章"
 ```
 
-省略扩展名时使用 `.md`；指定 `.md` 或 `.mdx` 时使用对应格式，并自动创建子目录。命令不会覆盖已有文章，同名的 `.md` 和 `.mdx` 文件也会视为重复。创建前还会检查当前文章目录中已有内容的实际 `slug`，即使文件名不同，也不会创建地址相同的文章。运行 `pnpm new-post --help` 查看用法。
+省略扩展名时使用 `.md`；指定 `.md` 或 `.mdx` 时使用对应格式，并自动创建子目录。命令不会覆盖已有文章，同名的 `.md` 和 `.mdx` 文件也会视为重复。`slug` 不再从文件名派生；构建时会校验它是否填写、格式是否合法，以及是否与已有文章地址重复。运行 `pnpm new-post --help` 查看用法。
 
-生成的元信息包含标题、`slug`、当前发布时间、空摘要和封面、空分类和标签，以及 `pinned: false`、`draft: false`、`visibility: public`。标题取输入中不带扩展名的文件名；文件路径和 `slug` 保留中文和子目录，将空格等不适合地址的字符替换为连字符。例如 `pnpm new-post "hello world"` 创建 `hello-world.md`，标题为 `hello world`，`slug` 为 `hello-world`。写作期间可将 `draft` 改为 `true`，完成后再改回 `false`。
+生成的元信息按固定顺序包含标题、留空的 `slug`、留空的摘要和封面、当前发布时间与相同的更新时间、站主作者（读取 `src/config.ts` 中的 `author.id`）、空分类和标签、`pinned: false`、`draft: false`、`visibility: public`。值通常不加引号，只有可能被 YAML 误读的标题才会自动加上引号。标题取输入中不带扩展名的文件名；文件路径保留中文和子目录，将空格等不适合地址的字符替换为连字符，例如 `pnpm new-post "hello world"` 创建 `hello-world.md`，标题为 `hello world`。`slug` 留空是有意为之：请在构建或预览前手动填写，构建会拒绝空值。写作期间可将 `draft` 改为 `true`，完成后再改回 `false`。
 
-也可以手动新建 `.md` 或 `.mdx` 文件。文件名用于组织内容，访问地址由 `slug` 决定。下面的示例地址是 `/posts/notes/first-post/`。
+也可以手动新建 `.md` 或 `.mdx` 文件。文件名用于组织内容，访问地址由必填的 `slug` 决定。下面的示例是命令生成后的默认形态，其中的 `slug` 需要在构建前填写（例如填写 `slug: first-post`，地址即 `/posts/first-post/`）。
 
 ```markdown
 ---
 title: 我的第一篇文章
-slug: notes/first-post
-publishedAt: '2024-01-01T09:00:00+08:00'
-updatedAt: '2024-01-02T09:00:00+08:00'
-description: 这篇文章的摘要。
-cover: /images/dusk.svg
-categories: [开发]
-tags: [Astro, 博客]
+slug:
+description:
+publishedAt: 2024-01-01T09:00:00+08:00
+updatedAt: 2024-01-01T09:00:00+08:00
+cover:
+author: sky
+categories: []
+tags: []
 pinned: false
 draft: false
 visibility: public
-copyright:
-    type: original
-    license: CC BY-NC-SA 4.0
 ---
 
 ## 正文标题
@@ -45,19 +43,19 @@ copyright:
 从这里开始写文章正文。
 ```
 
-`title`、`slug`、`publishedAt` 必填，其他字段可按需省略。正文通常从二级标题开始，文章标题由 `title` 生成。
+`title`、`slug`、`publishedAt` 必填，其他字段可按需省略。`author` 必须与 `src/config.ts` 的 `author.id` 一致，示例中的 `sky` 是当前配置值。如果 `slug` 是纯数字（例如文章编号 `001`），需要加引号写成 `slug: '001'`，否则 YAML 会把它解析成数字。正文通常从二级标题开始，文章标题由 `title` 生成。
 
 ### 1.2 元信息字段
 
 | 字段                | 解释                                                                                               |
 | ------------------- | -------------------------------------------------------------------------------------------------- |
 | `title`             | 文章标题，必填。                                                                                   |
-| `slug`              | 访问地址标识，决定 `/posts/{slug}/`，必填。                                                        |
+| `slug`              | 访问地址标识，决定 `/posts/{slug}/`，必填；由作者填写，构建时校验格式和唯一性。                    |
 | `publishedAt`       | 发布时间，必填。                                                                                   |
-| `updatedAt`         | 更新日期，用于文章详情显示和页面元信息。                                                           |
+| `updatedAt`         | 更新日期，用于文章详情显示和页面元信息；命令生成时与发布时间相同。                                 |
 | `description`       | 文章摘要和页面描述，也用于 RSS 简介。                                                              |
 | `cover`             | 封面图片地址，用于文章头图、列表和分享。                                                           |
-| `author`            | 作者 ID，须与站主 `author.id` 一致；省略时使用站主。                                               |
+| `author`            | 作者 ID，须与 `src/config.ts` 的 `author.id` 一致；省略时使用站主。                                |
 | `categories`        | 分类数组，自动生成分类归档。                                                                       |
 | `tags`              | 标签数组，自动生成标签归档。                                                                       |
 | `pinned`            | 是否在分类、标签、作者和分页文章列表中置顶。                                                       |
@@ -82,7 +80,7 @@ pnpm new-moment daily/first-moment.mdx
 pnpm new-moment "今天的一点记录"
 ```
 
-省略扩展名时使用 `.md`，支持 `.md`、`.mdx` 和子目录。命令自动生成标题、`slug`、当前发布时间、空摘要和封面、空标签和图片数组（`images: []`），以及 `draft: false`、`visibility: public`。命名、草稿和重复文件保护规则与文章命令一致；运行 `pnpm new-moment --help` 查看用法。
+省略扩展名时使用 `.md`，支持 `.md`、`.mdx` 和子目录。命令自动生成标题、`slug`、当前发布时间、空摘要和封面、空标签和图片数组（`images: []`），以及 `draft: false`、`visibility: public`。同名文件保护规则与文章命令一致；命令会写入 `slug`，构建时同样校验格式和唯一性。运行 `pnpm new-moment --help` 查看用法。
 
 也可以手动新建 `.md` 或 `.mdx` 文件。下面的示例地址是 `/moments/daily/first-moment/`。随笔也需要标题，正文可以直接写简短文字。
 
@@ -108,19 +106,19 @@ visibility: public
 
 ### 2.2 元信息字段
 
-| 字段          | 解释                                                    |
-| ------------- | ------------------------------------------------------- |
-| `title`       | 随笔标题，用于列表、浏览器标签页和搜索，必填。          |
-| `slug`        | 访问地址标识，决定 `/moments/{slug}/`，必填。           |
-| `publishedAt` | 发布时间，必填。                                        |
-| `updatedAt`   | 可记录更新时间，随笔详情页只展示发布时间。              |
-| `description` | 随笔摘要和页面描述，首页随笔卡片优先展示此内容。        |
-| `cover`       | 随笔列表封面，省略时取 `images` 中的图片。              |
-| `author`      | 作者 ID，须与站主 `author.id` 一致；省略时使用站主。    |
-| `tags`        | 文字标签数组，只展示标签，不生成文章标签归档。          |
-| `images`      | 图片地址数组，按顺序生成画廊，第一张用于分享。          |
-| `draft`       | 是否为草稿，`true` 时不发布。                           |
-| `visibility`  | 可见性：`public` 公开，`private`、`restricted` 不发布。 |
+| 字段          | 解释                                                                |
+| ------------- | ------------------------------------------------------------------- |
+| `title`       | 随笔标题，用于列表、浏览器标签页和搜索，必填。                      |
+| `slug`        | 访问地址标识，决定 `/moments/{slug}/`，必填。                       |
+| `publishedAt` | 发布时间，必填。                                                    |
+| `updatedAt`   | 可记录更新时间，随笔详情页只展示发布时间。                          |
+| `description` | 随笔摘要和页面描述，首页随笔卡片优先展示此内容。                    |
+| `cover`       | 随笔列表封面，省略时取 `images` 中的图片。                          |
+| `author`      | 作者 ID，须与 `src/config.ts` 的 `author.id` 一致；省略时使用站主。 |
+| `tags`        | 文字标签数组，只展示标签，不生成文章标签归档。                      |
+| `images`      | 图片地址数组，按顺序生成画廊，第一张用于分享。                      |
+| `draft`       | 是否为草稿，`true` 时不发布。                                       |
+| `visibility`  | 可见性：`public` 公开，`private`、`restricted` 不发布。             |
 
 ## 3 独立页面
 
@@ -139,21 +137,21 @@ description: 本站的介绍。
 在这里介绍博客与站主。
 ```
 
-地址为 `/pages/about/`。需要菜单或页脚入口时，在 `src/config.ts` 中配置对应页面地址。
+地址为 `/pages/about/`；`slug` 必填，不会从文件名自动生成。需要菜单或页脚入口时，在 `src/config.ts` 中配置对应页面地址。
 
 ### 3.2 元信息字段
 
-| 字段          | 解释                                                    |
-| ------------- | ------------------------------------------------------- |
-| `title`       | 页面标题，必填。                                        |
-| `slug`        | 访问地址标识，决定 `/pages/{slug}/`，必填。             |
-| `publishedAt` | 发布时间，决定发布时机，必填。                          |
-| `updatedAt`   | 可记录更新时间，页面布局不展示日期。                    |
-| `description` | 页面描述，用于分享信息和搜索引擎。                      |
-| `cover`       | 页面分享图片地址。                                      |
-| `author`      | 作者 ID，须与站主 `author.id` 一致；省略时使用站主。    |
-| `draft`       | 是否为草稿，`true` 时不发布。                           |
-| `visibility`  | 可见性：`public` 公开，`private`、`restricted` 不发布。 |
+| 字段          | 解释                                                                |
+| ------------- | ------------------------------------------------------------------- |
+| `title`       | 页面标题，必填。                                                    |
+| `slug`        | 访问地址标识，决定 `/pages/{slug}/`，必填。                         |
+| `publishedAt` | 发布时间，决定发布时机，必填。                                      |
+| `updatedAt`   | 可记录更新时间，页面布局不展示日期。                                |
+| `description` | 页面描述，用于分享信息和搜索引擎。                                  |
+| `cover`       | 页面分享图片地址。                                                  |
+| `author`      | 作者 ID，须与 `src/config.ts` 的 `author.id` 一致；省略时使用站主。 |
+| `draft`       | 是否为草稿，`true` 时不发布。                                       |
+| `visibility`  | 可见性：`public` 公开，`private`、`restricted` 不发布。             |
 
 ## 4 友链、项目与精选文章
 
@@ -237,7 +235,7 @@ description: 本站的介绍。
 | `name`        | 必填，专栏名称，去除首尾空白后不能为空。                                                                                            |
 | `description` | 专栏描述，省略时为空；按纯文本展示。                                                                                                |
 | `cover`       | 专栏封面，使用站内绝对路径或完整 HTTP/HTTPS 地址；省略或留空时使用 `/images/mist.svg`。                                             |
-| `posts`       | 必填的文章 `slug` 数组，可以为空。填写文章 Frontmatter 的 `slug`，例如 `notes/first-post`，不填写文件名或完整访问地址。             |
+| `posts`       | 必填的文章 `slug` 数组，可以为空。填写文章 Frontmatter 中的 `slug`（例如 `notes/first-post`），不填写文件名或完整访问地址。         |
 
 专栏总览按顶层数组顺序排列，目录和具体专栏中的文章严格按 `posts` 数组顺序排列。调整顺序时直接移动数组元素；文章日期和置顶状态不会影响专栏内的顺序。文章列表按 `site.pageSize` 分页，第二页起使用 `/columns/{slug}/page/{n}/`。
 
@@ -247,7 +245,7 @@ description: 本站的介绍。
 
 ## 5 预览、发布与图片
 
-保存文件后运行 `pnpm dev` 预览。内容需同时满足 `draft: false`、`visibility: public`、`publishedAt` 不晚于构建时间，才会生成页面并进入相应列表、搜索与统计；RSS 收录公开文章。
+保存文件后运行 `pnpm dev` 预览。`slug` 必须已经填写；空 `slug` 会在内容校验阶段报错。内容需同时满足 `draft: false`、`visibility: public`、`publishedAt` 不晚于构建时间，才会生成页面并进入相应列表、搜索与统计；RSS 收录公开文章。
 
 草稿、非公开内容和未来发布内容会被排除。未来内容到期后需重新构建，正式发布步骤见 [部署指南](deployment.md)。
 
