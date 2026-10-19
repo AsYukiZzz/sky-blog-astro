@@ -42,11 +42,17 @@ export interface SiteConfig {
     navigation: NavigationItem[];
 }
 
+export interface FooterProvider {
+    name: string;
+    description: string;
+    url: string;
+}
+
 export interface FooterConfig {
     copyrightOwner: string;
     icp: string;
     publicSecurity: { text: string; url: string };
-    provider: { name: string; description: string; url: string };
+    providers: FooterProvider[];
     theme: { name: string; url: string };
     privacyUrl: string;
     termsUrl: string;

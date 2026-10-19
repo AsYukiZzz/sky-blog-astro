@@ -159,7 +159,7 @@ image: [
 
 `icp` 设置 ICP 备案显示文字，留空隐藏；查询链接由主题提供。`publicSecurity.text` 设置公安备案文字，留空隐藏整项；`publicSecurity.url` 设置查询链接，留空只显示文字。
 
-服务商署名用 `provider.name`、`provider.description`、`provider.url` 设置名称、说明和链接；主题署名用 `theme.name`、`theme.url` 设置名称和链接。名称留空隐藏整项，链接留空只显示文字。服务商配置只改变署名，实际托管平台由部署方式决定。
+服务商署名用 `providers` 数组设置，按数组顺序显示，设为 `[]` 可隐藏全部服务商。每项用 `name`、`description`、`url` 设置名称、说明和链接；名称为空时跳过该项，链接留空只显示文字。已有站点升级后，需要把原来的单个 `provider` 对象改为 `providers` 数组。主题署名用 `theme.name`、`theme.url` 设置名称和链接。名称留空隐藏整项，链接留空只显示文字。服务商配置只改变署名，实际托管平台由部署方式决定。
 
 `privacyUrl`、`termsUrl`、`sitemapUrl`、`rssUrl` 分别设置隐私政策、使用条款、读者网站地图和 RSS 入口，留空隐藏，目标页面需另行维护。地图和 RSS 配置只改页脚链接，机器地图仍独立生成，本站订阅文件及头部入口仍使用 `/feed.xml`。
 

@@ -76,11 +76,13 @@ export const theme: ThemeConfig = {
         copyrightOwner: '',
         icp: '',
         publicSecurity: { text: '', url: '' },
-        provider: {
-            name: 'Cloudflare Pages',
-            description: '提供托管与 CDN 服务',
-            url: 'https://pages.cloudflare.com/',
-        },
+        providers: [
+            {
+                name: 'Cloudflare Pages',
+                description: '提供托管与 CDN 服务',
+                url: 'https://pages.cloudflare.com/',
+            },
+        ],
         theme: {
             name: 'Sky Theme',
             url: 'https://github.com/AsYukiZzz/sky-blog-astro',

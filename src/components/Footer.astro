@@ -1,8 +1,10 @@
 ---
 import { site, theme } from '../config';
+import { visibleFooterProviders } from '../lib/footer';
 import { copyrightYears } from '../lib/site-metrics';
 import Icon from './Icon.astro';
 const { footer } = theme;
+const providers = visibleFooterProviders(footer.providers);
 const links = [
     { label: '隐私政策', href: footer.privacyUrl },
     { label: '使用条款', href: footer.termsUrl },
@@ -73,20 +75,27 @@ const years = copyrightYears(site.copyrightYear, site.timezone);
             </div>
         )}
         <div class="footer-row footer-credits">
-            {footer.provider.name && (
-                <a
-                    href={footer.provider.url || undefined}
-                    target={footer.provider.url ? '_blank' : undefined}
-                    rel={
-                        footer.provider.url ? 'noopener noreferrer' : undefined
-                    }
-                >
-                    <Icon name="cloud" size={14} />
-                    <span>
-                        {footer.provider.name} {footer.provider.description}
+            {providers.map((provider) => {
+                const label = provider.description
+                    ? `${provider.name} ${provider.description}`
+                    : provider.name;
+                return provider.url ? (
+                    <a
+                        class="footer-provider"
+                        href={provider.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <Icon name="cloud" size={14} />
+                        <span>{label}</span>
+                    </a>
+                ) : (
+                    <span class="footer-item footer-provider">
+                        <Icon name="cloud" size={14} />
+                        <span>{label}</span>
                     </span>
-                </a>
-            )}
+                );
+            })}
             {footer.theme.name && (
                 <a
                     href={footer.theme.url || undefined}
