@@ -435,6 +435,7 @@ test('moments accept optional copyright metadata', async (t) => {
 });
 
 test('collection schemas reject blank and unknown authors while defaulting omitted IDs', async (t) => {
+    const authorId = config.author.id;
     const { collections } = await fixture(t);
     for (const collection of collectionNames) {
         const schema = collections[collection].schema;
@@ -444,12 +445,18 @@ test('collection schemas reject blank and unknown authors while defaulting omitt
             publishedAt: '2026-09-20T00:00:00Z',
             ...(collection === 'posts' ? { copyright: DEFAULT_COPYRIGHT } : {}),
         };
-        assert.equal(schema.parse(metadata).author, 'sky');
+        assert.equal(schema.parse(metadata).author, authorId);
         assert.equal(
-            schema.parse({ ...metadata, author: 'sky' }).author,
-            'sky',
+            schema.parse({ ...metadata, author: authorId }).author,
+            authorId,
         );
-        for (const author of ['', '   ', '\t\n', 'unknown', ' sky '])
+        for (const author of [
+            '',
+            '   ',
+            '\t\n',
+            `${authorId}-unknown`,
+            ` ${authorId} `,
+        ])
             assert.equal(
                 schema.safeParse({ ...metadata, author }).success,
                 false,
