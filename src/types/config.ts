@@ -88,10 +88,6 @@ export interface PostConfig {
         category: string;
         categoryId: string;
     };
-    sidecar: {
-        popular: boolean;
-        postsLimit: number;
-    };
 }
 
 export interface ExtraConfig {

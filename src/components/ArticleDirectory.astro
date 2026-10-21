@@ -1,0 +1,154 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { PublicColumn } from '../lib/columns-model';
+import { routeFor } from '../lib/content-model';
+import type { TocNode } from '../lib/toc';
+import ArticleTocTree from './ArticleTocTree.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+    toc: TocNode[];
+    column?: PublicColumn<CollectionEntry<'posts'>>;
+    currentSlug?: string;
+    variant: 'sidebar' | 'mobile' | 'dialog';
+}
+const { toc, column, currentSlug, variant } = Astro.props;
+const prefix = `article-directory-${variant}`;
+const currentPosition =
+    column?.posts.findIndex((post) => post.data.slug === currentSlug) ?? -1;
+---
+
+<div class={`article-directory article-directory-${variant}`} data-article-tabs>
+    {(column || variant === 'sidebar') && (
+        <div class="article-widget-heading">
+            {column ? (
+                <div
+                    class="article-post-tabs article-directory-tabs"
+                    role="tablist"
+                    aria-label="阅读目录"
+                >
+                    {[
+                        { id: 'article', label: '本文目录' },
+                        { id: 'column', label: '专栏目录' },
+                    ].map((tab, index) => (
+                        <button
+                            type="button"
+                            role="tab"
+                            id={`${prefix}-${tab.id}-tab`}
+                            data-tab-kind={tab.id}
+                            aria-controls={`${prefix}-${tab.id}-panel`}
+                            aria-selected={index === 0}
+                            tabindex={index === 0 ? 0 : -1}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+            ) : (
+                <h2>
+                    <span class="article-widget-icon">
+                        <Icon name="list" size={18} />
+                    </span>
+                    文章目录
+                </h2>
+            )}
+            {variant === 'sidebar' && (toc.length > 0 || column) && (
+                <button
+                    type="button"
+                    class="icon-button toc-expand"
+                    data-open-toc
+                    aria-label="展开文章目录"
+                    aria-haspopup="dialog"
+                    aria-controls="article-toc-dialog"
+                    title="大屏查看目录"
+                >
+                    <Icon name="expand" size={17} />
+                </button>
+            )}
+        </div>
+    )}
+    <div
+        class="article-directory-panel article-toc-scroll"
+        id={`${prefix}-article-panel`}
+        role={column ? 'tabpanel' : undefined}
+        aria-labelledby={column ? `${prefix}-article-tab` : undefined}
+        tabindex={column ? 0 : undefined}
+        data-toc-scroll
+    >
+        {toc.length > 0 ? (
+            <nav aria-label="本文目录">
+                <ArticleTocTree nodes={toc} />
+            </nav>
+        ) : (
+            <p class="toc-empty">这篇文章暂时没有章节标题。</p>
+        )}
+    </div>
+    {column && (
+        <div
+            class="article-directory-panel article-column-panel"
+            id={`${prefix}-column-panel`}
+            role="tabpanel"
+            aria-labelledby={`${prefix}-column-tab`}
+            tabindex="0"
+            hidden
+        >
+            <nav class="article-column-nav" aria-label="专栏目录">
+                <div class="article-toc-scroll" data-toc-scroll>
+                    <ol class="article-column-list">
+                        {column.posts.map((post, index) => (
+                            <li>
+                                <a
+                                    class="article-toc-link article-column-link"
+                                    href={routeFor('posts', post.data.slug)}
+                                    aria-current={
+                                        post.data.slug === currentSlug
+                                            ? 'page'
+                                            : undefined
+                                    }
+                                >
+                                    <span
+                                        class="article-column-number"
+                                        aria-hidden="true"
+                                    >
+                                        {String(index + 1).padStart(2, '0')}
+                                    </span>
+                                    <span>{post.data.title}</span>
+                                    {post.data.slug === currentSlug && (
+                                        <small>当前</small>
+                                    )}
+                                </a>
+                            </li>
+                        ))}
+                    </ol>
+                </div>
+                <a
+                    class="article-directory-footer article-column-footer"
+                    href={routeFor('columns', column.slug)}
+                    title={column.name}
+                >
+                    <span class="article-column-summary">
+                        <span>{column.name}</span>
+                        <small>
+                            {currentPosition >= 0 &&
+                                `当前第 ${currentPosition + 1} 篇 · `}
+                            共 {column.posts.length} 篇
+                        </small>
+                    </span>
+                    <Icon name="arrow" size={14} />
+                </a>
+            </nav>
+        </div>
+    )}
+    {variant === 'mobile' && (
+        <button
+            type="button"
+            class="mobile-toc-expand"
+            data-open-toc
+            aria-haspopup="dialog"
+            aria-controls="article-toc-dialog"
+        >
+            <Icon name="expand" size={16} />
+            打开大屏目录
+        </button>
+    )}
+</div>

@@ -1,6 +1,10 @@
 ---
 import Icon from './Icon.astro';
 import { theme } from '../config';
+interface Props {
+    articleDiscovery?: boolean;
+}
+const { articleDiscovery = false } = Astro.props;
 ---
 
 {theme.extra.dock && (
@@ -26,6 +30,18 @@ import { theme } from '../config';
             <Icon name="sun" size={19} class="light-icon" />
             <Icon name="moon" size={19} class="dark-icon" />
         </button>
+        {articleDiscovery && (
+            <button
+                class="dock-btn dock-discover"
+                type="button"
+                data-open-article-posts
+                aria-haspopup="dialog"
+                aria-controls="article-posts-dialog"
+            >
+                <Icon name="document" size={18} />
+                <span>发现文章</span>
+            </button>
+        )}
         <span class="dock-divider"></span>
         <button class="dock-btn" data-scroll-top aria-label="返回顶部">
             <Icon name="up" size={20} />

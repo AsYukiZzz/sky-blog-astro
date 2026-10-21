@@ -1,5 +1,3 @@
-import { revealTocLink } from './toc-scroll';
-
 export function setupDialogs(signal: AbortSignal) {
     if (signal.aborted) return;
     const dialogs = [...document.querySelectorAll<HTMLDialogElement>('dialog')];
@@ -28,20 +26,6 @@ export function setupDialogs(signal: AbortSignal) {
             const target =
                 event.target instanceof Element ? event.target : null;
             if (!target) return;
-            if (target.closest('[data-open-toc]')) {
-                const dialog = document.querySelector<HTMLDialogElement>(
-                    '#article-toc-dialog',
-                );
-                dialog?.showModal();
-                const activeLink = dialog?.querySelector<HTMLElement>(
-                    '[aria-current="location"]',
-                );
-                const scrollArea = dialog?.querySelector<HTMLElement>(
-                    '.toc-dialog-content',
-                );
-                if (activeLink && scrollArea)
-                    revealTocLink(activeLink, scrollArea);
-            }
             const tocLink =
                 target.closest<HTMLAnchorElement>('[data-toc-link]');
             if (tocLink) {

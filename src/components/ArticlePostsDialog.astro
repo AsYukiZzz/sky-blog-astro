@@ -1,0 +1,123 @@
+---
+import { getPosts, getPopularPosts } from '../lib/content';
+import { routeFor } from '../lib/content-model';
+import { formatDate } from '../lib/format';
+import Icon from './Icon.astro';
+
+interface Props {
+    currentSlug?: string;
+}
+const { currentSlug } = Astro.props;
+const [posts, popular] = await Promise.all([
+    getPosts(),
+    getPopularPosts(Infinity),
+]);
+const recent = [...posts].sort(
+    (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
+);
+const panels = [
+    { id: 'latest', label: '最新文章', posts: recent },
+    { id: 'popular', label: '热门文章', posts: popular },
+];
+---
+
+<dialog
+    id="article-posts-dialog"
+    class="sky-dialog toc-dialog article-posts-dialog"
+    data-article-tabs
+    aria-labelledby="article-posts-dialog-heading"
+    data-pagefind-ignore
+>
+    <div class="dialog-heading">
+        <div>
+            <p class="toc-dialog-article">继续阅读</p>
+            <h2 id="article-posts-dialog-heading">文章推荐</h2>
+        </div>
+        <button
+            type="button"
+            class="icon-button"
+            data-close-dialog
+            aria-label="关闭文章推荐"
+            autofocus
+        >
+            <Icon name="close" size={22} />
+        </button>
+    </div>
+    <div class="article-widget-heading article-post-tabs-heading">
+        <div class="article-post-tabs" role="tablist" aria-label="文章列表">
+            {panels.map((panel, index) => (
+                <button
+                    type="button"
+                    role="tab"
+                    id={`article-posts-${panel.id}-tab`}
+                    data-tab-kind={panel.id}
+                    aria-controls={`article-posts-${panel.id}-panel`}
+                    aria-selected={index === 0}
+                    tabindex={index === 0 ? 0 : -1}
+                >
+                    <span>{panel.label}</span>
+                    <small>{panel.posts.length}</small>
+                </button>
+            ))}
+        </div>
+    </div>
+    {panels.map((panel, index) => (
+        <div
+            class="article-posts-panel"
+            role="tabpanel"
+            id={`article-posts-${panel.id}-panel`}
+            aria-labelledby={`article-posts-${panel.id}-tab`}
+            tabindex="0"
+            hidden={index !== 0}
+        >
+            <ol class="article-posts-list">
+                {panel.posts.map((post, rank) => (
+                    <li>
+                        <a
+                            href={routeFor('posts', post.data.slug)}
+                            aria-current={
+                                post.data.slug === currentSlug
+                                    ? 'page'
+                                    : undefined
+                            }
+                        >
+                            <span class="article-post-rank" aria-hidden="true">
+                                {String(rank + 1).padStart(2, '0')}
+                            </span>
+                            <span class="article-post-summary">
+                                <strong>{post.data.title}</strong>
+                                <small>
+                                    <time
+                                        datetime={post.data.publishedAt.toISOString()}
+                                    >
+                                        {formatDate(post.data.publishedAt)}
+                                    </time>
+                                    {post.data.categories[0] && (
+                                        <span>{post.data.categories[0]}</span>
+                                    )}
+                                </small>
+                                {post.data.description && (
+                                    <p>{post.data.description}</p>
+                                )}
+                            </span>
+                            <Icon name="arrow" size={14} />
+                        </a>
+                    </li>
+                ))}
+            </ol>
+            {panel.posts.length === 0 && (
+                <p class="article-widget-empty">
+                    文章还在酝酿，先去归档逛逛吧。
+                </p>
+            )}
+        </div>
+    ))}
+    <div class="toc-dialog-footer">
+        <a class="article-widget-more" href="/archives/">
+            前往文章归档
+            <Icon name="arrow" size={14} />
+        </a>
+        <kbd>Esc</kbd>
+        <span>关闭面板</span>
+    </div>
+</dialog>

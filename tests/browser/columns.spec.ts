@@ -16,6 +16,128 @@ test.afterAll(async () => {
     await site?.close();
 });
 
+test('column navigation replaces reading progress with its name and public article position at the bottom', async ({
+    page,
+}) => {
+    await page.goto(`${site.origin}/posts/p01/`);
+    const card = page.locator('.article-side');
+    const progress = card.getByRole('progressbar', { name: '文章阅读进度' });
+    await expect(progress).toBeVisible();
+    await card.getByRole('tab', { name: '专栏目录' }).click();
+    await expect(progress).not.toBeVisible();
+    const directory = card.getByRole('navigation', { name: '专栏目录' });
+    const footer = directory.getByRole('link', { name: /手动示例/ });
+    await expect(footer).toContainText('当前第 2 篇 · 共 3 篇');
+    const lastArticle = await directory.locator('ol a').last().boundingBox();
+    const footerBounds = await footer.boundingBox();
+    expect(footerBounds!.y).toBeGreaterThanOrEqual(
+        lastArticle!.y + lastArticle!.height,
+    );
+    await card.getByRole('button', { name: '展开文章目录' }).click();
+    const dialog = page.locator('#article-toc-dialog');
+    await expect(
+        dialog.getByText('阅读进度', { exact: false }),
+    ).not.toBeVisible();
+    await expect(dialog.getByRole('link', { name: /手动示例/ })).toContainText(
+        '当前第 2 篇 · 共 3 篇',
+    );
+    await dialog.getByRole('tab', { name: '本文目录' }).click();
+    await expect(dialog.getByText('阅读进度', { exact: false })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await directory.locator('ol a').last().click();
+    await expect(page).toHaveURL(`${site.origin}/posts/p02/`);
+    await card.getByRole('tab', { name: '专栏目录' }).click();
+    await expect(footer).toContainText('当前第 3 篇 · 共 3 篇');
+    await card.getByRole('tab', { name: '本文目录' }).click();
+    await expect(progress).toBeVisible();
+});
+
+test('article navigation uses column membership on direct entry and preserves its public order', async ({
+    page,
+}) => {
+    await page.goto(`${site.origin}/posts/p03/`);
+    const card = page.locator('.article-side');
+    await expect(card.getByRole('tab', { name: '本文目录' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+    );
+    await card.getByRole('tab', { name: '专栏目录' }).click();
+    const directory = card.getByRole('navigation', { name: '专栏目录' });
+    await expect(
+        directory.getByRole('link', { name: /手动示例/ }),
+    ).toHaveAttribute('href', '/columns/manual/');
+    const articles = directory.locator('ol a');
+    expect(
+        await articles.evaluateAll((links) =>
+            links.map((link) => link.getAttribute('href')),
+        ),
+    ).toEqual(['/posts/p03/', '/posts/p01/', '/posts/p02/']);
+    await expect(directory.locator('[aria-current="page"]')).toHaveAttribute(
+        'href',
+        '/posts/p03/',
+    );
+    await articles.nth(1).click();
+    await expect(page).toHaveURL(`${site.origin}/posts/p01/`);
+    await expect(card.getByRole('tab', { name: '本文目录' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+    );
+    await card.getByRole('tab', { name: '本文目录' }).focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(card.getByRole('tab', { name: '专栏目录' })).toBeFocused();
+    await expect(directory.locator('[aria-current="page"]')).toHaveAttribute(
+        'href',
+        '/posts/p01/',
+    );
+});
+
+test('non-column articles show their outline and standalone pages do not expose column tabs', async ({
+    page,
+}) => {
+    await page.goto(`${site.origin}/posts/format-example/`);
+    const card = page.locator('.article-side');
+    await expect(card.getByRole('heading', { name: '文章目录' })).toBeVisible();
+    await expect(card.getByRole('tab')).toHaveCount(0);
+    await expect(
+        card.getByRole('navigation', { name: '本文目录' }),
+    ).toBeVisible();
+    await page.locator('a[href="/pages/privacy/"]').first().click();
+    await expect(page).toHaveURL(`${site.origin}/pages/privacy/`);
+    await expect(
+        page.getByRole('tab', { name: '专栏目录', includeHidden: true }),
+    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: '发现文章' })).toHaveCount(0);
+});
+
+test('mobile column navigation opens the expanded directory on the selected tab', async ({
+    page,
+}) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${site.origin}/posts/p03/`);
+    const inline = page.locator('.mobile-toc');
+    await inline.locator('summary').click();
+    await inline.getByRole('tab', { name: '专栏目录' }).click();
+    const expand = inline.getByRole('button', { name: '打开大屏目录' });
+    await expand.click();
+    const dialog = page.locator('#article-toc-dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('tab', { name: '专栏目录' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+    );
+    await expect(
+        dialog.getByRole('navigation', { name: '专栏目录' }).locator('ol a'),
+    ).toHaveCount(3);
+    expect(
+        await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+    ).toBe(true);
+    await page.keyboard.press('Escape');
+    await expect(dialog).not.toBeVisible();
+    await expect(expand).toBeFocused();
+});
+
 test('column paths are published without hidden references', async ({
     page,
     request,

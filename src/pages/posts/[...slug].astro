@@ -1,17 +1,25 @@
 ---
 import { render } from 'astro:content';
-import { getPosts } from '../../lib/content';
+import { getColumns, getPosts } from '../../lib/content';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 export async function getStaticPaths() {
-    const posts = (await getPosts()).sort(
+    const [entries, columns] = await Promise.all([getPosts(), getColumns()]);
+    const posts = entries.sort(
         (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime(),
     );
     return posts.map((entry, index) => ({
         params: { slug: entry.data.slug },
-        props: { entry, previous: posts[index + 1], next: posts[index - 1] },
+        props: {
+            entry,
+            previous: posts[index + 1],
+            next: posts[index - 1],
+            column: columns.find((column) =>
+                column.posts.some((post) => post.data.slug === entry.data.slug),
+            ),
+        },
     }));
 }
-const { entry, previous, next } = Astro.props;
+const { entry, previous, next, column } = Astro.props;
 const { Content, headings } = await render(entry);
 ---
 
@@ -20,6 +28,7 @@ const { Content, headings } = await render(entry);
     headings={headings}
     previous={previous}
     next={next}
+    column={column}
 >
     <Content />
 </ArticleLayout>

@@ -101,10 +101,6 @@ export const theme: ThemeConfig = {
             category: 'Announcements',
             categoryId: '',
         },
-        sidecar: {
-            popular: true,
-            postsLimit: 5,
-        },
     },
     extra: {
         sakana: {

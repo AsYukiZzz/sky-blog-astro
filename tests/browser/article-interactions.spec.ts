@@ -3,6 +3,105 @@ import { expect, test } from '@playwright/test';
 const articlePath = '/posts/format-example/';
 const previewName = '查看图片：远山与傍晚的光';
 
+for (const height of [600, 900]) {
+    test(`short article and column directories fill the right sidebar at ${height}px height`, async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width: 1280, height });
+        await page.goto(articlePath);
+        const card = page.getByRole('region', { name: '阅读导航' });
+        await card.getByRole('tab', { name: '专栏目录' }).click();
+        const columnBounds = await card.boundingBox();
+        expect(columnBounds!.height).toBeGreaterThan(height * 0.8);
+        await card.getByRole('tab', { name: '本文目录' }).click();
+        expect((await card.boundingBox())!.height).toBeCloseTo(
+            columnBounds!.height,
+            0,
+        );
+        const response = await page.goto('/posts/standalone-example/');
+        expect(response?.status()).toBe(200);
+        await expect(card.getByRole('tab')).toHaveCount(0);
+        await expect(
+            card.getByRole('navigation', { name: '本文目录' }),
+        ).toBeVisible();
+        expect((await card.boundingBox())!.height).toBeCloseTo(
+            columnBounds!.height,
+            0,
+        );
+    });
+}
+
+test('article discovery opens from the Dock and footer with the requested list and keeps the reading position', async ({
+    page,
+}) => {
+    await page.goto(articlePath);
+    const side = page.locator('.article-side');
+    await expect(side.getByRole('tab', { name: '最新文章' })).toHaveCount(0);
+    await expect(side.getByRole('tab', { name: '热门文章' })).toHaveCount(0);
+    const discover = page
+        .locator('.sky-dock')
+        .getByRole('button', { name: '发现文章' });
+    await discover.click();
+    const dialog = page.getByRole('dialog', { name: '文章推荐' });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('tab', { name: /最新文章/ })).toHaveAttribute(
+        'aria-selected',
+        'true',
+    );
+    await expect(
+        dialog.getByRole('tabpanel').getByRole('link'),
+    ).not.toHaveCount(0);
+    await page.keyboard.press('Escape');
+    await expect(discover).toBeFocused();
+    const footer = page.getByRole('navigation', {
+        name: '继续阅读',
+        exact: true,
+    });
+    for (const kind of ['热门文章', '最新文章']) {
+        const trigger = footer.getByRole('button', { name: kind });
+        await trigger.scrollIntoViewIfNeeded();
+        const position = await page.evaluate(() => scrollY);
+        await trigger.click();
+        await expect(
+            dialog.getByRole('tab', { name: new RegExp(kind) }),
+        ).toHaveAttribute('aria-selected', 'true');
+        await page.keyboard.press('Escape');
+        await expect(trigger).toBeFocused();
+        expect(await page.evaluate(() => scrollY)).toBeCloseTo(position, 0);
+    }
+    await page.locator('.site-nav a[href="/"]').first().click();
+    await expect(
+        page.locator('.sky-dock').getByRole('button', { name: '发现文章' }),
+    ).toHaveCount(0);
+    await page.goBack();
+    await discover.click();
+    await expect(dialog).toBeVisible();
+});
+
+test('mobile article discovery remains reachable without horizontal overflow', async ({
+    page,
+}) => {
+    await page.setViewportSize({ width: 320, height: 740 });
+    await page.goto(articlePath);
+    await page
+        .locator('.sky-dock')
+        .getByRole('button', { name: '发现文章' })
+        .click();
+    const dialog = page.getByRole('dialog', { name: '文章推荐' });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('tab', { name: /热门文章/ }).click();
+    await expect(dialog.getByRole('tab', { name: /热门文章/ })).toHaveAttribute(
+        'aria-selected',
+        'true',
+    );
+    expect(
+        await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+    ).toBe(true);
+    await page.keyboard.press('Escape');
+});
+
 test('a Markdown image opens with Enter and Space and restores focus after Escape', async ({
     page,
 }) => {

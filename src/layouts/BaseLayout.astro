@@ -17,6 +17,7 @@ interface Props {
     image?: string;
     article?: { publishedAt: Date; updatedAt?: Date; author: string };
     noindex?: boolean;
+    articleDiscovery?: boolean;
 }
 const {
     title,
@@ -24,6 +25,7 @@ const {
     image = '/images/mist.svg',
     article,
     noindex = false,
+    articleDiscovery = false,
 } = Astro.props;
 const pageTitle = title
     ? `${title} · ${site.title}`
@@ -100,7 +102,7 @@ const schema = {
             <slot />
         </main>
         <Footer />
-        <Dock />
+        <Dock articleDiscovery={articleDiscovery} />
         <SearchDialog />
         <slot name="floating" />
         <dialog

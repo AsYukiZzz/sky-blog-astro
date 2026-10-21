@@ -40,7 +40,8 @@ export function setupArticleReading(signal: AbortSignal) {
             else link.removeAttribute('aria-current');
             const scrollArea =
                 isActive && link.closest<HTMLElement>('[data-toc-scroll]');
-            if (scrollArea) revealTocLink(link, scrollArea);
+            if (scrollArea && scrollArea.clientHeight)
+                revealTocLink(link, scrollArea);
         }
     };
     const updateProgress = () => {

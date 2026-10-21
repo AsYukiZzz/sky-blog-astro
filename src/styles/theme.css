@@ -1569,6 +1569,18 @@ html[data-color-scheme='dark'] .astro-code span {
     transform: translateX(-50%) translateY(-2px);
 }
 
+.sky-dock:has(.dock-discover) {
+    gap: 6px;
+}
+.sky-dock .dock-discover {
+    width: auto;
+    flex: none;
+    gap: 6px;
+    padding-inline: 9px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
 body:has(.home-hero):not([data-home-scrolled]) .sky-dock {
     opacity: 0;
     visibility: hidden;

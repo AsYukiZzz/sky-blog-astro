@@ -1,68 +1,24 @@
-import { visibleArticleCount } from '../lib/article-posts-fit';
+import { revealTocLink } from './toc-scroll';
 
 export function setupArticleTabs(signal: AbortSignal) {
     if (signal.aborted) return;
-    const controllers = new Map<
-        HTMLElement,
-        {
-            tabs: HTMLButtonElement[];
-            activate: (tab: HTMLButtonElement, focus?: boolean) => void;
-        }
-    >();
+    const revealCurrent = (group: HTMLElement) => {
+        const area = group.querySelector<HTMLElement>(
+            '[data-toc-scroll]:not([hidden])',
+        );
+        const current = area?.querySelector<HTMLElement>('[aria-current]');
+        if (area && current && area.clientHeight) revealTocLink(current, area);
+    };
+    const controllers = new Map<HTMLElement, (kind: string) => void>();
     document
-        .querySelectorAll<HTMLElement>('[data-article-posts-tabs]')
-        .forEach((card) => {
+        .querySelectorAll<HTMLElement>('[data-article-tabs]')
+        .forEach((group) => {
             const tabs = [
-                ...card.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+                ...group.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
             ];
             const panels = [
-                ...card.querySelectorAll<HTMLElement>('[role="tabpanel"]'),
+                ...group.querySelectorAll<HTMLElement>('[role="tabpanel"]'),
             ];
-            const inline = card.hasAttribute('data-article-posts-inline');
-            let frame = 0;
-            const fit = () => {
-                frame = 0;
-                if (signal.aborted || !card.getClientRects().length) return;
-                panels
-                    .filter((panel) => !panel.hidden)
-                    .forEach((panel) => {
-                        const list = panel.querySelector<HTMLOListElement>(
-                            '.article-posts-list',
-                        );
-                        if (!list) return;
-                        const rows = [
-                            ...list.querySelectorAll<HTMLLIElement>(
-                                ':scope > li',
-                            ),
-                        ];
-                        rows.forEach((row) => {
-                            row.hidden = false;
-                        });
-                        const gap =
-                            Number.parseFloat(getComputedStyle(list).rowGap) ||
-                            0;
-                        const heights = rows.map(
-                            (row) => row.getBoundingClientRect().height,
-                        );
-                        const available = panel.getBoundingClientRect().height;
-                        const count = visibleArticleCount(
-                            heights,
-                            available,
-                            gap,
-                        );
-                        rows.forEach((row, index) => {
-                            row.hidden = index >= count;
-                        });
-                        const hint = panel.querySelector<HTMLElement>(
-                            '[data-article-posts-space]',
-                        );
-                        if (hint) hint.hidden = count > 0;
-                    });
-            };
-            const scheduleFit = () => {
-                if (inline && !frame && !signal.aborted)
-                    frame = requestAnimationFrame(fit);
-            };
             const activate = (selected: HTMLButtonElement, focus = false) => {
                 const panelId = selected.getAttribute('aria-controls');
                 if (!panels.some((panel) => panel.id === panelId)) return;
@@ -74,10 +30,14 @@ export function setupArticleTabs(signal: AbortSignal) {
                 panels.forEach((panel) => {
                     panel.hidden = panel.id !== panelId;
                 });
-                scheduleFit();
+                revealCurrent(group);
                 if (focus) selected.focus();
             };
-            controllers.set(card, { tabs, activate });
+            controllers.set(group, (kind) => {
+                const tab = tabs.find((tab) => tab.dataset.tabKind === kind);
+                if (tab) activate(tab);
+                else revealCurrent(group);
+            });
             tabs.forEach((tab, index) => {
                 tab.addEventListener('click', () => activate(tab), { signal });
                 tab.addEventListener(
@@ -106,49 +66,46 @@ export function setupArticleTabs(signal: AbortSignal) {
                     { signal },
                 );
             });
-            if (inline) {
-                card.dataset.articlePostsFitted = 'true';
-                fit();
-                const observer = new ResizeObserver(scheduleFit);
-                observer.observe(card);
-                panels.forEach((panel) => observer.observe(panel));
-                void document.fonts.ready.then(scheduleFit);
-                window.addEventListener('resize', scheduleFit, { signal });
-                signal.addEventListener(
-                    'abort',
+        });
+    for (const { selector, id, fallback } of [
+        {
+            selector: '[data-open-toc]',
+            id: 'article-toc-dialog',
+            fallback: 'article',
+        },
+        {
+            selector: '[data-open-article-posts]',
+            id: 'article-posts-dialog',
+            fallback: 'latest',
+        },
+    ]) {
+        document
+            .querySelectorAll<HTMLButtonElement>(selector)
+            .forEach((button) => {
+                button.addEventListener(
+                    'click',
                     () => {
-                        observer.disconnect();
-                        cancelAnimationFrame(frame);
+                        const dialog = document.getElementById(id);
+                        if (!(dialog instanceof HTMLDialogElement)) return;
+                        const group = dialog.matches('[data-article-tabs]')
+                            ? dialog
+                            : dialog.querySelector<HTMLElement>(
+                                  '[data-article-tabs]',
+                              );
+                        const selected = button
+                            .closest('[data-article-tabs]')
+                            ?.querySelector<HTMLElement>(
+                                '[role="tab"][aria-selected="true"]',
+                            );
+                        const kind =
+                            button.dataset.postsKind ??
+                            selected?.dataset.tabKind ??
+                            fallback;
+                        dialog.showModal();
+                        if (group) controllers.get(group)?.(kind);
                     },
-                    { once: true },
+                    { signal },
                 );
-            }
-        });
-    document
-        .querySelectorAll<HTMLButtonElement>('[data-open-article-posts]')
-        .forEach((button) => {
-            button.addEventListener(
-                'click',
-                () => {
-                    const dialog = document.querySelector<HTMLDialogElement>(
-                        '#article-posts-dialog',
-                    );
-                    if (!dialog) return;
-                    const current = button
-                        .closest('[data-article-posts-tabs]')
-                        ?.querySelector<HTMLElement>(
-                            '[role="tab"][aria-selected="true"]',
-                        );
-                    const controller = controllers.get(dialog);
-                    const tab = controller?.tabs.find(
-                        (tab) =>
-                            tab.dataset.postsKind ===
-                            (current?.dataset.postsKind ?? 'latest'),
-                    );
-                    if (controller && tab) controller.activate(tab);
-                    dialog.showModal();
-                },
-                { signal },
-            );
-        });
+            });
+    }
 }
