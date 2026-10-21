@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import ArticleDirectory from '../components/ArticleDirectory.astro';
 import ArticlePostsDialog from '../components/ArticlePostsDialog.astro';
+import ArticleRecommendations from '../components/ArticleRecommendations.astro';
 import Comments from '../components/Comments.astro';
 import Icon from '../components/Icon.astro';
 import { getAuthor } from '../lib/author';
@@ -136,189 +137,189 @@ const toc = buildToc(headings);
                         <div id="article-content">
                             <slot />
                         </div>
-                        {entry.collection === 'posts' && (
-                            <div class="copyright-box" data-pagefind-ignore>
-                                <div class="copyright-heading">
-                                    <span class="copyright-heading-label">
-                                        <span class="copyright-icon">
-                                            <Icon name="document" size={18} />
+                        <footer class="article-footer" data-pagefind-ignore>
+                            {entry.collection === 'posts' && (
+                                <section
+                                    class="copyright-box"
+                                    aria-label="版权信息"
+                                >
+                                    <div class="copyright-heading">
+                                        <h2 class="copyright-heading-label">
+                                            <Icon name="document" size={16} />
+                                            版权信息
+                                        </h2>
+                                        <span class="copyright-type">
+                                            {
+                                                COPYRIGHT_LABELS[
+                                                    copyright?.type ??
+                                                        DEFAULT_COPYRIGHT.type
+                                                ]
+                                            }
                                         </span>
-                                        版权声明
-                                    </span>
-                                    <span class="copyright-type">
-                                        {
-                                            COPYRIGHT_LABELS[
-                                                copyright?.type ??
-                                                    DEFAULT_COPYRIGHT.type
-                                            ]
-                                        }
-                                    </span>
-                                </div>
-                                <strong class="copyright-title">
-                                    {entry.data.title}
-                                </strong>
-                                <dl class="copyright-meta">
-                                    <div>
-                                        <dt>作者</dt>
-                                        <dd>
+                                    </div>
+                                    <dl class="copyright-meta">
+                                        <div>
+                                            <dt>作者</dt>
+                                            <dd>
+                                                <a
+                                                    href={routeFor(
+                                                        'authors',
+                                                        author.id,
+                                                    )}
+                                                >
+                                                    <img
+                                                        src={author.avatar}
+                                                        width="20"
+                                                        height="20"
+                                                        alt=""
+                                                        loading="lazy"
+                                                    />
+                                                    {author.name}
+                                                </a>
+                                            </dd>
+                                        </div>
+                                        <div>
+                                            <dt>发布于</dt>
+                                            <dd>
+                                                <time
+                                                    datetime={entry.data.publishedAt.toISOString()}
+                                                >
+                                                    {formatDate(
+                                                        entry.data.publishedAt,
+                                                    )}
+                                                </time>
+                                            </dd>
+                                        </div>
+                                    </dl>
+                                    <p class="copyright-note">{noteText}</p>
+                                    {copyright?.source && (
+                                        <p class="copyright-source">
+                                            来源：
                                             <a
-                                                href={routeFor(
-                                                    'authors',
-                                                    author.id,
-                                                )}
+                                                href={copyright.source}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                             >
-                                                <img
-                                                    src={author.avatar}
-                                                    width="24"
-                                                    height="24"
-                                                    alt=""
-                                                    loading="lazy"
-                                                />
-                                                {author.name}
+                                                原始作品 ↗
                                             </a>
-                                        </dd>
-                                    </div>
-                                    <div>
-                                        <dt>发布于</dt>
-                                        <dd>
-                                            <time
-                                                datetime={entry.data.publishedAt.toISOString()}
-                                            >
-                                                {formatDate(
-                                                    entry.data.publishedAt,
-                                                )}
-                                            </time>
-                                        </dd>
-                                    </div>
-                                </dl>
-                                <p class="copyright-note">{noteText}</p>
-                                {copyright?.source && (
-                                    <p class="copyright-source">
-                                        来源：
+                                        </p>
+                                    )}
+                                </section>
+                            )}
+                            {entry.collection === 'moments' && (
+                                <div
+                                    class="copyright-compact"
+                                    data-pagefind-ignore
+                                >
+                                    <Icon name="document" size={15} />
+                                    <span>{summaryText}</span>
+                                    {copyright?.source && (
                                         <a
                                             href={copyright.source}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
-                                            原始作品 ↗
+                                            来源 ↗
                                         </a>
-                                    </p>
-                                )}
-                            </div>
-                        )}
-                        {entry.collection === 'moments' && (
-                            <div class="copyright-compact" data-pagefind-ignore>
-                                <Icon name="document" size={15} />
-                                <span>{summaryText}</span>
-                                {copyright?.source && (
-                                    <a
-                                        href={copyright.source}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    )}
+                                </div>
+                            )}
+                            <div class="article-footer-actions">
+                                <span class="article-footer-caption">
+                                    分享这篇文章
+                                </span>
+                                <div class="article-share">
+                                    <button
+                                        type="button"
+                                        class="article-footer-button"
+                                        data-copy-link
                                     >
-                                        来源 ↗
-                                    </a>
-                                )}
+                                        <Icon name="link" size={16} />
+                                        复制链接
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="article-footer-button"
+                                        data-share
+                                    >
+                                        <Icon name="share" size={16} />
+                                        分享文章
+                                    </button>
+                                </div>
                             </div>
-                        )}
-                        <div class="article-share" data-pagefind-ignore>
-                            <button type="button" data-copy-link>
-                                <Icon name="link" size={16} />
-                                复制链接
-                            </button>
-                            <button type="button" data-share>
-                                <Icon name="share" size={16} />
-                                分享文章
-                            </button>
-                        </div>
+                        </footer>
                     </article>
-                    <nav
-                        class="post-neighbors"
-                        aria-label="相邻文章"
-                        data-pagefind-ignore
-                    >
-                        {previous ? (
-                            <a
-                                class="glass-card post-neighbor post-neighbor-previous"
-                                href={routeFor('posts', previous.data.slug)}
-                            >
-                                <span class="post-neighbor-label">
-                                    <Icon name="arrow" size={16} />
-                                    上一篇
-                                </span>
-                                <span class="post-neighbor-title">
-                                    {previous.data.title}
-                                </span>
-                            </a>
-                        ) : (
-                            <button
-                                type="button"
-                                class="glass-card post-neighbor post-neighbor-previous"
-                                disabled
-                            >
-                                <span class="post-neighbor-label">
-                                    <Icon name="arrow" size={16} />
-                                    上一篇
-                                </span>
-                                <span class="post-neighbor-title">
-                                    没有更早的文章
-                                </span>
-                            </button>
-                        )}
-                        {next ? (
-                            <a
-                                class="glass-card post-neighbor post-neighbor-next"
-                                href={routeFor('posts', next.data.slug)}
-                            >
-                                <span class="post-neighbor-label">
-                                    下一篇
-                                    <Icon name="arrow" size={16} />
-                                </span>
-                                <span class="post-neighbor-title">
-                                    {next.data.title}
-                                </span>
-                            </a>
-                        ) : (
-                            <button
-                                type="button"
-                                class="glass-card post-neighbor post-neighbor-next"
-                                disabled
-                            >
-                                <span class="post-neighbor-label">
-                                    下一篇
-                                    <Icon name="arrow" size={16} />
-                                </span>
-                                <span class="post-neighbor-title">
-                                    没有更新的文章
-                                </span>
-                            </button>
-                        )}
-                    </nav>
-                    <nav
-                        class="article-discovery"
-                        aria-label="继续阅读"
-                        data-pagefind-ignore
-                    >
-                        <span>继续阅读</span>
-                        <button
-                            type="button"
-                            data-open-article-posts
-                            data-posts-kind="popular"
-                            aria-haspopup="dialog"
-                            aria-controls="article-posts-dialog"
+                    <div class="article-reading" data-pagefind-ignore>
+                        <nav
+                            class="post-neighbors"
+                            aria-label="相邻文章"
+                            data-pagefind-ignore
                         >
-                            热门文章 <Icon name="arrow" size={14} />
-                        </button>
-                        <button
-                            type="button"
-                            data-open-article-posts
-                            data-posts-kind="latest"
-                            aria-haspopup="dialog"
-                            aria-controls="article-posts-dialog"
-                        >
-                            最新文章 <Icon name="arrow" size={14} />
-                        </button>
-                    </nav>
+                            {previous ? (
+                                <a
+                                    class="post-neighbor post-neighbor-previous"
+                                    href={routeFor('posts', previous.data.slug)}
+                                >
+                                    <span class="post-neighbor-label">
+                                        <Icon name="arrow" size={16} />
+                                        上一篇
+                                    </span>
+                                    <span class="post-neighbor-title">
+                                        {previous.data.title}
+                                    </span>
+                                </a>
+                            ) : (
+                                <button
+                                    type="button"
+                                    class="post-neighbor post-neighbor-previous"
+                                    disabled
+                                >
+                                    <span class="post-neighbor-label">
+                                        <Icon name="arrow" size={16} />
+                                        上一篇
+                                    </span>
+                                    <span class="post-neighbor-title">
+                                        没有更早的文章
+                                    </span>
+                                </button>
+                            )}
+                            {next ? (
+                                <a
+                                    class="post-neighbor post-neighbor-next"
+                                    href={routeFor('posts', next.data.slug)}
+                                >
+                                    <span class="post-neighbor-label">
+                                        下一篇
+                                        <Icon name="arrow" size={16} />
+                                    </span>
+                                    <span class="post-neighbor-title">
+                                        {next.data.title}
+                                    </span>
+                                </a>
+                            ) : (
+                                <button
+                                    type="button"
+                                    class="post-neighbor post-neighbor-next"
+                                    disabled
+                                >
+                                    <span class="post-neighbor-label">
+                                        下一篇
+                                        <Icon name="arrow" size={16} />
+                                    </span>
+                                    <span class="post-neighbor-title">
+                                        没有更新的文章
+                                    </span>
+                                </button>
+                            )}
+                        </nav>
+                    </div>
+                    <ArticleRecommendations
+                        currentSlug={
+                            entry.collection === 'posts'
+                                ? entry.data.slug
+                                : undefined
+                        }
+                    />
                     <Comments />
                 </div>
                 <aside class="article-side" data-pagefind-ignore>

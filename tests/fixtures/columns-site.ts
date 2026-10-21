@@ -23,7 +23,13 @@ export const hiddenColumnPosts = [
     'SECRET_FUTURE_FIXTURE',
 ];
 
-export async function createColumnsSite(options: { empty?: boolean } = {}) {
+export async function createColumnsSite(
+    options: {
+        empty?: boolean;
+        recommendations?: { enabled: boolean; maxItems: number };
+        popularPosts?: readonly string[];
+    } = {},
+) {
     const project = fileURLToPath(new URL('../../', import.meta.url));
     const scratch = join(project, '.cache');
     mkdirSync(scratch, { recursive: true });
@@ -47,7 +53,10 @@ export async function createColumnsSite(options: { empty?: boolean } = {}) {
         const configPath = join(directory, 'src/config.ts');
         writeFileSync(
             configPath,
-            `${readFileSync(configPath, 'utf8')}\nsite.pageSize = 2;\ntheme.extra.sakana.enabled = false;\n`,
+            `${readFileSync(configPath, 'utf8')}\nsite.pageSize = 2;\ntheme.extra.sakana.enabled = false;\n` +
+                (options.recommendations
+                    ? `theme.post.recommendations = ${JSON.stringify(options.recommendations)};\n`
+                    : ''),
         );
         const writePost = (id: string, data: Record<string, unknown> = {}) => {
             const fields = {
@@ -109,6 +118,11 @@ export async function createColumnsSite(options: { empty?: boolean } = {}) {
             join(directory, 'src/data/columns.jsonc'),
             JSON.stringify(columns),
         );
+        if (options.popularPosts)
+            writeFileSync(
+                join(directory, 'src/data/popular-posts.jsonc'),
+                JSON.stringify(options.popularPosts),
+            );
         const build = spawnSync(
             process.execPath,
             [

@@ -94,6 +94,11 @@ export const theme: ThemeConfig = {
         showLoadTime: true,
     },
     post: {
+        recommendations: {
+            enabled: false,
+            // 热门和最新文章各自显示的最大条目数，须为正整数。
+            maxItems: 5,
+        },
         comment: {
             enabled: false,
             repo: '',

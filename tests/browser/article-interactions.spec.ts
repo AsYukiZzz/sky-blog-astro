@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { createColumnsSite } from '../fixtures/columns-site';
 
 const articlePath = '/posts/format-example/';
 const previewName = '查看图片：远山与傍晚的光';
@@ -31,7 +32,7 @@ for (const height of [600, 900]) {
     });
 }
 
-test('article discovery opens from the Dock and footer with the requested list and keeps the reading position', async ({
+test('article discovery opens from the Dock and remains available after client navigation', async ({
     page,
 }) => {
     await page.goto(articlePath);
@@ -53,22 +54,6 @@ test('article discovery opens from the Dock and footer with the requested list a
     ).not.toHaveCount(0);
     await page.keyboard.press('Escape');
     await expect(discover).toBeFocused();
-    const footer = page.getByRole('navigation', {
-        name: '继续阅读',
-        exact: true,
-    });
-    for (const kind of ['热门文章', '最新文章']) {
-        const trigger = footer.getByRole('button', { name: kind });
-        await trigger.scrollIntoViewIfNeeded();
-        const position = await page.evaluate(() => scrollY);
-        await trigger.click();
-        await expect(
-            dialog.getByRole('tab', { name: new RegExp(kind) }),
-        ).toHaveAttribute('aria-selected', 'true');
-        await page.keyboard.press('Escape');
-        await expect(trigger).toBeFocused();
-        expect(await page.evaluate(() => scrollY)).toBeCloseTo(position, 0);
-    }
     await page.locator('.site-nav a[href="/"]').first().click();
     await expect(
         page.locator('.sky-dock').getByRole('button', { name: '发现文章' }),
@@ -76,6 +61,83 @@ test('article discovery opens from the Dock and footer with the requested list a
     await page.goBack();
     await discover.click();
     await expect(dialog).toBeVisible();
+});
+
+test('enabled footer recommendations switch article lists inline and keep their selection independent of the Dock dialog', async ({
+    page,
+}) => {
+    test.setTimeout(120_000);
+    const site = await createColumnsSite({
+        recommendations: { enabled: true, maxItems: 2 },
+    });
+    try {
+        await page.goto(`${site.origin}${articlePath}`);
+        const footer = page.getByRole('region', {
+            name: '继续阅读',
+            exact: true,
+        });
+        const popular = footer.getByRole('tab', {
+            name: '热门文章',
+            exact: true,
+        });
+        const latest = footer.getByRole('tab', {
+            name: '最新文章',
+            exact: true,
+        });
+        const panel = footer.getByRole('tabpanel');
+        await expect(popular).toHaveAttribute('aria-selected', 'true');
+        await expect(panel.getByRole('link')).toHaveCount(1);
+        await expect(panel.getByRole('link')).toHaveAttribute(
+            'href',
+            articlePath,
+        );
+        await latest.click();
+        await expect(latest).toHaveAttribute('aria-selected', 'true');
+        await expect(popular).toHaveAttribute('aria-selected', 'false');
+        await expect(panel.getByRole('link')).toHaveCount(2);
+        await expect(panel.getByRole('link').first()).toHaveAttribute(
+            'href',
+            '/posts/standalone-example/',
+        );
+        const dialog = page.getByRole('dialog', { name: '文章推荐' });
+        await expect(dialog).not.toBeVisible();
+        await latest.press('ArrowLeft');
+        await expect(popular).toBeFocused();
+        await expect(popular).toHaveAttribute('aria-selected', 'true');
+        await expect(panel.getByRole('link')).toHaveCount(1);
+        await popular.press('ArrowRight');
+        await expect(latest).toBeFocused();
+        await expect(panel.getByRole('link')).toHaveCount(2);
+        await page.locator('.article-heading').scrollIntoViewIfNeeded();
+        await page
+            .locator('.sky-dock')
+            .getByRole('button', { name: '发现文章' })
+            .click();
+        await dialog.getByRole('tab', { name: /热门文章/ }).click();
+        await page.keyboard.press('Escape');
+        await expect(latest).toHaveAttribute('aria-selected', 'true');
+        await expect(panel.getByRole('link')).toHaveCount(2);
+        await panel.getByRole('link').first().click();
+        await expect(page).toHaveURL(
+            `${site.origin}/posts/standalone-example/`,
+        );
+        await footer
+            .getByRole('tab', { name: '最新文章', exact: true })
+            .click();
+        await expect(panel.getByRole('link').first()).toHaveAttribute(
+            'href',
+            '/posts/standalone-example/',
+        );
+        await page.setViewportSize({ width: 320, height: 740 });
+        await expect(panel.getByRole('link')).toHaveCount(2);
+        expect(
+            await page.evaluate(
+                () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+        ).toBe(true);
+    } finally {
+        await site.close();
+    }
 });
 
 test('mobile article discovery remains reachable without horizontal overflow', async ({
@@ -100,6 +162,18 @@ test('mobile article discovery remains reachable without horizontal overflow', a
         ),
     ).toBe(true);
     await page.keyboard.press('Escape');
+    await expect(
+        page.getByRole('region', {
+            name: '继续阅读',
+            exact: true,
+            includeHidden: true,
+        }),
+    ).toHaveCount(0);
+    expect(
+        await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+    ).toBe(true);
 });
 
 test('a Markdown image opens with Enter and Space and restores focus after Escape', async ({

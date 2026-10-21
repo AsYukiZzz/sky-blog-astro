@@ -81,6 +81,10 @@ export interface HomeConfig {
 }
 
 export interface PostConfig {
+    recommendations: {
+        enabled: boolean;
+        maxItems: number;
+    };
     comment: {
         enabled: boolean;
         repo: string;
