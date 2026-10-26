@@ -362,11 +362,14 @@ for (const width of [390, 1440])
                         background: getComputedStyle(info).backgroundColor,
                         articleBackground:
                             getComputedStyle(article).backgroundColor,
+                        accentWidth:
+                            getComputedStyle(info).borderInlineStartWidth,
                     };
                 });
             expect(layout.followsControls).toBe(true);
             expect(layout.precedesArticles).toBe(true);
-            expect(layout.background).not.toBe(layout.articleBackground);
+            expect(layout.background).toBe(layout.articleBackground);
+            expect(layout.accentWidth).toBe('4px');
             expect(
                 await page.evaluate(
                     () =>

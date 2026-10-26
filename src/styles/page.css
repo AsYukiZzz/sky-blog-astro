@@ -1,0 +1,29 @@
+/* Independent content pages reuse article typography with their own frame. */
+#page-container {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: clamp(32px, 5vw, 64px) 16px;
+}
+.page-paper {
+    padding: clamp(20px, 3vw, 36px);
+}
+#page-header {
+    margin-bottom: 32px;
+    text-align: center;
+}
+#page-title {
+    margin: 0;
+    color: var(--color-base-content);
+    font-size: clamp(30px, 4vw, 48px);
+    font-weight: 700;
+    line-height: 1.3;
+}
+#page-footer {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--sky-border);
+    color: var(--sky-muted);
+    font-size: 14px;
+    line-height: 1.8;
+    text-align: center;
+}

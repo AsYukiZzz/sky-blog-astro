@@ -93,16 +93,140 @@
 
 ## 3 主题（`theme`）
 
-### 3.1 字体与背景
+完整默认配置如下；各字段的含义与修改方法见后续小节。
 
-`font` 选择全站默认字体：`serif` 为衬线字体，`sans` 为系统无衬线字体。封面标题字体单独设置。
+<details>
+<summary>展开完整 theme 配置</summary>
 
-`background` 选择页面底色：`grid` 显示淡网格，`none` 使用普通底色。首页封面内部背景单独设置。
+```json
+{
+    "global": {
+        "font": "serif",
+        "background": {
+            "type": "solid",
+            "image": "",
+            "position": "center"
+        },
+        "appearance": {
+            "glass": {
+                "blur": 32,
+                "saturation": 1.3,
+                "opacity": {
+                    "light": 0.72,
+                    "dark": 0.65
+                }
+            }
+        }
+    },
+    "home": {
+        "hero": {
+            "title": "sky blog",
+            "subtitle": "记录生活，分享思考，探索无限可能",
+            "size": "full",
+            "titleFont": "condensed",
+            "titleEffect": "effect-marker-pop"
+        },
+        "card": {
+            "preset": "default"
+        }
+    },
+    "footer": {
+        "copyrightOwner": "",
+        "icp": "",
+        "publicSecurity": {
+            "text": "",
+            "url": ""
+        },
+        "providers": [
+            {
+                "name": "Cloudflare Pages",
+                "description": "提供托管与 CDN 服务",
+                "url": "https://pages.cloudflare.com/"
+            }
+        ],
+        "theme": {
+            "name": "Sky Theme",
+            "url": "https://github.com/AsYukiZzz/sky-blog-astro"
+        },
+        "privacyUrl": "/pages/privacy/",
+        "termsUrl": "/pages/terms/",
+        "sitemapUrl": "/sitemap/",
+        "rssUrl": "/feed.xml",
+        "showLoadTime": true
+    },
+    "post": {
+        "header": {
+            "appearance": "transparent"
+        },
+        "recommendations": {
+            "enabled": false,
+            "maxItems": 5
+        },
+        "comment": {
+            "enabled": false,
+            "repo": "",
+            "repoId": "",
+            "category": "Announcements",
+            "categoryId": ""
+        }
+    },
+    "extra": {
+        "sakana": {
+            "enabled": true,
+            "character": "chisato",
+            "size": 200,
+            "position": "right",
+            "offset": {
+                "side": 24,
+                "bottom": 24
+            },
+            "showOnMobile": false,
+            "autoMode": false
+        },
+        "dock": true
+    }
+}
+```
 
-影响范围：
+</details>
 
-- 导航、正文和卡片等文字。
-- 全站页面背景与首页封面过渡区域。
+### 3.1 全局（`theme.global`）
+
+`font` 选择全站默认字体：`serif` 为衬线字体，`sans` 为系统无衬线字体。Hero 标题字体单独设置。
+
+#### 3.1.1 背景（`theme.global.background`）
+
+`type` 仅支持 `solid`（跟随明暗主题的普通底色）和 `image`（图片壁纸）。`image` 填写单张图片的本地路径或完整 URL；留空、全为空白或加载失败时显示普通底色。普通底色模式不加载配置的图片。
+
+`position` 控制图片铺满视口后的对齐与裁切，默认为 `center`，也可使用 `top`、`bottom` 或 `center 30%` 等 CSS 位置值。图片保持原比例铺满视口，随屏幕比例裁切；背景固定不滚动，内容正常滚动。
+
+```ts
+global: {
+    font: 'serif',
+    background: {
+        type: 'image',
+        image: '/images/wallpaper.webp',
+        position: 'center',
+    },
+    appearance: {
+        glass: {
+            blur: 32,
+            saturation: 1.3,
+            opacity: { light: 0.72, dark: 0.65 },
+        },
+    },
+},
+```
+
+首页 Hero、Card 区域及归档、分类、标签、专栏、随笔、朋友、文章阅读和其他页面共用此背景，无页面专属覆盖配置。文章与卡片自身的封面仍属于内容图片。
+
+#### 3.1.2 玻璃材质（`theme.global.appearance.glass`）
+
+`blur` 是卡片背后画面的模糊程度，单位为 px；`saturation` 是背景饱和度倍率，`1` 保持原样，`0` 为灰度。两者必须为有限非负数，允许为 `0`。
+
+`opacity.light` 和 `opacity.dark` 分别控制浅色、深色模式下玻璃底色的不透明度，必须为 `0` 到 `1` 的有限数。数值越大，底色越实，壁纸透出越少。这些参数只影响表面底色和背后画面，文字、图标及卡片内图片保持清晰。边缘高光、边框和阴影由共用样式提供。
+
+升级时，将原 `theme.font` 移至 `theme.global.font`，背景改为上述对象结构，并移除 `theme.home.hero.background` 和 `theme.home.hero.image`。网格、渐变、动态星空和随机图片数组已移除；原图集需选择一张作为全站壁纸。`home`、`footer`、`post`、`extra` 继续直接位于 `theme` 下，与 `global` 同级。
 
 ### 3.2 首页（`theme.home`）
 
@@ -112,23 +236,12 @@
 
 `titleFont` 选择 `condensed`（Impact / Arial Black）或 `titan-one`（Titan One）。`titleEffect` 使用已定义的 CSS 特效类，具体样式见 [标题特效样式](../../src/styles/original/index-title-effects.css)；留空只取消附加类，内置粒子装饰仍保留。
 
-`background` 可选 `reference`（深色渐变）、`starry-sky`（动态星空）或 `image`（图片）。图片模式下，`image` 支持单个路径或路径数组，图片按封面区域覆盖裁切。空路径会被忽略，没有有效路径时不插入背景图片。
-
-```ts
-background: 'image',
-image: [
-    '/images/hero-1.webp',
-    '/images/hero-2.webp',
-    'https://example.com/hero-3.webp',
-],
-```
-
-填写多个路径时，每次打开、刷新或返回首页（包括浏览器前进、后退恢复页面），都会随机选择一张，本次停留期间保持不变；随机结果可能与上一次相同。未启用 JavaScript 时显示第一张。原有的 `image: '/images/hero.webp'` 单图配置仍可使用。
+Hero 使用 `theme.global.background` 定义的全站背景，直接与后续卡片区域衔接。
 
 影响范围：
 
 - 首页封面文字、字体和特效。
-- 封面高度、背景及卡片区顶部间距。
+- 封面高度及卡片区顶部间距。
 
 #### 3.2.2 卡片（`theme.home.card`）
 
@@ -211,6 +324,18 @@ recommendations: {
 ```
 
 此配置只作用于文末推荐卡片，Dock 的推荐弹窗仍展示完整列表。关闭文末推荐后，上下篇导航保留，右侧目录仍与左栏最后一个模块的底边对齐。
+
+#### 3.4.4 顶部信息卡片（`theme.post.header`）
+
+`appearance` 选择所有文章详情页顶部信息区的样式，可选 `transparent`（默认）和 `glass`。`transparent` 让标题、摘要、元信息与封面直接显示在全站背景上；`glass` 将整个顶部信息区显示为玻璃卡片，复用 `theme.global.appearance.glass` 的模糊程度、饱和度和浅深色不透明度。
+
+```ts
+header: {
+    appearance: 'transparent',
+},
+```
+
+两种模式使用相同排版，保留封面曲别针装饰。此设置不改变全站背景或正文、目录等其他卡片的玻璃材质，也不提供逐篇文章覆盖配置。
 
 ### 3.5 附加功能（`theme.extra`）
 

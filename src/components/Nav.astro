@@ -9,12 +9,8 @@ const current = (href: string) =>
     path === href ? 'page' : inColumns(href) ? 'location' : undefined;
 ---
 
-<header
-    class="site-nav navbar"
-    transition:name="site-nav"
-    transition:animate="none"
-    data-pagefind-ignore
->
+<header class="site-nav" data-pagefind-ignore>
+    <div class="glass-surface nav-surface" aria-hidden="true"></div>
     <div class="nav-inner">
         <button
             class="icon-button mobile-menu-button"
@@ -48,7 +44,7 @@ const current = (href: string) =>
                             {item.label}
                             <Icon name="chevron" size={10} />
                         </summary>
-                        <div class="dropdown-panel">
+                        <div class="glass-surface dropdown-panel">
                             {item.children.map((child) => (
                                 <a
                                     href={child.href}
@@ -100,7 +96,7 @@ const current = (href: string) =>
 </header>
 <dialog
     id="mobile-navigation"
-    class="mobile-navigation"
+    class="glass-surface mobile-navigation"
     aria-label="移动端导航"
 >
     <div class="mobile-menu-heading">

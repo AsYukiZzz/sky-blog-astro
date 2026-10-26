@@ -1,0 +1,27 @@
+---
+import type { ResolvedGlobalTheme } from '../lib/global-theme';
+
+interface Props {
+    wallpaper: ResolvedGlobalTheme['wallpaper'];
+}
+const { wallpaper } = Astro.props;
+---
+
+<div
+    class="site-background"
+    data-site-background
+    aria-hidden="true"
+    transition:persist="site-background"
+    transition:animate="none"
+>
+    {wallpaper && (
+        <img
+            src={wallpaper.image}
+            alt=""
+            data-site-wallpaper
+            style={{ 'object-position': wallpaper.position }}
+            decoding="async"
+            fetchpriority="high"
+        />
+    )}
+</div>

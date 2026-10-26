@@ -1,46 +1,111 @@
-/* Homepage information cards; the article layouts keep their own sidebar. */
-.home-intro.home-hero {
-    min-height: 420px;
+/* Homepage cover and cards share the fixed site background. */
+.home-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 100svh;
+    margin-top: -64px;
+    padding: 96px 24px;
+    overflow: clip;
+    text-align: center;
 }
-.home-intro.home-intro-compact {
+.home-hero.hero-size-compact {
     height: 58svh;
     min-height: 420px;
     max-height: 620px;
 }
-.home-intro.home-intro-full {
-    height: 100svh;
-    min-height: 0;
-    max-height: none;
+.hero-title-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
 }
-.home-intro .hero-title-container {
-    padding: 48px 24px 30px;
-}
-.home-intro .hero-title {
+.hero-title {
+    margin: 0 0 24px;
     font-size: clamp(64px, 7.5vw, 96px);
+    font-weight: 700;
+    line-height: 1.1;
+    filter: drop-shadow(
+        0 8px 20px color-mix(in oklch, var(--color-primary) 22%, transparent)
+    );
 }
-.home-intro-full .hero-title {
+.hero-size-full .hero-title {
     font-size: clamp(80px, 9vw, 128px);
 }
-.home-intro .hero-subtitle {
-    margin-bottom: 0;
+.title-font-condensed {
+    font-family: Impact, 'Arial Black', sans-serif;
+}
+.title-font-titan-one {
+    font-family: 'Titan One', Impact, sans-serif;
+}
+.hero-subtitle {
+    max-width: 672px;
+    margin: 0;
+    font-size: clamp(17px, 2vw, 24px);
+    line-height: 1.5;
+    letter-spacing: 0.045em;
+    color: var(--color-base-content);
+    text-shadow: 0 1px 12px var(--color-base-100);
 }
 .hero-scroll-hint {
     position: absolute;
     bottom: 66px;
     left: 50%;
-    z-index: 30;
     transform: translateX(-50%);
-    color: #ffffffd9;
+    color: var(--color-base-content);
     font-size: 12px;
     letter-spacing: 0.12em;
-    text-shadow: 0 1px 8px #0008;
+    text-shadow: 0 1px 8px var(--color-base-100);
     pointer-events: none;
 }
+.hero-scroll-cue {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    color: var(--color-primary);
+}
+.hero-scroll-cue svg {
+    rotate: 90deg;
+    animation: sky-cue-float 2.8s ease-in-out infinite;
+}
+@keyframes sky-cue-float {
+    0%,
+    100% {
+        translate: 0 -2px;
+    }
+    50% {
+        translate: 0 2px;
+    }
+}
+@media (width < 768px) {
+    .home-hero.hero-size-compact {
+        height: 52svh;
+        min-height: 360px;
+        max-height: 480px;
+    }
+    .hero-title,
+    .hero-size-full .hero-title {
+        font-size: clamp(52px, 12vw, 76px);
+    }
+    .hero-subtitle {
+        max-width: 32ch;
+        letter-spacing: 0.02em;
+    }
+}
+
+/* Homepage information cards; the article layouts keep their own sidebar. */
 .site-container.home-overview {
     container: home-cards / inline-size;
     padding: 40px 32px 64px;
 }
-.home-intro-full + .site-container.home-overview {
+.hero-size-full + .site-container.home-overview {
     padding-top: 80px;
 }
 .home-card-grid {
@@ -61,27 +126,6 @@
     padding: 20px;
     overflow: auto;
     scrollbar-width: thin;
-    border-radius: 24px;
-    border-color: color-mix(
-        in oklch,
-        var(--color-base-content) 7%,
-        var(--color-base-100)
-    );
-    background:
-        radial-gradient(
-            ellipse at top left,
-            color-mix(in oklch, var(--card-accent) 7%, transparent),
-            transparent 65%
-        ),
-        var(--color-base-100);
-    box-shadow:
-        0 2px 6px color-mix(in oklch, var(--color-base-content) 3%, transparent),
-        0 18px 40px -28px
-            color-mix(in oklch, var(--card-accent) 24%, transparent);
-    transition:
-        border-color 0.25s,
-        box-shadow 0.3s var(--sky-ease),
-        translate 0.3s var(--sky-ease);
 }
 .home-card-header {
     grid-row: 1;
@@ -165,11 +209,7 @@
         var(--card-accent) 70%,
         var(--color-base-content)
     );
-    background: color-mix(
-        in oklch,
-        var(--card-accent) 6%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--card-accent) 6%, transparent);
 }
 .home-card-header-link {
     transition:
@@ -264,7 +304,6 @@
     padding: 12px;
     border: 1px solid color-mix(in oklch, var(--color-primary) 9%, transparent);
     border-radius: 18px;
-    background: color-mix(in oklch, var(--color-base-100) 65%, transparent);
 }
 .home-author-identity h2 {
     margin: 0;
@@ -309,11 +348,7 @@
     gap: 6px;
     padding: 5px 9px;
     border-radius: 8px;
-    background: color-mix(
-        in oklch,
-        var(--color-primary) 6%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--color-primary) 6%, transparent);
     color: color-mix(
         in oklch,
         var(--color-primary) 45%,
@@ -399,11 +434,7 @@
     border: 1px solid
         color-mix(in oklch, var(--contact-accent) 14%, transparent);
     border-radius: 14px;
-    background: color-mix(
-        in oklch,
-        var(--contact-accent) 6%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--contact-accent) 6%, transparent);
     color: color-mix(
         in oklch,
         var(--contact-accent) 75%,
@@ -426,11 +457,7 @@
     padding: 5px 8px;
     border: 1px solid color-mix(in oklch, var(--color-primary) 10%, transparent);
     border-radius: 9px;
-    background: color-mix(
-        in oklch,
-        var(--color-primary) 4%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--color-primary) 4%, transparent);
     font-size: 10px;
     line-height: 1.4;
     color: var(--sky-muted);
@@ -461,7 +488,6 @@
     padding: 5px 9px;
     border: 1px solid color-mix(in oklch, var(--card-accent) 10%, transparent);
     border-radius: 12px;
-    background: color-mix(in oklch, var(--color-base-100) 75%, transparent);
     font-size: 12px;
     line-height: 1.6;
     transition:
@@ -514,8 +540,8 @@
     border-radius: 15px;
     background: linear-gradient(
         140deg,
-        color-mix(in oklch, var(--stat-color) 7%, var(--color-base-100)),
-        var(--color-base-100)
+        color-mix(in oklch, var(--stat-color) 7%, transparent),
+        transparent
     );
     transition:
         border-color 0.2s,
@@ -591,11 +617,7 @@
     min-height: 32px;
     border: 1px solid var(--sky-border);
     border-radius: 10px;
-    background: color-mix(
-        in oklch,
-        var(--color-base-content) 3%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--color-base-content) 3%, transparent);
     font:
         500 11px/1.5 system-ui,
         sans-serif;
@@ -603,11 +625,7 @@
 }
 .home-recent-list li:first-child a {
     border-color: color-mix(in oklch, var(--color-primary) 10%, transparent);
-    background: color-mix(
-        in oklch,
-        var(--color-primary) 4%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--color-primary) 4%, transparent);
 }
 .home-recent-list li:first-child .home-recent-number {
     color: var(--color-primary-content);
@@ -684,11 +702,7 @@
     padding: 8px;
     border: 1px solid color-mix(in oklch, var(--color-primary) 9%, transparent);
     border-radius: 16px;
-    background: color-mix(
-        in oklch,
-        var(--color-primary) 2%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--color-primary) 2%, transparent);
 }
 .home-writing-heatmap {
     display: block;
@@ -704,27 +718,15 @@
         var(--color-base-content) 7%,
         var(--color-base-100)
     );
-    background: color-mix(
-        in oklch,
-        var(--color-base-content) 7%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--color-base-content) 7%, transparent);
 }
 .home-card-heatmap .heatmap-level-1 {
     fill: color-mix(in oklch, var(--color-primary) 35%, var(--color-base-100));
-    background: color-mix(
-        in oklch,
-        var(--color-primary) 35%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--color-primary) 35%, transparent);
 }
 .home-card-heatmap .heatmap-level-2 {
     fill: color-mix(in oklch, var(--color-primary) 65%, var(--color-base-100));
-    background: color-mix(
-        in oklch,
-        var(--color-primary) 65%,
-        var(--color-base-100)
-    );
+    background: color-mix(in oklch, var(--color-primary) 65%, transparent);
 }
 .home-card-heatmap .heatmap-level-3 {
     fill: var(--color-primary);
@@ -819,8 +821,8 @@
     border-radius: 13px;
     background: linear-gradient(
         150deg,
-        color-mix(in oklch, var(--color-info) 4%, var(--color-base-100)),
-        var(--color-base-100)
+        color-mix(in oklch, var(--color-info) 4%, transparent),
+        transparent
     );
     transition:
         background-color 0.25s,
@@ -869,6 +871,7 @@
         minmax(0, 1fr)
     );
     gap: 8px;
+    display: grid;
 }
 .home-projects {
     display: grid;
@@ -886,7 +889,6 @@
     padding: 12px;
     border: 1px solid var(--sky-border);
     border-radius: 16px;
-    background: color-mix(in oklch, var(--color-base-100) 65%, transparent);
     transition:
         border-color 0.2s,
         background-color 0.2s,
@@ -942,10 +944,12 @@
     padding: 8px;
     border: 1px solid var(--sky-border);
     border-radius: 16px;
-    background: color-mix(in oklch, var(--color-base-100) 65%, transparent);
     transition:
         border-color 0.2s,
         translate 0.25s var(--sky-ease);
+    display: flex;
+    align-items: center;
+    min-width: 0;
 }
 .home-links .home-friends strong {
     display: block;
@@ -959,6 +963,11 @@
 .home-links .home-friends small {
     display: block;
     font-size: 10px;
+    color: var(--sky-muted);
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .home-links .friend-avatar {
     flex: 0 0 auto;
@@ -974,8 +983,6 @@
             var(--card-accent) 25%,
             var(--color-base-100)
         );
-        box-shadow: 0 18px 44px -26px
-            color-mix(in oklch, var(--card-accent) 35%, transparent);
     }
     .home-moment-preview:hover {
         color: var(--color-base-content);
@@ -984,11 +991,7 @@
     }
     .home-recent-list a:hover {
         color: var(--color-base-content);
-        background: color-mix(
-            in oklch,
-            var(--color-primary) 5%,
-            var(--color-base-100)
-        );
+        background: color-mix(in oklch, var(--color-primary) 5%, transparent);
         border-color: color-mix(
             in oklch,
             var(--color-primary) 12%,
@@ -1001,11 +1004,7 @@
     }
     .home-taxonomy-chip:hover {
         color: var(--color-base-content);
-        background: color-mix(
-            in oklch,
-            var(--card-accent) 7%,
-            var(--color-base-100)
-        );
+        background: color-mix(in oklch, var(--card-accent) 7%, transparent);
         border-color: color-mix(in oklch, var(--card-accent) 22%, transparent);
         translate: 0 -2px;
     }
@@ -1016,11 +1015,7 @@
         translate: 3px 0;
     }
     .home-author-social a:hover {
-        background: color-mix(
-            in oklch,
-            var(--contact-accent) 4%,
-            var(--color-base-100)
-        );
+        background: color-mix(in oklch, var(--contact-accent) 4%, transparent);
         border-color: color-mix(
             in oklch,
             var(--contact-accent) 10%,
@@ -1034,11 +1029,7 @@
         translate: 0 -2px;
     }
     .home-author-social a:hover .home-author-social-icon {
-        background: color-mix(
-            in oklch,
-            var(--contact-accent) 10%,
-            var(--color-base-100)
-        );
+        background: color-mix(in oklch, var(--contact-accent) 10%, transparent);
         border-color: color-mix(
             in oklch,
             var(--contact-accent) 25%,
@@ -1046,19 +1037,11 @@
         );
     }
     .home-card-header-link:hover {
-        background: color-mix(
-            in oklch,
-            var(--card-accent) 12%,
-            var(--color-base-100)
-        );
+        background: color-mix(in oklch, var(--card-accent) 12%, transparent);
         border-color: color-mix(in oklch, var(--card-accent) 25%, transparent);
     }
     .home-project:hover {
-        background: color-mix(
-            in oklch,
-            var(--card-accent) 5%,
-            var(--color-base-100)
-        );
+        background: color-mix(in oklch, var(--card-accent) 5%, transparent);
     }
     .home-stats-grid .home-stat:hover,
     .home-project:hover,
@@ -1068,22 +1051,10 @@
     }
 }
 @media (width < 768px) {
-    .home-intro.home-intro-compact {
-        height: 52svh;
-        min-height: 360px;
-        max-height: 480px;
-    }
-    .home-intro .hero-title {
-        font-size: clamp(52px, 12vw, 76px);
-    }
-    .home-intro .hero-subtitle {
-        font-size: 17px;
-        max-width: 32ch;
-    }
     .site-container.home-overview {
         padding: 24px 20px 48px;
     }
-    .home-intro-full + .site-container.home-overview {
+    .hero-size-full + .site-container.home-overview {
         padding-top: 40px;
     }
     .home-card-heading {
@@ -1099,7 +1070,6 @@
     }
     .home-card {
         padding: 18px;
-        border-radius: 20px;
     }
     .home-recent-list a {
         padding: 11px 8px;
@@ -1122,5 +1092,15 @@
     .home-card a > svg {
         transition: none;
         translate: none !important;
+    }
+}
+#home-content {
+    scroll-margin-top: 64px;
+}
+@media (hover: hover) and (pointer: fine) {
+    .home-friends > a:hover .friend-avatar {
+        scale: 1.06;
+        box-shadow: 0 8px 24px -10px
+            color-mix(in oklch, var(--color-primary) 45%, transparent);
     }
 }

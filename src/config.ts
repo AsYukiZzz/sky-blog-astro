@@ -55,8 +55,22 @@ export const author: AuthorConfig = {
 };
 
 export const theme: ThemeConfig = {
-    font: 'serif',
-    background: 'grid',
+    global: {
+        font: 'serif',
+        background: {
+            type: 'solid',
+            // 图片模式填写单张壁纸的路径或 URL，全站固定显示。
+            image: '',
+            position: 'center',
+        },
+        appearance: {
+            glass: {
+                blur: 32,
+                saturation: 1.3,
+                opacity: { light: 0.72, dark: 0.65 },
+            },
+        },
+    },
     home: {
         hero: {
             title: 'sky blog',
@@ -64,9 +78,6 @@ export const theme: ThemeConfig = {
             size: 'full',
             titleFont: 'condensed',
             titleEffect: 'effect-marker-pop',
-            background: 'reference',
-            // 图片模式可填写单个路径或路径数组，每次进入首页随机显示一张。
-            image: '',
         },
         card: {
             preset: 'default',
@@ -94,9 +105,11 @@ export const theme: ThemeConfig = {
         showLoadTime: true,
     },
     post: {
+        header: {
+            appearance: 'transparent',
+        },
         recommendations: {
             enabled: false,
-            // 热门和最新文章各自显示的最大条目数，须为正整数。
             maxItems: 5,
         },
         comment: {

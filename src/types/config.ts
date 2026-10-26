@@ -74,13 +74,14 @@ export interface HomeConfig {
         size: 'compact' | 'full';
         titleFont: 'condensed' | 'titan-one';
         titleEffect: string;
-        background: 'reference' | 'starry-sky' | 'image';
-        image: string | string[];
     };
     card: HomeCardConfig;
 }
 
 export interface PostConfig {
+    header: {
+        appearance: 'transparent' | 'glass';
+    };
     recommendations: {
         enabled: boolean;
         maxItems: number;
@@ -107,9 +108,24 @@ export interface ExtraConfig {
     dock: boolean;
 }
 
-export interface ThemeConfig {
+export interface GlassAppearanceConfig {
+    blur: number;
+    saturation: number;
+    opacity: { light: number; dark: number };
+}
+
+export interface GlobalThemeConfig {
     font: 'serif' | 'sans';
-    background: 'grid' | 'none';
+    background: {
+        type: 'image' | 'solid';
+        image: string;
+        position: string;
+    };
+    appearance: { glass: GlassAppearanceConfig };
+}
+
+export interface ThemeConfig {
+    global: GlobalThemeConfig;
     home: HomeConfig;
     footer: FooterConfig;
     post: PostConfig;

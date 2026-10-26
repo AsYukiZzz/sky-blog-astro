@@ -5,14 +5,8 @@
     gap: 24px;
     margin-bottom: 28px;
     padding: 24px;
-    border: 1px solid var(--sky-border);
     border-inline-start: 4px solid var(--color-primary);
     border-radius: 16px;
-    background: color-mix(
-        in oklch,
-        var(--color-primary) 6%,
-        var(--color-base-100)
-    );
 }
 .column-info-cover,
 .column-overview-cover img {
@@ -58,9 +52,7 @@
     min-height: 38px;
     max-width: 100%;
     padding: 8px 13px;
-    border: 1px solid var(--sky-border);
     border-radius: 10px;
-    background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
     color: var(--sky-muted);
     font-size: 13px;
     overflow-wrap: anywhere;
@@ -83,11 +75,6 @@
 .columns-switch a[aria-current='page'] {
     color: var(--color-base-content);
     border-color: color-mix(in oklch, var(--color-primary) 24%, transparent);
-    background: color-mix(
-        in oklch,
-        var(--color-primary) 9%,
-        var(--color-base-100)
-    );
 }
 .columns-more {
     max-width: 100%;

@@ -1,7 +1,9 @@
 ---
-import { ClientRouter, fade } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import { site, theme } from '../config';
 import { initialThemeScript } from '../lib/theme-state';
+import { resolveGlobalTheme } from '../lib/global-theme';
+import SiteBackground from '../components/SiteBackground.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import Dock from '../components/Dock.astro';
@@ -34,6 +36,7 @@ const pageTitle = title
       : site.title;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 const absoluteImage = new URL(image, Astro.site ?? site.url).href;
+const global = resolveGlobalTheme(theme.global);
 const schema = {
     '@context': 'https://schema.org',
     '@type': article ? 'BlogPosting' : 'WebPage',
@@ -54,7 +57,19 @@ const schema = {
 ---
 
 <!doctype html>
-<html lang={site.language} data-theme="light" data-color-scheme="light">
+<html
+    lang={site.language}
+    data-theme="light"
+    data-color-scheme="light"
+    transition:name="root"
+    transition:animate="none"
+    style={{
+        '--sky-glass-blur': `${global.glass.blur}px`,
+        '--sky-glass-saturation': global.glass.saturation,
+        '--sky-glass-opacity-light': global.glass.opacity.light,
+        '--sky-glass-opacity-dark': global.glass.opacity.dark,
+    }}
+>
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -83,22 +98,13 @@ const schema = {
         <script is:inline set:html={initialThemeScript()} />
         <ClientRouter />
     </head>
-    <body
-        class:list={[
-            `background-${theme.background}`,
-            `body-font-${theme.font}`,
-        ]}
-        transition:animate="none"
-    >
+    <body class={`body-font-${global.font}`}>
+        <SiteBackground wallpaper={global.wallpaper} />
         <a class="skip-link" href="#main-content">
             跳到正文
         </a>
         <Nav />
-        <main
-            id="main-content"
-            transition:name="page-content"
-            transition:animate={fade({ duration: '220ms' })}
-        >
+        <main id="main-content">
             <slot />
         </main>
         <Footer />
@@ -107,7 +113,7 @@ const schema = {
         <slot name="floating" />
         <dialog
             id="image-lightbox"
-            class="sky-dialog lightbox-dialog"
+            class="glass-surface sky-dialog lightbox-dialog"
             aria-label="图片预览"
         >
             <button
@@ -120,7 +126,12 @@ const schema = {
             <img alt="" />
             <p></p>
         </dialog>
-        <div class="toast-status" role="status" aria-live="polite" hidden></div>
+        <div
+            class="glass-surface toast-status"
+            role="status"
+            aria-live="polite"
+            hidden
+        ></div>
         <script>
             import '../scripts/runtime';
         </script>

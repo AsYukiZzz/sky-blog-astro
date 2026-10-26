@@ -6,6 +6,7 @@ import ArticlePostsDialog from '../components/ArticlePostsDialog.astro';
 import ArticleRecommendations from '../components/ArticleRecommendations.astro';
 import Comments from '../components/Comments.astro';
 import Icon from '../components/Icon.astro';
+import { theme } from '../config';
 import { getAuthor } from '../lib/author';
 import {
     COPYRIGHT_LABELS,
@@ -30,7 +31,10 @@ const author = getAuthor();
 if (author.id !== entry.data.author)
     throw new Error(`${entry.id}: unknown author ${entry.data.author}`);
 const categories = 'categories' in entry.data ? entry.data.categories : [];
-const tags = 'tags' in entry.data ? entry.data.tags : [];
+const headerTags =
+    'tags' in entry.data && entry.collection !== 'moments'
+        ? entry.data.tags.slice(0, 4)
+        : [];
 const copyright = 'copyright' in entry.data ? entry.data.copyright : undefined;
 const noteText = copyrightNote(copyright);
 const summaryText = copyrightSummary(copyright);
@@ -49,69 +53,131 @@ const toc = buildToc(headings);
     }}
 >
     <div class="article-page">
-        <header class="article-banner">
-            {entry.data.cover && (
-                <img
-                    class="article-banner-image"
-                    src={entry.data.cover}
-                    width="1440"
-                    height="600"
-                    alt=""
-                />
-            )}
-            <div class="article-hero site-container">
-                <div class="article-heading">
-                    <div class="article-breadcrumb">
-                        {categories.map((id) => (
-                            <a href={routeFor('categories', id)}>{id}</a>
-                        ))}
-                        {entry.collection !== 'moments' &&
-                            tags.slice(0, 4).map((id) => (
-                                <a
-                                    class="article-tag"
-                                    href={routeFor('tags', id)}
+        <header class="site-container article-header">
+            <div
+                class:list={[
+                    'article-heading',
+                    {
+                        'glass-card': theme.post.header.appearance === 'glass',
+                    },
+                ]}
+            >
+                <div class="article-heading-content">
+                    {(categories.length > 0 || headerTags.length > 0) && (
+                        <div class="article-taxonomy">
+                            {categories.length > 0 && (
+                                <nav
+                                    class="article-categories"
+                                    aria-label="文章分类"
                                 >
-                                    #{id}
-                                </a>
-                            ))}
-                    </div>
+                                    {categories.map((id) => (
+                                        <a href={routeFor('categories', id)}>
+                                            {id}
+                                        </a>
+                                    ))}
+                                </nav>
+                            )}
+                            {headerTags.length > 0 && (
+                                <nav class="article-tags" aria-label="文章标签">
+                                    {headerTags.map((id) => (
+                                        <a href={routeFor('tags', id)}>#{id}</a>
+                                    ))}
+                                </nav>
+                            )}
+                        </div>
+                    )}
                     <h1 data-pagefind-meta="title">{entry.data.title}</h1>
-                    <div class="article-meta">
-                        <a href={routeFor('authors', author.id)}>
-                            <img
-                                src={author.avatar}
-                                width="24"
-                                height="24"
-                                alt=""
-                            />
-                            {author.name}
-                        </a>
-                        <span>
-                            <Icon name="calendar" size={16} />
+                    {entry.data.description && (
+                        <p class="article-description" data-pagefind-body>
+                            {entry.data.description}
+                        </p>
+                    )}
+                    <ul class="article-meta" aria-label="文章信息">
+                        <li>
+                            <a
+                                class="article-author"
+                                href={routeFor('authors', author.id)}
+                                rel="author"
+                            >
+                                <img
+                                    src={author.avatar}
+                                    width="24"
+                                    height="24"
+                                    alt=""
+                                />
+                                <span>{author.name}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <span class="sr-only">发布于</span>
                             <time
                                 datetime={entry.data.publishedAt.toISOString()}
                             >
                                 {formatDate(entry.data.publishedAt)}
                             </time>
-                        </span>
-                        <span>
-                            <Icon name="clock" size={16} />
-                            {readingTime(entry.body)} 分钟
-                        </span>
+                        </li>
                         {entry.data.updatedAt && (
-                            <span>
-                                更新于 {formatDate(entry.data.updatedAt)}
-                            </span>
+                            <li>
+                                更新于
+                                <time
+                                    datetime={entry.data.updatedAt.toISOString()}
+                                >
+                                    {formatDate(entry.data.updatedAt)}
+                                </time>
+                            </li>
                         )}
-                    </div>
+                        <li>约 {readingTime(entry.body)} 分钟</li>
+                    </ul>
                 </div>
+                {entry.data.cover && (
+                    <div class="article-cover-wrap">
+                        <img
+                            class="article-cover"
+                            src={entry.data.cover}
+                            width="640"
+                            height="320"
+                            alt=""
+                            decoding="async"
+                        />
+                        <svg
+                            class="article-cover-clip"
+                            viewBox="0 -2 30 56"
+                            aria-hidden="true"
+                            focusable="false"
+                        >
+                            <defs>
+                                <linearGradient
+                                    id="article-cover-clip-metal"
+                                    gradientUnits="userSpaceOnUse"
+                                    x1="4"
+                                    y1="0"
+                                    x2="26"
+                                    y2="0"
+                                >
+                                    <stop offset="0" stop-color="#76838c" />
+                                    <stop offset="0.22" stop-color="#dbe3e8" />
+                                    <stop offset="0.45" stop-color="#ffffff" />
+                                    <stop offset="0.65" stop-color="#b7c4cc" />
+                                    <stop offset="1" stop-color="#6c7882" />
+                                </linearGradient>
+                            </defs>
+                            <path
+                                d="M10 42V14a5 5 0 0 1 10 0v27a8 8 0 0 1-16 0V12a11 11 0 0 1 22 0v29"
+                                fill="none"
+                                stroke="url(#article-cover-clip-metal)"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                            />
+                        </svg>
+                    </div>
+                )}
             </div>
         </header>
         <div class="site-container">
             <div class="article-grid">
                 <div class="article-main">
                     {(toc.length > 0 || column) && (
-                        <details class="mobile-toc">
+                        <details class="glass-card mobile-toc">
                             <summary>
                                 <span>
                                     <Icon name="list" size={18} />
@@ -128,16 +194,16 @@ const toc = buildToc(headings);
                             />
                         </details>
                     )}
-                    <article class="article-paper" data-pagefind-body>
-                        {entry.data.description && (
-                            <div class="article-excerpt">
-                                {entry.data.description}
+                    <article class="article-entry" data-pagefind-body>
+                        <div class="glass-card article-paper">
+                            <div id="article-content">
+                                <slot />
                             </div>
-                        )}
-                        <div id="article-content">
-                            <slot />
                         </div>
-                        <footer class="article-footer" data-pagefind-ignore>
+                        <footer
+                            class="glass-card article-footer"
+                            data-pagefind-ignore
+                        >
                             {entry.collection === 'posts' && (
                                 <section
                                     class="copyright-box"
@@ -249,70 +315,68 @@ const toc = buildToc(headings);
                             </div>
                         </footer>
                     </article>
-                    <div class="article-reading" data-pagefind-ignore>
-                        <nav
-                            class="post-neighbors"
-                            aria-label="相邻文章"
-                            data-pagefind-ignore
-                        >
-                            {previous ? (
-                                <a
-                                    class="post-neighbor post-neighbor-previous"
-                                    href={routeFor('posts', previous.data.slug)}
-                                >
-                                    <span class="post-neighbor-label">
-                                        <Icon name="arrow" size={16} />
-                                        上一篇
-                                    </span>
-                                    <span class="post-neighbor-title">
-                                        {previous.data.title}
-                                    </span>
-                                </a>
-                            ) : (
-                                <button
-                                    type="button"
-                                    class="post-neighbor post-neighbor-previous"
-                                    disabled
-                                >
-                                    <span class="post-neighbor-label">
-                                        <Icon name="arrow" size={16} />
-                                        上一篇
-                                    </span>
-                                    <span class="post-neighbor-title">
-                                        没有更早的文章
-                                    </span>
-                                </button>
-                            )}
-                            {next ? (
-                                <a
-                                    class="post-neighbor post-neighbor-next"
-                                    href={routeFor('posts', next.data.slug)}
-                                >
-                                    <span class="post-neighbor-label">
-                                        下一篇
-                                        <Icon name="arrow" size={16} />
-                                    </span>
-                                    <span class="post-neighbor-title">
-                                        {next.data.title}
-                                    </span>
-                                </a>
-                            ) : (
-                                <button
-                                    type="button"
-                                    class="post-neighbor post-neighbor-next"
-                                    disabled
-                                >
-                                    <span class="post-neighbor-label">
-                                        下一篇
-                                        <Icon name="arrow" size={16} />
-                                    </span>
-                                    <span class="post-neighbor-title">
-                                        没有更新的文章
-                                    </span>
-                                </button>
-                            )}
-                        </nav>
-                    </div>
+                    <nav
+                        class="glass-card post-neighbors"
+                        aria-label="相邻文章"
+                        data-pagefind-ignore
+                    >
+                        {previous ? (
+                            <a
+                                class="post-neighbor post-neighbor-previous"
+                                href={routeFor('posts', previous.data.slug)}
+                            >
+                                <span class="post-neighbor-label">
+                                    <Icon name="arrow" size={16} />
+                                    上一篇
+                                </span>
+                                <span class="post-neighbor-title">
+                                    {previous.data.title}
+                                </span>
+                            </a>
+                        ) : (
+                            <button
+                                type="button"
+                                class="post-neighbor post-neighbor-previous"
+                                disabled
+                            >
+                                <span class="post-neighbor-label">
+                                    <Icon name="arrow" size={16} />
+                                    上一篇
+                                </span>
+                                <span class="post-neighbor-title">
+                                    没有更早的文章
+                                </span>
+                            </button>
+                        )}
+                        {next ? (
+                            <a
+                                class="post-neighbor post-neighbor-next"
+                                href={routeFor('posts', next.data.slug)}
+                            >
+                                <span class="post-neighbor-label">
+                                    下一篇
+                                    <Icon name="arrow" size={16} />
+                                </span>
+                                <span class="post-neighbor-title">
+                                    {next.data.title}
+                                </span>
+                            </a>
+                        ) : (
+                            <button
+                                type="button"
+                                class="post-neighbor post-neighbor-next"
+                                disabled
+                            >
+                                <span class="post-neighbor-label">
+                                    下一篇
+                                    <Icon name="arrow" size={16} />
+                                </span>
+                                <span class="post-neighbor-title">
+                                    没有更新的文章
+                                </span>
+                            </button>
+                        )}
+                    </nav>
                     <ArticleRecommendations
                         currentSlug={
                             entry.collection === 'posts'
@@ -362,7 +426,7 @@ const toc = buildToc(headings);
     {(toc.length > 0 || column) && (
         <dialog
             id="article-toc-dialog"
-            class="sky-dialog toc-dialog"
+            class="glass-surface sky-dialog toc-dialog"
             aria-labelledby="toc-dialog-heading"
             data-pagefind-ignore
         >

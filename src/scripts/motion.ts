@@ -4,7 +4,7 @@ const entranceTargets = [
     '.content-preview-card',
     '.page-header',
     '.essay-card',
-    '.link-grid > *',
+    '.friends-grid > *',
     '.archive-year-heading',
     '.archive-month',
 ].join(',');

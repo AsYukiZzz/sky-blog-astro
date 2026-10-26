@@ -1,17 +1,54 @@
-/* Shared glass surface. Component files own their layout and variants. */
+/* Shared material; components own dimensions, spacing and interaction states. */
+:root {
+    --sky-glass-opacity: var(--sky-glass-opacity-light);
+    --sky-glass-background: color-mix(
+        in srgb,
+        var(--color-base-100) calc(var(--sky-glass-opacity) * 100%),
+        transparent
+    );
+    --sky-glass-border: #ffffffa6;
+    --sky-glass-shadow:
+        0 4px 16px -8px #1829441a, 0 20px 48px -32px #18294440,
+        inset 0 1px 0 #ffffff99, inset 0 -1px 0 #ffffff26;
+    --sky-glass-backdrop-filter: blur(var(--sky-glass-blur))
+        saturate(var(--sky-glass-saturation));
+    --sky-panel-background: color-mix(
+        in srgb,
+        var(--color-base-100) 20%,
+        transparent
+    );
+}
+
+html[data-color-scheme='dark'] {
+    --sky-glass-opacity: var(--sky-glass-opacity-dark);
+    --sky-glass-border: #ffffff26;
+    --sky-glass-shadow:
+        0 4px 16px -8px #0004, 0 20px 48px -32px #0009, inset 0 1px 0 #ffffff1a,
+        inset 0 -1px 0 #ffffff08;
+}
+
+.glass-card,
+.glass-surface {
+    border: 1px solid var(--sky-glass-border);
+    background-color: var(--sky-glass-background);
+    background-image: linear-gradient(135deg, #ffffff0d, transparent 60%);
+    -webkit-backdrop-filter: var(--sky-glass-backdrop-filter);
+    backdrop-filter: var(--sky-glass-backdrop-filter);
+    box-shadow: var(--sky-glass-shadow);
+    transition:
+        box-shadow 0.3s var(--sky-ease),
+        border-color 0.25s,
+        translate 0.3s var(--sky-ease);
+}
 
 .glass-card {
-    border: 1px solid var(--sky-border);
     border-radius: var(--sky-radius);
-    backdrop-filter: blur(24px);
-    box-shadow: var(--sky-shadow);
-    background: linear-gradient(
-        145deg,
-        color-mix(in oklch, var(--color-base-100) 96%, transparent),
-        color-mix(in oklch, var(--color-base-100) 86%, transparent)
-    );
-    transition:
-        box-shadow 0.35s var(--sky-ease),
-        border-color 0.3s,
-        translate 0.35s var(--sky-ease);
+}
+
+@supports not (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+    :root {
+        --sky-glass-background: var(--color-base-100);
+    }
 }

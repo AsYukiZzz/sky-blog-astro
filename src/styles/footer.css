@@ -1,14 +1,12 @@
 .site-footer {
     position: relative;
-    border-top: 1px solid var(--sky-border);
-    background: color-mix(in oklch, var(--color-base-100) 82%, transparent);
-    backdrop-filter: blur(20px);
     padding: 23px 24px 25px;
     color: var(--sky-muted);
     font-size: 13px;
     line-height: 1.8;
     font-weight: 600;
     text-align: center;
+    border-width: 1px 0 0;
 }
 .footer-content {
     display: grid;
@@ -101,6 +99,7 @@ body[data-footer-visible] .sky-dock {
     .site-footer {
         padding: 20px 16px 22px;
         font-size: 12px;
+        border-width: 1px 0 0;
     }
     .footer-content {
         gap: 8px;

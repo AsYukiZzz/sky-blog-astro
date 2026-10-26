@@ -12,17 +12,6 @@
     break-inside: avoid;
     border-radius: 22px;
     overflow: hidden;
-    border-color: color-mix(
-        in oklch,
-        var(--color-primary) 12%,
-        var(--sky-border)
-    );
-    box-shadow: 0 8px 24px -20px
-        color-mix(in oklch, var(--color-base-content) 24%, transparent);
-    transition:
-        border-color 0.25s,
-        box-shadow 0.3s var(--sky-ease),
-        translate 0.3s var(--sky-ease);
 }
 .essay-card-link {
     display: block;
@@ -105,8 +94,6 @@
             var(--color-primary) 30%,
             var(--sky-border)
         );
-        box-shadow: 0 14px 32px -22px
-            color-mix(in oklch, var(--color-primary) 30%, transparent);
     }
     .essay-card-link:hover {
         color: inherit;

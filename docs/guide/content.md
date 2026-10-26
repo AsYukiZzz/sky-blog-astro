@@ -56,8 +56,8 @@ copyright:
 | `slug`              | 访问地址标识，决定 `/posts/{slug}/`，必填；由作者填写，构建时校验格式和唯一性。                          |
 | `publishedAt`       | 发布时间，必填。                                                                                         |
 | `updatedAt`         | 更新日期，用于文章详情显示和页面元信息；命令生成时与发布时间相同。                                       |
-| `description`       | 文章摘要和页面描述，也用于 RSS 简介。                                                                    |
-| `cover`             | 封面图片地址，用于文章头图、列表和分享。                                                                 |
+| `description`       | 顶部标题区的文章摘要，也用于页面描述和 RSS 简介。                                                        |
+| `cover`             | 封面图片地址，用于文章标题区、列表和分享。                                                               |
 | `author`            | 作者 ID，须与 `src/config.ts` 的 `author.id` 一致；省略时使用站主。                                      |
 | `categories`        | 分类数组，自动生成分类归档。                                                                             |
 | `tags`              | 标签数组，自动生成标签归档。                                                                             |
@@ -70,6 +70,8 @@ copyright:
 | `copyright.license` | 许可协议文字，必填。                                                                                     |
 | `copyright.source`  | 来源链接，使用 HTTP/HTTPS 地址；`repost`、`derivative` 必填，其他类型可选。                              |
 | `copyright.note`    | 自定义声明；`custom` 必填，其他类型可选；填写后替代按类型生成的默认文案。                                |
+
+文章的标题、摘要和元信息默认直接显示在全站背景上，`theme.post.header.appearance` 可选择 `transparent`（透明）或 `glass`（磨砂卡片），磨砂材质参数复用 `theme.global.appearance.glass`；摘要不在正文重复展示。分类与标签位于标题上方，作者、日期和阅读时长紧凑排列，内容较长时自然换行。封面在桌面端位于标题信息右侧，小屏下排在标题下方，图片上沿带有曲别针装饰；省略封面时不显示装饰，标题信息占满标题区。正文和目录等卡片继续使用磨砂材质，整个阅读页使用 `theme.global.background` 配置的同一全站背景。
 
 默认文案按 `type` 区分：`original` 显示许可协议，`repost` 显示“版权归原作者所有”，`ai` 注明 AI 辅助，`derivative` 注明二次创作，`custom` 直接展示 `note`。已有站点升级后需要为每篇文章补上 `copyright` 块，否则构建会失败。
 

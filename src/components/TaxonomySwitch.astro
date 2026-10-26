@@ -18,12 +18,17 @@ const countFor = (id: string) =>
     class="taxonomy-switch"
     aria-label={kind === 'categories' ? '分类切换' : '标签切换'}
 >
-    <a href={`/${kind}/`} aria-current={!active ? 'page' : undefined}>
+    <a
+        class="glass-surface"
+        href={`/${kind}/`}
+        aria-current={!active ? 'page' : undefined}
+    >
         <Icon name="grid" size={14} />
         全部
     </a>
     {items.slice(0, maxVisible).map((item) => (
         <a
+            class="glass-surface"
             href={routeFor(kind, item)}
             aria-current={active === item ? 'page' : undefined}
         >
@@ -45,6 +50,7 @@ const countFor = (id: string) =>
             <div>
                 {items.slice(maxVisible).map((item) => (
                     <a
+                        class="glass-surface"
                         href={routeFor(kind, item)}
                         aria-current={active === item ? 'page' : undefined}
                     >
@@ -72,9 +78,7 @@ const countFor = (id: string) =>
         min-height: 38px;
         max-width: 100%;
         padding: 8px 13px;
-        border: 1px solid var(--sky-border);
         border-radius: 10px;
-        background: color-mix(in oklch, var(--color-base-100) 88%, transparent);
         color: var(--sky-muted);
         font-size: 13px;
         font-weight: 500;
@@ -102,11 +106,6 @@ const countFor = (id: string) =>
             in oklch,
             var(--color-primary) 24%,
             transparent
-        );
-        background: color-mix(
-            in oklch,
-            var(--color-primary) 9%,
-            var(--color-base-100)
         );
     }
     .taxonomy-switch a[aria-current='page'] svg {
@@ -141,11 +140,6 @@ const countFor = (id: string) =>
                 in oklch,
                 var(--color-primary) 20%,
                 transparent
-            );
-            background: color-mix(
-                in oklch,
-                var(--color-primary) 6%,
-                var(--color-base-100)
             );
         }
     }

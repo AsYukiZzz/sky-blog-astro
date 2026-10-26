@@ -12,56 +12,57 @@ const hostname = (url: string) => new URL(url).hostname.replace(/^www\./, '');
     description="网络很大，能够相遇很好。这里收藏一些喜欢的角落。"
     icon="users"
 >
-    <div class="friends-page">
-        <ul class="link-grid friends-grid" aria-label="友情链接">
-            {links.map((link) => (
-                <li>
-                    <a
-                        class="glass-card friend-card"
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <div class="friend-card-heading">
-                            <img
-                                class="friend-avatar"
-                                src={link.logo}
-                                alt=""
-                                width="56"
-                                height="56"
-                                loading="lazy"
-                                decoding="async"
-                            />
-                            <div class="friend-card-identity">
-                                <h2>{link.name}</h2>
-                                <span class="friend-domain">
-                                    {hostname(link.url)}
-                                </span>
-                            </div>
-                        </div>
-                        <p class="friend-description">{link.description}</p>
-                        <div class="friend-card-footer">
-                            <span class="friend-visit">
-                                访问站点
-                                <Icon name="external" size={14} />
-                                <span class="sr-only">（在新窗口中打开）</span>
+    <ul class="friends-grid" aria-label="友情链接">
+        {links.map((link) => (
+            <li>
+                <a
+                    class="glass-card friend-card"
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <div class="friend-card-heading">
+                        <img
+                            class="friend-avatar"
+                            src={link.logo}
+                            alt=""
+                            width="56"
+                            height="56"
+                            loading="lazy"
+                            decoding="async"
+                        />
+                        <div class="friend-card-identity">
+                            <h2>{link.name}</h2>
+                            <span class="friend-domain">
+                                {hostname(link.url)}
                             </span>
                         </div>
-                    </a>
-                </li>
-            ))}
-        </ul>
-        {!links.length && (
-            <p class="friends-empty">这里还没有友链，期待下一个相遇。</p>
-        )}
-        <section class="friends-note" aria-labelledby="friends-note-title">
-            <span class="friends-note-icon" aria-hidden="true">
-                <Icon name="link" size={22} />
-            </span>
-            <div>
-                <h2 id="friends-note-title">每一个链接，都通往一个新的世界</h2>
-                <p>把喜欢的网站放在这里，偶尔回来看看它们的新故事。</p>
-            </div>
-        </section>
-    </div>
+                    </div>
+                    <p class="friend-description">{link.description}</p>
+                    <div class="friend-card-footer">
+                        <span class="friend-visit">
+                            访问站点
+                            <Icon name="external" size={14} />
+                            <span class="sr-only">（在新窗口中打开）</span>
+                        </span>
+                    </div>
+                </a>
+            </li>
+        ))}
+    </ul>
+    {!links.length && (
+        <p class="friends-empty">这里还没有友链，期待下一个相遇。</p>
+    )}
+    <section
+        class="glass-card friends-note"
+        aria-labelledby="friends-note-title"
+    >
+        <span class="friends-note-icon" aria-hidden="true">
+            <Icon name="link" size={22} />
+        </span>
+        <div>
+            <h2 id="friends-note-title">每一个链接，都通往一个新的世界</h2>
+            <p>把喜欢的网站放在这里，偶尔回来看看它们的新故事。</p>
+        </div>
+    </section>
 </ListingLayout>

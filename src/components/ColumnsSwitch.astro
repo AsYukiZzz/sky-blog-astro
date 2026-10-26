@@ -13,12 +13,17 @@ const more = columns.slice(10);
 ---
 
 <nav class="columns-switch" aria-label="专栏切换">
-    <a href="/columns/" aria-current={!active ? 'page' : undefined}>
+    <a
+        class="glass-surface"
+        href="/columns/"
+        aria-current={!active ? 'page' : undefined}
+    >
         <Icon name="grid" size={14} />
         全部
     </a>
     {visible.map((column) => (
         <a
+            class="glass-surface"
             href={routeFor('columns', column.slug)}
             aria-current={active === column.slug ? 'page' : undefined}
         >
@@ -36,6 +41,7 @@ const more = columns.slice(10);
             <div>
                 {more.map((column) => (
                     <a
+                        class="glass-surface"
                         href={routeFor('columns', column.slug)}
                         aria-current={
                             active === column.slug ? 'page' : undefined

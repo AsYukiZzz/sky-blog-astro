@@ -11,20 +11,32 @@ import {
 import { createServer } from 'node:http';
 import { basename, dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type {
+    GlobalThemeConfig,
+    GlassAppearanceConfig,
+    PostConfig,
+} from '../../src/types/config';
 
-export const heroImagePaths = [
-    '/images/mist.svg?hero=first',
-    '/images/mist.svg?hero=second&label=天空',
-];
+export const wallpaperSource = '/images/forest.svg?site=wallpaper';
 
-export async function createHeroSite() {
+export async function createBackgroundSite(
+    options: {
+        background?: Partial<GlobalThemeConfig['background']>;
+        glass?: Partial<GlassAppearanceConfig>;
+        headerAppearance?: PostConfig['header']['appearance'];
+        comments?: boolean;
+        recommendations?: boolean;
+        coverlessPost?: boolean;
+        updatedPost?: boolean;
+    } = {},
+) {
     const project = fileURLToPath(new URL('../../', import.meta.url));
     const scratch = join(project, '.cache');
     mkdirSync(scratch, { recursive: true });
-    const directory = mkdtempSync(join(scratch, 'hero-site-'));
+    const directory = mkdtempSync(join(scratch, 'background-site-'));
     const removeFixture = () => {
         assert.equal(dirname(resolve(directory)), resolve(scratch));
-        assert.ok(basename(directory).startsWith('hero-site-'));
+        assert.ok(basename(directory).startsWith('background-site-'));
         rmSync(directory, { recursive: true, force: true });
     };
     try {
@@ -39,20 +51,39 @@ export async function createHeroSite() {
                 recursive: true,
             });
         }
+        if (options.coverlessPost) {
+            const postPath = join(
+                directory,
+                'src/content/posts/standalone-example.md',
+            );
+            const source = readFileSync(postPath, 'utf8');
+            const withoutCover = source.replace(/^cover:.*\r?\n/m, '');
+            assert.notEqual(withoutCover, source);
+            writeFileSync(postPath, withoutCover);
+        }
+        if (options.updatedPost) {
+            const postPath = join(
+                directory,
+                'src/content/posts/format-example.mdx',
+            );
+            const source = readFileSync(postPath, 'utf8');
+            const withUpdate = source.replace(
+                /^publishedAt:.*$/m,
+                '$&\nupdatedAt: 2026-10-20T18:30:00+08:00',
+            );
+            assert.notEqual(withUpdate, source);
+            writeFileSync(postPath, withUpdate);
+        }
         const configPath = join(directory, 'src/config.ts');
-        const imageConfig = [
-            '',
-            ` ${heroImagePaths[0]} `,
-            '  ',
-            heroImagePaths[1],
-        ];
+        const background = {
+            type: 'image',
+            image: wallpaperSource,
+            position: 'center',
+            ...options.background,
+        };
         writeFileSync(
             configPath,
-            `${readFileSync(configPath, 'utf8')}\ntheme.home.hero.background = 'image';\ntheme.home.hero.image = ${JSON.stringify(imageConfig)};\n`,
-        );
-        writeFileSync(
-            join(directory, 'public/hero-outside.html'),
-            '<!doctype html><html><head><title>Outside</title></head><body>A document without ClientRouter.</body></html>',
+            `${readFileSync(configPath, 'utf8')}\nObject.assign(theme.global.background, ${JSON.stringify(background)});\nObject.assign(theme.global.appearance.glass, ${JSON.stringify(options.glass ?? {})});\n${options.headerAppearance === undefined ? '' : `Object.assign(theme.post, { header: { appearance: ${JSON.stringify(options.headerAppearance)} } });`}\ntheme.post.recommendations.enabled = ${Boolean(options.recommendations)};\n${options.comments ? "Object.assign(theme.post.comment, { enabled: true, repo: 'example/blog', repoId: 'test-repo', categoryId: 'test-category' });" : ''}\n`,
         );
         const build = spawnSync(
             process.execPath,

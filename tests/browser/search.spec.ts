@@ -181,6 +181,20 @@ test('search highlights English matches in titles and excerpts and updates them 
     await expect(dialog.locator('mark')).toHaveCount(0);
 });
 
+test('an article remains searchable by the summary shown in its header', async ({
+    page,
+}) => {
+    await page.goto(articlePath);
+    await page.keyboard.press('Control+k');
+    const dialog = page.getByRole('dialog', { name: '搜索内容', exact: true });
+    await dialog
+        .getByRole('searchbox', { name: '搜索关键词' })
+        .fill('"用一篇文章展示"');
+    const result = dialog.locator('a[href="/posts/format-example/"]');
+    await expect(result.getByRole('heading')).toHaveText(exampleTitle);
+    await expect(result.locator('p')).toContainText('用一篇文章展示');
+});
+
 test('search highlights Chinese matches with readable colors in light and dark themes', async ({
     page,
 }) => {
