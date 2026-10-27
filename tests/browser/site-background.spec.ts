@@ -134,7 +134,9 @@ test('an unavailable wallpaper leaves the theme background and content usable', 
         .locator('[data-site-background]')
         .evaluate((el) => getComputedStyle(el).backgroundColor);
     expect(color).not.toBe('rgba(0, 0, 0, 0)');
-    await expect(page.locator('.hero-title')).toBeVisible();
+    await expect(
+        page.locator('.home-hero').getByRole('heading', { level: 1 }),
+    ).toBeVisible();
     await expect(page.locator('[data-home-card="author"]')).toBeAttached();
 });
 

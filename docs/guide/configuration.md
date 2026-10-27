@@ -126,9 +126,7 @@
         "hero": {
             "title": "sky blog",
             "subtitle": "记录生活，分享思考，探索无限可能",
-            "size": "full",
-            "titleFont": "condensed",
-            "titleEffect": "effect-marker-pop"
+            "size": "full"
         },
         "card": {
             "preset": "default"
@@ -269,15 +267,15 @@ pnpm dev:loading
 
 #### 3.2.1 封面（`theme.home.hero`）
 
-`title` 和 `subtitle` 设置封面大标题与副标题。`size` 选择 `full`（一屏高度）或 `compact`（较矮封面），同时影响标题字号和后续卡片区的间距。
-
-`titleFont` 选择 `condensed`（Impact / Arial Black）或 `titan-one`（Titan One）。`titleEffect` 使用已定义的 CSS 特效类，具体样式见 [标题特效样式](../../src/styles/original/index-title-effects.css)；留空只取消附加类，内置粒子装饰仍保留。
+`title` 和 `subtitle` 设置左下角的手写标题与副标题，副标题留空时隐藏。`size` 选择 `full`（一屏高度）或 `compact`（较矮封面），同时影响后续卡片区的间距。
 
 Hero 使用 `theme.global.background` 定义的全站背景，直接与后续卡片区域衔接。
 
+标题使用主题本地提供的 Caveat 400 手写字体，最大 104px、最小 64px，左、下边距均为 24px。中文使用 Noto Serif SC 回退字体。标题与副标题直接显示在全站背景上；窄屏、长标题和中英文混排会正常换行，必要时撑高封面。字体加载失败时仍显示备用字体，无 JavaScript 时也可直接阅读。
+
 影响范围：
 
-- 首页封面文字、字体和特效。
+- 首页封面的文字。
 - 封面高度及卡片区顶部间距。
 
 #### 3.2.2 卡片（`theme.home.card`）

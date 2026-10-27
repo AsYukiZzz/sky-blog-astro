@@ -1,35 +1,15 @@
 ---
 import { theme } from '../config';
-import Icon from './Icon.astro';
+import '@fontsource/caveat/400.css';
+const hero = theme.home.hero;
 ---
 
 <section
-    class:list={['home-hero', `hero-size-${theme.home.hero.size}`]}
+    class:list={['home-hero', `hero-size-${hero.size}`]}
     aria-label="首页封面"
 >
-    <div class="hero-title-container">
-        <h1
-            class:list={[
-                'hero-title effect-base effect-particles',
-                theme.home.hero.titleEffect,
-                `title-font-${theme.home.hero.titleFont}`,
-            ]}
-            style="--title-color: var(--color-primary)"
-        >
-            <span>
-                <span>{theme.home.hero.title}</span>
-            </span>
-        </h1>
-        <p class="hero-subtitle">{theme.home.hero.subtitle}</p>
+    <div class="home-hero-content">
+        <h1 class="home-hero-title">{hero.title}</h1>
+        {hero.subtitle && <p class="home-hero-subtitle">{hero.subtitle}</p>}
     </div>
-    <span class="hero-scroll-hint" aria-hidden="true">
-        向下滚动
-    </span>
-    <a
-        class="glass-surface hero-scroll-cue"
-        href="#home-content"
-        aria-label="浏览首页卡片"
-    >
-        <Icon name="arrow" size={16} />
-    </a>
 </section>

@@ -14,11 +14,9 @@ export function setupMotion(signal: AbortSignal) {
     const preference = matchMedia('(prefers-reduced-motion: reduce)');
     const played = new WeakSet<Element>();
     const running = new Set<Animation>();
-    const hero = document.querySelector<HTMLElement>('.home-hero');
     let reveals: IntersectionObserver | undefined;
-    let heroVisibility: IntersectionObserver | undefined;
 
-    const enter = (node: Element, delay = 0, distance = 16, duration = 520) => {
+    const enter = (node: Element, delay: number) => {
         if (
             preference.matches ||
             signal.aborted ||
@@ -28,11 +26,11 @@ export function setupMotion(signal: AbortSignal) {
             return;
         const animation = node.animate(
             [
-                { opacity: 0, translate: `0 ${distance}px` },
+                { opacity: 0, translate: '0 16px' },
                 { opacity: 1, translate: '0 0' },
             ],
             {
-                duration,
+                duration: 520,
                 delay,
                 easing: 'cubic-bezier(.22, 1, .36, 1)',
                 fill: 'backwards',
@@ -51,10 +49,8 @@ export function setupMotion(signal: AbortSignal) {
 
     const stop = () => {
         reveals?.disconnect();
-        heroVisibility?.disconnect();
         running.forEach((animation) => animation.cancel());
         running.clear();
-        hero?.removeAttribute('data-motion-idle');
     };
 
     const observe = () => {
@@ -77,20 +73,9 @@ export function setupMotion(signal: AbortSignal) {
         document.querySelectorAll(entranceTargets).forEach((node) => {
             if (!played.has(node)) reveals?.observe(node);
         });
-        if (hero) {
-            heroVisibility = new IntersectionObserver(([entry]) => {
-                hero.toggleAttribute('data-motion-idle', !entry.isIntersecting);
-            });
-            heroVisibility.observe(hero);
-        }
     };
 
     observe();
-    document
-        .querySelectorAll('.hero-title, .hero-subtitle')
-        .forEach((node, index) =>
-            enter(node, Math.min(index * 85, 255), 20, 700),
-        );
     const updateVisibility = () => {
         document.body.toggleAttribute('data-motion-paused', document.hidden);
         running.forEach((animation) =>

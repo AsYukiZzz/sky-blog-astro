@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import type {
     GlobalThemeConfig,
     GlassAppearanceConfig,
+    HomeConfig,
     PostConfig,
 } from '../../src/types/config';
 
@@ -24,6 +25,7 @@ export async function createBackgroundSite(
         background?: Partial<GlobalThemeConfig['background']>;
         glass?: Partial<GlassAppearanceConfig>;
         loading?: GlobalThemeConfig['loading'];
+        hero?: HomeConfig['hero'];
         headerAppearance?: PostConfig['header']['appearance'];
         comments?: boolean;
         recommendations?: boolean;
@@ -91,6 +93,12 @@ export async function createBackgroundSite(
             writeFileSync(
                 configPath,
                 `${readFileSync(configPath, 'utf8')}\nObject.assign(theme.global, { loading: ${JSON.stringify(options.loading)} });\n`,
+            );
+        }
+        if (options.hero) {
+            writeFileSync(
+                configPath,
+                `${readFileSync(configPath, 'utf8')}\ntheme.home.hero = ${JSON.stringify(options.hero)};\n`,
             );
         }
         if (options.developmentMode) {

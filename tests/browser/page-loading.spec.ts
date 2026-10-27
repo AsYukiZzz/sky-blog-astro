@@ -386,7 +386,9 @@ test('the first client visit to home finishes after its inline module runs', asy
         await expect(layer).toBeVisible();
         gate.release();
         await expect(page).toHaveURL(`${site.origin}/`);
-        await expect(page.locator('.hero-title')).toBeVisible();
+        await expect(
+            page.locator('.home-hero').getByRole('heading', { level: 1 }),
+        ).toBeVisible();
         await expect(layer).toBeHidden();
         await expect(page.locator('main')).not.toHaveAttribute(
             'aria-busy',

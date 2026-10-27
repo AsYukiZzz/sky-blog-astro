@@ -72,8 +72,6 @@ export interface HomeConfig {
         title: string;
         subtitle: string;
         size: 'compact' | 'full';
-        titleFont: 'condensed' | 'titan-one';
-        titleEffect: string;
     };
     card: HomeCardConfig;
 }

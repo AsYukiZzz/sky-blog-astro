@@ -80,8 +80,6 @@ export const theme: ThemeConfig = {
             title: 'sky blog',
             subtitle: '记录生活，分享思考，探索无限可能',
             size: 'full',
-            titleFont: 'condensed',
-            titleEffect: 'effect-marker-pop',
         },
         card: {
             preset: 'default',

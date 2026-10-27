@@ -111,12 +111,6 @@
 .toast-status:not([hidden]) {
     animation: sky-toast-in 0.24s var(--sky-ease);
 }
-body[data-motion-paused] .home-hero *,
-body[data-motion-paused] .home-hero *::before,
-body[data-motion-paused] .home-hero *::after,
-.home-hero[data-motion-idle] *,
-.home-hero[data-motion-idle] *::before,
-.home-hero[data-motion-idle] *::after,
 body[data-motion-paused] .sf-badge-dot {
     animation-play-state: paused !important;
 }
