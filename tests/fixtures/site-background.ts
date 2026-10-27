@@ -23,11 +23,13 @@ export async function createBackgroundSite(
     options: {
         background?: Partial<GlobalThemeConfig['background']>;
         glass?: Partial<GlassAppearanceConfig>;
+        loading?: GlobalThemeConfig['loading'];
         headerAppearance?: PostConfig['header']['appearance'];
         comments?: boolean;
         recommendations?: boolean;
         coverlessPost?: boolean;
         updatedPost?: boolean;
+        developmentMode?: 'development' | 'loading';
     } = {},
 ) {
     const project = fileURLToPath(new URL('../../', import.meta.url));
@@ -85,6 +87,38 @@ export async function createBackgroundSite(
             configPath,
             `${readFileSync(configPath, 'utf8')}\nObject.assign(theme.global.background, ${JSON.stringify(background)});\nObject.assign(theme.global.appearance.glass, ${JSON.stringify(options.glass ?? {})});\n${options.headerAppearance === undefined ? '' : `Object.assign(theme.post, { header: { appearance: ${JSON.stringify(options.headerAppearance)} } });`}\ntheme.post.recommendations.enabled = ${Boolean(options.recommendations)};\n${options.comments ? "Object.assign(theme.post.comment, { enabled: true, repo: 'example/blog', repoId: 'test-repo', categoryId: 'test-category' });" : ''}\n`,
         );
+        if (options.loading) {
+            writeFileSync(
+                configPath,
+                `${readFileSync(configPath, 'utf8')}\nObject.assign(theme.global, { loading: ${JSON.stringify(options.loading)} });\n`,
+            );
+        }
+        if (options.developmentMode) {
+            const { dev } = await import('astro');
+            const previousNodeEnv = process.env.NODE_ENV;
+            let server;
+            try {
+                server = await dev({
+                    root: directory,
+                    mode: options.developmentMode,
+                    server: { host: '127.0.0.1', port: 0 },
+                    logLevel: 'silent',
+                });
+            } finally {
+                if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
+                else process.env.NODE_ENV = previousNodeEnv;
+            }
+            return {
+                origin: `http://127.0.0.1:${server.address.port}`,
+                async close() {
+                    try {
+                        await server.stop();
+                    } finally {
+                        removeFixture();
+                    }
+                },
+            };
+        }
         const build = spawnSync(
             process.execPath,
             [

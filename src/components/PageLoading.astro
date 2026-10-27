@@ -1,0 +1,129 @@
+---
+import { site, theme } from '../config';
+import { initialPageLoadingScript } from '../lib/initial-page-loading';
+const preview = import.meta.env.DEV && import.meta.env.MODE === 'loading';
+---
+
+<div
+    class="page-loading"
+    data-page-loading
+    data-pagefind-ignore
+    popover="manual"
+    hidden
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+    transition:persist="page-loading"
+    transition:animate="none"
+>
+    <div class="page-loading-content" data-loading-content>
+        <span class="page-loading-title">{site.title}</span>
+        <div class="page-loading-wave" data-loading-wave aria-hidden="true">
+            {[12, 20, 28, 36, 28, 20, 12].map((height, index) => (
+                <span
+                    data-loading-bar
+                    style={{
+                        '--wave-height': `${height}px`,
+                        '--wave-delay': `${index * -120}ms`,
+                    }}
+                />
+            ))}
+        </div>
+        <span class="page-loading-label">正在加载</span>
+    </div>
+</div>
+<script
+    is:inline
+    set:html={initialPageLoadingScript(preview, theme.global.loading)}
+/>
+<style>
+    .page-loading {
+        position: fixed;
+        inset: var(--sky-nav-height) 0 0;
+        z-index: 200;
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: calc(100dvh - var(--sky-nav-height));
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        color: var(--color-primary);
+        background: var(--sky-glass-background);
+        -webkit-backdrop-filter: var(--sky-glass-backdrop-filter);
+        backdrop-filter: var(--sky-glass-backdrop-filter);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease;
+    }
+    .page-loading[hidden] {
+        display: none;
+    }
+    .page-loading[data-state='visible'] {
+        opacity: 1;
+    }
+    .page-loading[data-phase='initial'] {
+        inset: 0;
+        height: 100dvh;
+        background: var(--color-base-200);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+    .page-loading:is([data-state='visible'], [data-state='hiding']) {
+        pointer-events: auto;
+    }
+    .page-loading::backdrop {
+        background: transparent;
+        pointer-events: none;
+    }
+    .page-loading-content {
+        display: grid;
+        justify-items: center;
+        gap: 18px;
+    }
+    .page-loading-label {
+        color: var(--sky-muted);
+        font-size: 14px;
+        letter-spacing: 0.1em;
+    }
+    .page-loading-title {
+        display: none;
+        color: var(--color-base-content);
+        font-size: 22px;
+        font-weight: 600;
+    }
+    [data-phase='initial'] .page-loading-title {
+        display: block;
+        margin-bottom: 8px;
+    }
+    .page-loading-wave {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        height: 36px;
+    }
+    [data-loading-bar] {
+        width: 5px;
+        height: var(--wave-height);
+        border-radius: 999px;
+        background: currentColor;
+        animation: page-loading-wave 900ms ease-in-out infinite;
+        animation-delay: var(--wave-delay);
+    }
+    @keyframes page-loading-wave {
+        0%,
+        100% {
+            transform: scaleY(0.4);
+        }
+        50% {
+            transform: scaleY(1);
+        }
+    }
+    @starting-style {
+        .page-loading[data-state='visible']:not([data-phase='initial']) {
+            opacity: 0;
+        }
+    }
+</style>

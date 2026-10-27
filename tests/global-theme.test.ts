@@ -6,6 +6,7 @@ import type { GlobalThemeConfig } from '../src/types/config.ts';
 function globalConfig(): GlobalThemeConfig {
     return {
         font: 'serif',
+        loading: { strategy: 'wallpaper', maxWait: 3000 },
         background: {
             type: 'image',
             image: '/images/mist.svg',

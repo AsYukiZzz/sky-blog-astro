@@ -1,6 +1,7 @@
 /* Site foundations and shared controls. */
 
 :root {
+    --sky-nav-height: 64px;
     --sky-radius: 24px;
     --sky-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --sky-border: color-mix(

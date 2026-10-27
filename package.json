@@ -11,6 +11,7 @@
     "scripts": {
         "hooks:install": "node scripts/install-git-hooks.mjs",
         "dev": "astro dev --host 127.0.0.1",
+        "dev:loading": "astro dev --host 127.0.0.1 --mode loading",
         "new-post": "node scripts/new-post.mjs",
         "new-moment": "node scripts/new-moment.mjs",
         "check": "astro check",

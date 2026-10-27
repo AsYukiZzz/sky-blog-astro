@@ -185,6 +185,7 @@ export function setupSearch(signal: AbortSignal) {
     };
 
     const openSearch = (trigger?: HTMLElement) => {
+        if (dialog.inert) return;
         if (!dialog.open) {
             returnFocus =
                 trigger ??

@@ -114,8 +114,14 @@ export interface GlassAppearanceConfig {
     opacity: { light: number; dark: number };
 }
 
+export interface PageLoadingConfig {
+    strategy: 'wallpaper' | 'content';
+    maxWait: number;
+}
+
 export interface GlobalThemeConfig {
     font: 'serif' | 'sans';
+    loading: PageLoadingConfig;
     background: {
         type: 'image' | 'solid';
         image: string;

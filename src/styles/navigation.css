@@ -4,7 +4,7 @@
     top: 0;
     z-index: 50;
     display: block;
-    height: 64px;
+    height: var(--sky-nav-height);
 }
 .nav-surface {
     position: absolute;

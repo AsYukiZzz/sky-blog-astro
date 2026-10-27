@@ -57,6 +57,10 @@ export const author: AuthorConfig = {
 export const theme: ThemeConfig = {
     global: {
         font: 'serif',
+        loading: {
+            strategy: 'wallpaper',
+            maxWait: 3000,
+        },
         background: {
             type: 'solid',
             // 图片模式填写单张壁纸的路径或 URL，全站固定显示。

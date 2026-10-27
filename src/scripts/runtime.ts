@@ -10,9 +10,12 @@ import { setupMotion } from './motion';
 import { setupArticleTabs } from './article-tabs';
 import { setupSiteStatus } from './site-status';
 import { setupSakana } from './sakana';
+import { setupPageLoading } from './page-loading';
 
+const finishPageLoading = setupPageLoading();
 let pageController: AbortController | undefined;
 let routeStartedAt: number | undefined;
+let mountedMain: HTMLElement | null | undefined;
 
 function mountPage() {
     pageController?.abort();
@@ -53,4 +56,29 @@ document.addEventListener('astro:before-preparation', (event) => {
         { once: true },
     );
 });
-document.addEventListener('astro:page-load', mountPage);
+function mountReadyPage() {
+    try {
+        const main = document.querySelector('main');
+        if (
+            main !== mountedMain ||
+            !pageController ||
+            pageController.signal.aborted
+        ) {
+            mountPage();
+            mountedMain = main;
+        }
+    } finally {
+        finishPageLoading();
+    }
+}
+
+// Astro's initial page-load follows window.load, which includes offscreen images.
+// Initialize earlier; repeated events for the same live DOM keep its interactions.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountReadyPage, {
+        once: true,
+    });
+} else {
+    mountReadyPage();
+}
+document.addEventListener('astro:page-load', mountReadyPage);

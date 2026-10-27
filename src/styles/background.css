@@ -11,4 +11,10 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: opacity 300ms ease;
+}
+
+.site-background
+    img:is([data-wallpaper-state='pending'], [data-wallpaper-state='failed']) {
+    opacity: 0;
 }
