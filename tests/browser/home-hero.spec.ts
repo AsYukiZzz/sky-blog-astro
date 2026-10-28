@@ -8,9 +8,13 @@ test.beforeAll(async () => {
     test.setTimeout(120_000);
     site = await createBackgroundSite({
         hero: {
-            title: titleText,
-            subtitle: '记录生活，分享思考',
             size: 'full',
+            default: {
+                title: titleText,
+                subtitle: '记录生活，分享思考',
+                position: 'bottom-left',
+            },
+            byWallpaper: {},
         },
     });
 });
@@ -54,7 +58,8 @@ for (const width of [375, 1440]) {
         const subtitle = (await hero
             .locator('.home-hero-subtitle')
             .boundingBox())!;
-        expect(titleBounds.x - bounds.x).toBeCloseTo(24, 0);
+        const cards = (await page.locator('.home-card-grid').boundingBox())!;
+        expect(titleBounds.x).toBeCloseTo(cards.x, 0);
         expect(titleBounds.y).toBeGreaterThan(64);
         expect(titleBounds.y + titleBounds.height).toBeLessThan(subtitle.y);
         expect(
@@ -181,9 +186,13 @@ test('long mixed-language titles wrap without clipping on a narrow compact Hero'
     test.setTimeout(120_000);
     const compact = await createBackgroundSite({
         hero: {
-            title: '记录生活与思考 A Wandering Notebook '.repeat(6),
-            subtitle: '记录生活，分享思考',
             size: 'compact',
+            default: {
+                title: '记录生活与思考 A Wandering Notebook '.repeat(6),
+                subtitle: '记录生活，分享思考',
+                position: 'bottom-left',
+            },
+            byWallpaper: {},
         },
     });
     try {

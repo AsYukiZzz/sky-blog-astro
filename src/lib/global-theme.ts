@@ -1,11 +1,14 @@
 import type {
     GlobalThemeConfig,
     GlassAppearanceConfig,
+    WallpaperConfig,
 } from '../types/config.ts';
+import { normalizeWallpapers } from './wallpapers.ts';
 
 export interface ResolvedGlobalTheme {
     font: GlobalThemeConfig['font'];
-    wallpaper: { image: string; position: string } | null;
+    wallpapers: WallpaperConfig[];
+    wallpaperPosition: string;
     glass: GlassAppearanceConfig;
 }
 
@@ -24,16 +27,18 @@ export function resolveGlobalTheme(
     validate('opacity.light', glass.opacity.light, 1);
     validate('opacity.dark', glass.opacity.dark, 1);
 
-    const image = global.background.image.trim();
+    const wallpapers = normalizeWallpapers(global.background.wallpapers);
+    if (
+        global.background.type !== 'image' &&
+        global.background.type !== 'solid'
+    )
+        throw new Error(
+            'Invalid theme.global.background.type in src/config.ts: 必须为 image 或 solid。',
+        );
     return {
         font: global.font,
-        wallpaper:
-            global.background.type === 'image' && image
-                ? {
-                      image,
-                      position: global.background.position.trim() || 'center',
-                  }
-                : null,
+        wallpapers: global.background.type === 'image' ? wallpapers : [],
+        wallpaperPosition: global.background.position.trim() || 'center',
         glass,
     };
 }

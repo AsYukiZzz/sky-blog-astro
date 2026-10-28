@@ -108,7 +108,7 @@
         },
         "background": {
             "type": "solid",
-            "image": "",
+            "wallpapers": [],
             "position": "center"
         },
         "appearance": {
@@ -124,9 +124,13 @@
     },
     "home": {
         "hero": {
-            "title": "sky blog",
-            "subtitle": "记录生活，分享思考，探索无限可能",
-            "size": "full"
+            "size": "full",
+            "default": {
+                "title": "sky blog",
+                "subtitle": "记录生活，分享思考，探索无限可能",
+                "position": "bottom-left"
+            },
+            "byWallpaper": {}
         },
         "card": {
             "preset": "default"
@@ -198,7 +202,9 @@
 
 #### 3.1.1 背景（`theme.global.background`）
 
-`type` 仅支持 `solid`（跟随明暗主题的普通底色）和 `image`（图片壁纸）。`image` 填写单张图片的本地路径或完整 URL；留空、全为空白或加载失败时显示普通底色。普通底色模式不加载配置的图片。
+`type` 仅支持 `solid`（跟随明暗主题的普通底色）和 `image`（图片壁纸）。`wallpapers` 为壁纸数组，每项只有 `id` 和 `image`：`id` 用于关联首页 Hero，`image` 填写本地路径或完整 URL。两个字段都必须是非空白字符串，首尾空白会移除，ID 不可重复。数组为空或图片加载失败时显示普通底色；普通底色模式不加载候选图片。
+
+每次首次进入、刷新或完整文档导航时，浏览器从候选中等概率选一张，可能连续选中同一张。站内跳转、返回首页、前进后退和 BFCache 恢复保留本次选中的壁纸。禁用 JavaScript 时显示列表中的第一张。图片加载失败后保留所选 ID，不反复尝试其他候选。
 
 `position` 控制图片铺满视口后的对齐与裁切，默认为 `center`，也可使用 `top`、`bottom` 或 `center 30%` 等 CSS 位置值。图片保持原比例铺满视口，随屏幕比例裁切；背景固定不滚动，内容正常滚动。
 
@@ -208,7 +214,10 @@ global: {
     loading: { strategy: 'wallpaper', maxWait: 3000 },
     background: {
         type: 'image',
-        image: '/images/wallpaper.webp',
+        wallpapers: [
+            { id: 'forest', image: '/images/forest.webp' },
+            { id: 'sea', image: '/images/sea.webp' },
+        ],
         position: 'center',
     },
     appearance: {
@@ -229,7 +238,7 @@ global: {
 
 `opacity.light` 和 `opacity.dark` 分别控制浅色、深色模式下玻璃底色的不透明度，必须为 `0` 到 `1` 的有限数。数值越大，底色越实，壁纸透出越少。这些参数只影响表面底色和背后画面，文字、图标及卡片内图片保持清晰。边缘高光、边框和阴影由共用样式提供。
 
-升级时，将原 `theme.font` 移至 `theme.global.font`，背景改为上述对象结构，并移除 `theme.home.hero.background` 和 `theme.home.hero.image`。网格、渐变、动态星空和随机图片数组已移除；原图集需选择一张作为全站壁纸。`home`、`footer`、`post`、`extra` 继续直接位于 `theme` 下，与 `global` 同级。
+升级时，将旧单图路径迁入 `wallpapers` 的一个条目并为其指定 ID；Hero 的顶层标题、副标题移入必填的 `default`，补充 `position`，没有专属文案时将 `byWallpaper` 设为 `{}`。`home`、`footer`、`post`、`extra` 继续直接位于 `theme` 下，与 `global` 同级。
 
 #### 3.1.3 页面加载（`theme.global.loading`）
 
@@ -267,11 +276,33 @@ pnpm dev:loading
 
 #### 3.2.1 封面（`theme.home.hero`）
 
-`title` 和 `subtitle` 设置左下角的手写标题与副标题，副标题留空时隐藏。`size` 选择 `full`（一屏高度）或 `compact`（较矮封面），同时影响后续卡片区的间距。
+`size` 选择 `full`（一屏高度）或 `compact`（较矮封面），同时影响后续卡片区的间距。`default` 必须配置，包含非空白的 `title`、字符串 `subtitle` 和预设 `position`，副标题用空字符串隐藏。
+
+`byWallpaper` 按全站壁纸 ID 配置完整的标题、副标题和位置。选中 ID 没有对应项时，整个 Hero 使用 `default`，不逐字段混合；纯色模式、空壁纸列表也使用 `default`。关联键必须对应已定义的壁纸 ID。图片加载失败时保留所选组的文案和位置。
+
+```ts
+hero: {
+    size: 'full',
+    default: {
+        title: 'sky blog',
+        subtitle: '记录生活，分享思考',
+        position: 'bottom-left',
+    },
+    byWallpaper: {
+        sea: {
+            title: '向海而行',
+            subtitle: '记录沿途的风景',
+            position: 'top-right',
+        },
+    },
+},
+```
+
+上例需先在 `global.background.wallpapers` 定义 `sea`。支持七种位置：`top-left`（左上）、`bottom-left`（左下）、`top-right`（右上）、`bottom-right`（右下）、`top-center`（上中）、`bottom-center`（下中）、`center`（居中）。标题与副标题整体定位，文字跟随左、右或居中对齐，不配置自由坐标。
 
 Hero 使用 `theme.global.background` 定义的全站背景，直接与后续卡片区域衔接。
 
-标题使用主题本地提供的 Caveat 400 手写字体，最大 104px、最小 64px，左、下边距均为 24px。中文使用 Noto Serif SC 回退字体。标题与副标题直接显示在全站背景上；窄屏、长标题和中英文混排会正常换行，必要时撑高封面。字体加载失败时仍显示备用字体，无 JavaScript 时也可直接阅读。
+标题使用主题本地提供的 Caveat 400 手写字体，最大 104px、最小 64px。Hero 与下方卡片共用最大 1280px 的居中容器及响应式左右留白，两侧文字与卡片外边缘对齐；底部安全留白为 24px，顶部预留导航栏空间。中文使用 Noto Serif SC 回退字体。标题与副标题直接显示在全站背景上；窄屏、长标题和中英文混排会正常换行，必要时撑高封面。字体加载失败时仍显示备用字体，无 JavaScript 时显示第一张壁纸对应组或 `default`。
 
 影响范围：
 

@@ -140,10 +140,20 @@ test('an unavailable wallpaper leaves the theme background and content usable', 
     await expect(page.locator('[data-home-card="author"]')).toBeAttached();
 });
 
-test('the default solid configuration renders no wallpaper request', async ({
-    page,
-}) => {
-    await page.goto('/archives/');
-    await expect(page.locator('[data-site-background]')).toHaveCount(1);
-    await expect(page.locator('[data-site-wallpaper]')).toHaveCount(0);
+test('a solid background renders no wallpaper request', async ({ page }) => {
+    test.setTimeout(120_000);
+    const solid = await createBackgroundSite({ background: { type: 'solid' } });
+    const wallpaperRequests: string[] = [];
+    page.on('request', (request) => {
+        if (request.url() === `${solid.origin}${wallpaperSource}`)
+            wallpaperRequests.push(request.url());
+    });
+    try {
+        await page.goto(`${solid.origin}/archives/`);
+        await expect(page.locator('[data-site-background]')).toHaveCount(1);
+        await expect(page.locator('[data-site-wallpaper]')).toHaveCount(0);
+        expect(wallpaperRequests).toEqual([]);
+    } finally {
+        await solid.close();
+    }
 });

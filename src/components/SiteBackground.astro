@@ -1,15 +1,20 @@
 ---
 import type { ResolvedGlobalTheme } from '../lib/global-theme';
+import { siteWallpaperScript } from '../lib/site-wallpaper';
 
 interface Props {
-    wallpaper: ResolvedGlobalTheme['wallpaper'];
+    wallpapers: ResolvedGlobalTheme['wallpapers'];
+    position: ResolvedGlobalTheme['wallpaperPosition'];
 }
-const { wallpaper } = Astro.props;
+const { wallpapers, position } = Astro.props;
+const wallpaper = wallpapers[0];
 ---
 
 <div
     class="site-background"
     data-site-background
+    data-wallpaper-id={wallpaper?.id}
+    data-wallpapers={JSON.stringify(wallpapers)}
     aria-hidden="true"
     transition:persist="site-background"
     transition:animate="none"
@@ -19,9 +24,10 @@ const { wallpaper } = Astro.props;
             src={wallpaper.image}
             alt=""
             data-site-wallpaper
-            style={{ 'object-position': wallpaper.position }}
+            style={{ 'object-position': position }}
             decoding="async"
             fetchpriority="high"
         />
     )}
 </div>
+<script is:inline set:html={siteWallpaperScript()} />

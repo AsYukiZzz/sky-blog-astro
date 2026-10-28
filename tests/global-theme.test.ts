@@ -9,7 +9,7 @@ function globalConfig(): GlobalThemeConfig {
         loading: { strategy: 'wallpaper', maxWait: 3000 },
         background: {
             type: 'image',
-            image: '/images/mist.svg',
+            wallpapers: [{ id: 'mist', image: '/images/mist.svg' }],
             position: 'center',
         },
         appearance: {
@@ -22,34 +22,34 @@ function globalConfig(): GlobalThemeConfig {
     };
 }
 
-test('an image background keeps its source and crop alignment', () => {
+test('image backgrounds expose normalized candidates and one shared crop alignment', () => {
     const config = globalConfig();
-    config.background.image = '  /images/forest.svg  ';
+    config.background.wallpapers = [
+        { id: ' forest ', image: '  /images/forest.svg  ' },
+    ];
     config.background.position = '  center top  ';
-    assert.deepEqual(resolveGlobalTheme(config).wallpaper, {
-        image: '/images/forest.svg',
-        position: 'center top',
-    });
+    assert.deepEqual(resolveGlobalTheme(config).wallpapers, [
+        { id: 'forest', image: '/images/forest.svg' },
+    ]);
+    assert.equal(resolveGlobalTheme(config).wallpaperPosition, 'center top');
 });
 
 test('solid backgrounds do not expose an image source to the renderer', () => {
     const config = globalConfig();
     config.background.type = 'solid';
-    assert.equal(resolveGlobalTheme(config).wallpaper, null);
+    assert.deepEqual(resolveGlobalTheme(config).wallpapers, []);
 });
 
-test('empty image sources fall back to the theme background', () => {
-    for (const image of ['', '  ']) {
-        const config = globalConfig();
-        config.background.image = image;
-        assert.equal(resolveGlobalTheme(config).wallpaper, null);
-    }
+test('an empty wallpaper list leaves only the theme background', () => {
+    const config = globalConfig();
+    config.background.wallpapers = [];
+    assert.deepEqual(resolveGlobalTheme(config).wallpapers, []);
 });
 
 test('blank image alignment falls back to center', () => {
     const config = globalConfig();
     config.background.position = '   ';
-    assert.equal(resolveGlobalTheme(config).wallpaper?.position, 'center');
+    assert.equal(resolveGlobalTheme(config).wallpaperPosition, 'center');
 });
 
 test('glass settings preserve valid zeros and opacity boundaries', () => {

@@ -1,19 +1,42 @@
 /* Homepage cover and cards share the fixed site background. */
+.site-container.home-hero,
+.site-container.home-overview {
+    padding-inline: 32px;
+}
 .home-hero {
+    --hero-horizontal: start;
+    --hero-vertical: end;
+    --hero-text-align: left;
     position: relative;
     display: grid;
-    align-items: end;
-    justify-items: start;
+    align-items: var(--hero-vertical);
+    justify-items: var(--hero-horizontal);
+    text-align: var(--hero-text-align);
     min-height: 100svh;
     margin-top: -64px;
-    padding: 112px 24px 24px;
+    padding-block: 112px 24px;
     overflow: clip;
+}
+.home-hero[data-hero-position^='top-'] {
+    --hero-vertical: start;
+}
+.home-hero[data-hero-position$='right'] {
+    --hero-horizontal: end;
+    --hero-text-align: right;
+}
+.home-hero[data-hero-position$='center'] {
+    --hero-horizontal: center;
+    --hero-text-align: center;
+}
+.home-hero[data-hero-position='center'] {
+    --hero-vertical: center;
 }
 .home-hero.hero-size-compact {
     min-height: clamp(420px, 58svh, 620px);
 }
 .home-hero-content {
     display: grid;
+    justify-items: var(--hero-horizontal);
     gap: 12px;
     width: min(100%, 960px);
     min-width: 0;
@@ -46,7 +69,7 @@
 /* Homepage information cards; the article layouts keep their own sidebar. */
 .site-container.home-overview {
     container: home-cards / inline-size;
-    padding: 40px 32px 64px;
+    padding-block: 40px 64px;
 }
 .hero-size-full + .site-container.home-overview {
     padding-top: 80px;
@@ -994,8 +1017,12 @@
     }
 }
 @media (width < 768px) {
+    .site-container.home-hero,
     .site-container.home-overview {
-        padding: 24px 20px 48px;
+        padding-inline: 20px;
+    }
+    .site-container.home-overview {
+        padding-block: 24px 48px;
     }
     .hero-size-full + .site-container.home-overview {
         padding-top: 40px;
@@ -1008,6 +1035,7 @@
     }
 }
 @media (width < 541px) {
+    .site-container.home-hero,
     .site-container.home-overview {
         padding-inline: 16px;
     }

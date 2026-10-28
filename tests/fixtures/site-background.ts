@@ -81,7 +81,7 @@ export async function createBackgroundSite(
         const configPath = join(directory, 'src/config.ts');
         const background = {
             type: 'image',
-            image: wallpaperSource,
+            wallpapers: [{ id: 'forest', image: wallpaperSource }],
             position: 'center',
             ...options.background,
         };
@@ -95,12 +95,13 @@ export async function createBackgroundSite(
                 `${readFileSync(configPath, 'utf8')}\nObject.assign(theme.global, { loading: ${JSON.stringify(options.loading)} });\n`,
             );
         }
-        if (options.hero) {
-            writeFileSync(
-                configPath,
-                `${readFileSync(configPath, 'utf8')}\ntheme.home.hero = ${JSON.stringify(options.hero)};\n`,
-            );
-        }
+        const heroSetup = options.hero
+            ? `theme.home.hero = ${JSON.stringify(options.hero)};`
+            : 'theme.home.hero.byWallpaper = {};';
+        writeFileSync(
+            configPath,
+            `${readFileSync(configPath, 'utf8')}\n${heroSetup}\n`,
+        );
         if (options.developmentMode) {
             const { dev } = await import('astro');
             const previousNodeEnv = process.env.NODE_ENV;

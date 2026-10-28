@@ -62,9 +62,14 @@ export const theme: ThemeConfig = {
             maxWait: 3000,
         },
         background: {
-            type: 'solid',
-            // 图片模式填写单张壁纸的路径或 URL，全站固定显示。
-            image: '',
+            type: 'image',
+            // 图片模式每次刷新随机选一张，站内跳转保持不变。
+            wallpapers: [
+                {
+                    id: 'wallpaperA',
+                    image: 'https://img.saturnhalo.xyz/file/images/wallpaper/1792081008166.webp',
+                },
+            ],
             position: 'center',
         },
         appearance: {
@@ -77,9 +82,13 @@ export const theme: ThemeConfig = {
     },
     home: {
         hero: {
-            title: 'sky blog',
-            subtitle: '记录生活，分享思考，探索无限可能',
             size: 'full',
+            default: {
+                title: 'sky blog',
+                subtitle: '记录生活，分享思考，探索无限可能',
+                position: 'top-right',
+            },
+            byWallpaper: {},
         },
         card: {
             preset: 'default',

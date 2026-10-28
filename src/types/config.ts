@@ -67,12 +67,34 @@ export interface HomeCardConfig<Id extends string = HomeCardId> {
     layouts?: Partial<Record<HomeLayoutName, Partial<HomeLayout>>>;
 }
 
+export interface WallpaperConfig {
+    id: string;
+    image: string;
+}
+
+export type HeroPosition =
+    | 'top-left'
+    | 'bottom-left'
+    | 'top-right'
+    | 'bottom-right'
+    | 'top-center'
+    | 'bottom-center'
+    | 'center';
+
+export interface HeroEntry {
+    title: string;
+    subtitle: string;
+    position: HeroPosition;
+}
+
+export interface HomeHeroConfig {
+    size: 'compact' | 'full';
+    default: HeroEntry;
+    byWallpaper: Record<string, HeroEntry>;
+}
+
 export interface HomeConfig {
-    hero: {
-        title: string;
-        subtitle: string;
-        size: 'compact' | 'full';
-    };
+    hero: HomeHeroConfig;
     card: HomeCardConfig;
 }
 
@@ -122,7 +144,7 @@ export interface GlobalThemeConfig {
     loading: PageLoadingConfig;
     background: {
         type: 'image' | 'solid';
-        image: string;
+        wallpapers: WallpaperConfig[];
         position: string;
     };
     appearance: { glass: GlassAppearanceConfig };

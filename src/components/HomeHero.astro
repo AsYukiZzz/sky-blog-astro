@@ -1,15 +1,28 @@
 ---
 import { theme } from '../config';
 import '@fontsource/caveat/400.css';
-const hero = theme.home.hero;
+import { resolveHeroConfig, selectHeroEntry } from '../lib/home-hero';
+import { resolveGlobalTheme } from '../lib/global-theme';
+import { homeHeroScript } from '../lib/site-wallpaper';
+const hero = resolveHeroConfig(
+    theme.home.hero,
+    theme.global.background.wallpapers,
+);
+const global = resolveGlobalTheme(theme.global);
+const entry = selectHeroEntry(hero, global.wallpapers[0]?.id ?? null);
 ---
 
 <section
-    class:list={['home-hero', `hero-size-${hero.size}`]}
+    class:list={['site-container', 'home-hero', `hero-size-${hero.size}`]}
     aria-label="首页封面"
+    data-hero-config={JSON.stringify(hero)}
+    data-hero-position={entry.position}
 >
     <div class="home-hero-content">
-        <h1 class="home-hero-title">{hero.title}</h1>
-        {hero.subtitle && <p class="home-hero-subtitle">{hero.subtitle}</p>}
+        <h1 class="home-hero-title">{entry.title}</h1>
+        <p class="home-hero-subtitle" hidden={!entry.subtitle}>
+            {entry.subtitle}
+        </p>
     </div>
+    <script is:inline set:html={homeHeroScript()} />
 </section>

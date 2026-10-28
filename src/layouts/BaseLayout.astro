@@ -99,7 +99,10 @@ const schema = {
         <ClientRouter />
     </head>
     <body class={`body-font-${global.font}`}>
-        <SiteBackground wallpaper={global.wallpaper} />
+        <SiteBackground
+            wallpapers={global.wallpapers}
+            position={global.wallpaperPosition}
+        />
         <PageLoading />
         <a class="skip-link" href="#main-content">
             跳到正文
