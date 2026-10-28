@@ -1,5 +1,5 @@
-// Keep homepage cards and previews opaque: revealing already-painted content
-// from opacity 0 makes skipped cards flash when scrolling back up.
+// Keep glass surfaces and their wrappers opaque throughout entry. Fading an
+// ancestor also changes its children's backdrop root and makes the blur flash.
 const entranceTargets = [
     '.content-preview-card',
     '.page-header',
@@ -25,10 +25,7 @@ export function setupMotion(signal: AbortSignal) {
         )
             return;
         const animation = node.animate(
-            [
-                { opacity: 0, translate: '0 16px' },
-                { opacity: 1, translate: '0 0' },
-            ],
+            [{ translate: '0 16px' }, { translate: '0 0' }],
             {
                 duration: 520,
                 delay,

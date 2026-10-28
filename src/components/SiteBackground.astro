@@ -10,6 +10,7 @@ const { wallpapers, position } = Astro.props;
 const wallpaper = wallpapers[0];
 ---
 
+{/* Keep the persisted wallpaper in the root snapshot, below the page and nav. */}
 <div
     class="site-background"
     data-site-background
@@ -17,6 +18,7 @@ const wallpaper = wallpapers[0];
     data-wallpapers={JSON.stringify(wallpapers)}
     aria-hidden="true"
     transition:persist="site-background"
+    transition:name="none"
     transition:animate="none"
 >
     {wallpaper && (
