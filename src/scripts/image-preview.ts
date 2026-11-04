@@ -15,6 +15,22 @@ const interactiveAncestor = [
 
 export function setupImagePreviews(signal: AbortSignal) {
     if (signal.aborted) return;
+    // Read all positions before writing priorities or inserting preview buttons.
+    const firstScreen = [
+        ...document.querySelectorAll<HTMLImageElement>(
+            '#article-content img[data-article-image-auto]',
+        ),
+    ].filter((image) => {
+        if (!image.getClientRects().length) return false;
+        const bounds = image.getBoundingClientRect();
+        return (
+            bounds.bottom >= 0 &&
+            bounds.right >= 0 &&
+            bounds.top < innerHeight &&
+            bounds.left < innerWidth
+        );
+    });
+    for (const image of firstScreen) image.loading = 'eager';
     const dialog = document.querySelector<HTMLDialogElement>('#image-lightbox');
     const viewer = dialog?.querySelector<HTMLImageElement>('img');
     if (!dialog || !viewer) return;

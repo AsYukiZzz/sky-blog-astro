@@ -105,7 +105,11 @@ function startInitialPageLoading(preview: boolean, loading: PageLoadingConfig) {
         const images = [
             ...document.querySelectorAll<HTMLImageElement>('main img'),
         ].filter((image) => {
-            if (image.loading === 'lazy' || image.getClientRects().length === 0)
+            if (
+                (image.loading === 'lazy' &&
+                    !image.hasAttribute('data-article-image-auto')) ||
+                image.getClientRects().length === 0
+            )
                 return false;
             const bounds = image.getBoundingClientRect();
             // A rendered eager image can still have no intrinsic width or height.

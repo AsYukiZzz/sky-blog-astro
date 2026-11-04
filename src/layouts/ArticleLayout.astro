@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { publicDir } from 'astro:config/server';
 import BaseLayout from './BaseLayout.astro';
 import ArticleDirectory from '../components/ArticleDirectory.astro';
 import ArticlePostsDialog from '../components/ArticlePostsDialog.astro';
@@ -17,6 +18,7 @@ import {
 import { routeFor } from '../lib/content-model';
 import { formatDate, readingTime } from '../lib/format';
 import { buildToc } from '../lib/toc';
+import { prepareArticleImages } from '../lib/article-images';
 import type { PublicColumn } from '../lib/columns-model';
 import '../styles/article.css';
 interface Props {
@@ -39,6 +41,13 @@ const copyright = 'copyright' in entry.data ? entry.data.copyright : undefined;
 const noteText = copyrightNote(copyright);
 const summaryText = copyrightSummary(copyright);
 const toc = buildToc(headings);
+const articleHtml = await prepareArticleImages(
+    await Astro.slots.render('default'),
+    {
+        publicDir,
+        pageUrl: Astro.url,
+    },
+);
 ---
 
 <BaseLayout
@@ -196,9 +205,7 @@ const toc = buildToc(headings);
                     )}
                     <article class="article-entry" data-pagefind-body>
                         <div class="glass-card article-paper">
-                            <div id="article-content">
-                                <slot />
-                            </div>
+                            <div id="article-content" set:html={articleHtml} />
                         </div>
                         <footer
                             class="glass-card article-footer"

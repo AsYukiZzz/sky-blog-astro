@@ -32,6 +32,7 @@ export async function createBackgroundSite(
         recommendations?: boolean;
         coverlessPost?: boolean;
         updatedPost?: boolean;
+        articleBody?: string;
         developmentMode?: 'development' | 'loading';
     } = {},
 ) {
@@ -65,6 +66,19 @@ export async function createBackgroundSite(
             const withoutCover = source.replace(/^cover:.*\r?\n/m, '');
             assert.notEqual(withoutCover, source);
             writeFileSync(postPath, withoutCover);
+        }
+        if (options.articleBody !== undefined) {
+            const postPath = join(
+                directory,
+                'src/content/posts/format-example.mdx',
+            );
+            const source = readFileSync(postPath, 'utf8');
+            const frontmatter = source.match(/^---\r?\n[\s\S]*?\r?\n---/);
+            assert.ok(frontmatter);
+            writeFileSync(
+                postPath,
+                `${frontmatter[0]}\n\n${options.articleBody}\n`,
+            );
         }
         if (options.updatedPost) {
             const postPath = join(

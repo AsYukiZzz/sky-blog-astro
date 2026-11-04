@@ -30,6 +30,7 @@
         "@fontsource/caveat": "^5.3.0",
         "astro": "7.3.5",
         "jsonc-parser": "3.3.1",
+        "parse5": "8.0.0",
         "sakana-widget": "4.0.0"
     },
     "devDependencies": {
