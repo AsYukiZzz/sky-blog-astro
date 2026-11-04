@@ -502,7 +502,9 @@
 .reading-progress span {
     display: block;
     height: 100%;
-    width: 0;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left center;
     border-radius: inherit;
     background: var(--color-primary);
 }

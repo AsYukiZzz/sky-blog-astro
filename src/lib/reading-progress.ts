@@ -6,6 +6,22 @@ interface ReadingProgressMetrics {
     documentHeight: number;
 }
 
+// Tops are sorted document coordinates; the first title stays selected above it.
+export function activeHeadingIndex(
+    tops: readonly number[],
+    boundary: number,
+): number {
+    if (!tops.length) return -1;
+    let low = 0;
+    let high = tops.length;
+    while (low < high) {
+        const middle = (low + high) >>> 1;
+        if (tops[middle] <= boundary) low = middle + 1;
+        else high = middle;
+    }
+    return Math.max(0, low - 1);
+}
+
 export function readingProgress({
     articleTop,
     articleHeight,

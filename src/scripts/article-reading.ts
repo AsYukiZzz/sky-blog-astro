@@ -1,5 +1,5 @@
-import { readingProgress } from '../lib/reading-progress';
-import { revealTocLink } from './toc-scroll';
+import { activeHeadingIndex, readingProgress } from '../lib/reading-progress';
+import { tocScrollTarget } from './toc-scroll';
 
 export function setupArticleReading(signal: AbortSignal) {
     if (signal.aborted) return;
@@ -8,11 +8,9 @@ export function setupArticleReading(signal: AbortSignal) {
     const tocLinks = [
         ...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'),
     ];
-    const headings = [
-        ...article.querySelectorAll<HTMLElement>(
-            'h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]',
-        ),
-    ];
+    const linkIds = new Map(
+        tocLinks.map((link) => [link, decodeURIComponent(link.hash.slice(1))]),
+    );
     const progressBars = document.querySelectorAll<HTMLElement>(
         '[data-reading-progress]',
     );
@@ -22,58 +20,108 @@ export function setupArticleReading(signal: AbortSignal) {
     const progressMeters = document.querySelectorAll<HTMLElement>(
         '[data-reading-meter]',
     );
+    const scrolling = document.scrollingElement ?? document.documentElement;
+    let layout: {
+        articleTop: number;
+        articleHeight: number;
+        documentHeight: number;
+        viewportHeight: number;
+        headings: { id: string; top: number }[];
+        headingTops: number[];
+    };
+    let geometryDirty = true;
+    let revealDirty = true;
     let activeHeadingId = '';
-    const updateToc = () => {
-        if (!headings.length) return;
-        let active = headings[0];
-        for (const heading of headings) {
-            if (heading.getBoundingClientRect().top > 120) break;
-            active = heading;
-        }
-        if (active.id === activeHeadingId) return;
-        activeHeadingId = active.id;
-        for (const link of tocLinks) {
-            const isActive =
-                decodeURIComponent(link.hash.slice(1)) === activeHeadingId;
-            link.classList.toggle('active', isActive);
-            if (isActive) link.setAttribute('aria-current', 'location');
-            else link.removeAttribute('aria-current');
-            const scrollArea =
-                isActive && link.closest<HTMLElement>('[data-toc-scroll]');
-            if (scrollArea && scrollArea.clientHeight)
-                revealTocLink(link, scrollArea);
-        }
-    };
-    const updateProgress = () => {
-        const rect = article.getBoundingClientRect();
-        const scrolling = document.scrollingElement ?? document.documentElement;
-        const progress = readingProgress({
-            articleTop: rect.top,
-            articleHeight: rect.height,
-            viewportHeight: innerHeight,
-            scrollTop: scrolling.scrollTop,
-            documentHeight: scrolling.scrollHeight,
-        });
-        const percent = Math.round(progress);
-        progressBars.forEach((bar) => (bar.style.width = `${progress}%`));
-        progressLabels.forEach((label) => (label.textContent = `${percent}%`));
-        progressMeters.forEach((meter) =>
-            meter.setAttribute('aria-valuenow', String(percent)),
-        );
-    };
+    let lastProgress = -1;
+    let lastPercent = -1;
     let scrollFrame = 0;
+
+    const measure = (scrollTop: number) => {
+        const rect = article.getBoundingClientRect();
+        const headings = [
+            ...article.querySelectorAll<HTMLElement>(
+                'h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]',
+            ),
+        ]
+            .filter((heading) => heading.getClientRects().length)
+            .map((heading) => ({
+                id: heading.id,
+                top: heading.getBoundingClientRect().top + scrollTop,
+            }))
+            .sort((a, b) => a.top - b.top);
+        layout = {
+            articleTop: rect.top + scrollTop,
+            articleHeight: rect.height,
+            documentHeight: scrolling.scrollHeight,
+            viewportHeight: innerHeight,
+            headings,
+            headingTops: headings.map((heading) => heading.top),
+        };
+        geometryDirty = false;
+    };
     const updateScroll = () => {
         scrollFrame = 0;
         if (signal.aborted) return;
-        updateToc();
-        updateProgress();
+        const scrollTop = scrolling.scrollTop;
+        if (geometryDirty) measure(scrollTop);
+        const index = activeHeadingIndex(layout.headingTops, scrollTop + 120);
+        const nextId = index < 0 ? '' : layout.headings[index].id;
+        const headingChanged = nextId !== activeHeadingId;
+        const progress = readingProgress({
+            ...layout,
+            articleTop: layout.articleTop - scrollTop,
+            scrollTop,
+        });
+        const percent = Math.round(progress);
+        const reveals: { area: HTMLElement; top: number }[] = [];
+        if (headingChanged || revealDirty) {
+            for (const link of tocLinks) {
+                if (linkIds.get(link) !== nextId) continue;
+                const area = link.closest<HTMLElement>('[data-toc-scroll]');
+                if (!area) continue;
+                const top = tocScrollTarget(link, area);
+                if (top !== undefined) reveals.push({ area, top });
+            }
+        }
+
+        // All geometry is read before changing classes, text, styles or scrolling.
+        // TOC's active styles affect color/background, not its dimensions.
+        if (headingChanged) {
+            activeHeadingId = nextId;
+            for (const link of tocLinks) {
+                const active = linkIds.get(link) === nextId;
+                link.classList.toggle('active', active);
+                if (active) link.setAttribute('aria-current', 'location');
+                else link.removeAttribute('aria-current');
+            }
+        }
+        if (progress !== lastProgress) {
+            progressBars.forEach(
+                (bar) => (bar.style.transform = `scaleX(${progress / 100})`),
+            );
+            lastProgress = progress;
+        }
+        if (percent !== lastPercent) {
+            progressLabels.forEach(
+                (label) => (label.textContent = `${percent}%`),
+            );
+            progressMeters.forEach((meter) =>
+                meter.setAttribute('aria-valuenow', String(percent)),
+            );
+            lastPercent = percent;
+        }
+        for (const { area, top } of reveals)
+            area.scrollTo({ top, behavior: 'instant' });
+        revealDirty = false;
     };
     const queueScrollUpdate = () => {
         if (!signal.aborted && !scrollFrame)
             scrollFrame = requestAnimationFrame(updateScroll);
     };
     const invalidate = () => {
-        activeHeadingId = '';
+        if (signal.aborted) return;
+        geometryDirty = true;
+        revealDirty = true;
         queueScrollUpdate();
     };
     document.addEventListener('scroll', queueScrollUpdate, {
@@ -83,14 +131,33 @@ export function setupArticleReading(signal: AbortSignal) {
     window.addEventListener('resize', invalidate, { signal });
     window.addEventListener('pageshow', invalidate, { signal });
     document.addEventListener('load', invalidate, { capture: true, signal });
-    const observer = new ResizeObserver(invalidate);
-    observer.observe(article);
-    void document.fonts.ready.then(invalidate);
+    document.addEventListener('toggle', invalidate, { capture: true, signal });
+    document.fonts.addEventListener('loadingdone', invalidate, { signal });
+    document.fonts.addEventListener('loadingerror', invalidate, { signal });
+    const resize = new ResizeObserver(invalidate);
+    resize.observe(article);
+    resize.observe(document.body);
+    const mutations = new MutationObserver(invalidate);
+    mutations.observe(article, {
+        childList: true,
+        characterData: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['hidden', 'open', 'id', 'class', 'style'],
+    });
+    // Scroll locking can move the body without resizing the article itself.
+    for (const root of [document.body, document.documentElement]) {
+        mutations.observe(root, {
+            attributes: true,
+            attributeFilter: ['class', 'style'],
+        });
+    }
     signal.addEventListener(
         'abort',
         () => {
             cancelAnimationFrame(scrollFrame);
-            observer.disconnect();
+            resize.disconnect();
+            mutations.disconnect();
         },
         { once: true },
     );
