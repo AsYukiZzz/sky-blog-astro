@@ -17,6 +17,7 @@ import type {
     GlassAppearanceConfig,
     HomeConfig,
     PostConfig,
+    CommentConfig,
 } from '../../src/types/config';
 
 export const wallpaperSource = '/images/forest.svg?site=wallpaper';
@@ -30,6 +31,9 @@ export async function createBackgroundSite(
         sakana?: Partial<ExtraConfig['sakana']>;
         hero?: HomeConfig['hero'];
         headerAppearance?: PostConfig['header']['appearance'];
+        comment?: Partial<CommentConfig>;
+        postComment?: boolean;
+        essayComment?: boolean;
         recommendations?: boolean;
         coverlessPost?: boolean;
         updatedPost?: boolean;
@@ -95,6 +99,16 @@ export async function createBackgroundSite(
             writeFileSync(postPath, withUpdate);
         }
         const configPath = join(directory, 'src/config.ts');
+        if (
+            options.comment ||
+            options.postComment !== undefined ||
+            options.essayComment !== undefined
+        ) {
+            writeFileSync(
+                configPath,
+                `${readFileSync(configPath, 'utf8')}\n${options.comment ? `Object.assign(comment, ${JSON.stringify(options.comment)});` : ''}\n${options.postComment === undefined ? '' : `theme.post.comment = ${JSON.stringify(options.postComment)};`}\n${options.essayComment === undefined ? '' : `theme.essay.comment = ${JSON.stringify(options.essayComment)};`}\n`,
+            );
+        }
         const background = {
             type: 'image',
             wallpapers: [{ id: 'forest', image: wallpaperSource }],

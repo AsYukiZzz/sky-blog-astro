@@ -1,0 +1,60 @@
+---
+import { comment } from '../config';
+import { commentPath, resolveComments } from '../lib/comments';
+import Icon from './Icon.astro';
+
+interface Props {
+    enabled?: boolean;
+}
+const config = resolveComments(comment, Astro.props.enabled ?? true);
+const path = commentPath(Astro.url.pathname);
+const key = config ? `comments:${JSON.stringify([config, path])}` : '';
+---
+
+{config && (
+    <section
+        id="comments"
+        class="glass-card comments-section"
+        aria-labelledby="comments-heading"
+        data-comments
+        data-navigation-persist={key}
+        data-provider={config.provider}
+        data-env-id={config.envId}
+        data-region={config.region}
+        data-lang={config.lang}
+        data-asset-base-url={config.assetBaseUrl}
+        data-path={path}
+        data-pagefind-ignore
+    >
+        <h2 id="comments-heading">
+            <Icon name="message" />
+            聊聊你的想法
+        </h2>
+        <p data-comment-status role="status">
+            正在准备评论…
+        </p>
+        <button type="button" data-comment-retry hidden>
+            重新加载评论
+        </button>
+        <div data-comment-mount></div>
+        <noscript>
+            <p>请启用 JavaScript 查看和发表评论。</p>
+        </noscript>
+    </section>
+)}
+
+<style>
+    .comments-section {
+        margin-top: 32px;
+        padding: var(--article-footer-padding, 24px);
+        min-width: 0;
+    }
+    .comments-section h2 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 20px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+</style>

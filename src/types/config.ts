@@ -99,6 +99,7 @@ export interface HomeConfig {
 }
 
 export interface PostConfig {
+    comment: boolean;
     header: {
         appearance: 'transparent' | 'glass';
     };
@@ -119,6 +120,23 @@ export interface ExtraConfig {
         autoMode: boolean;
     };
     dock: boolean;
+}
+
+export interface EssayConfig {
+    comment: boolean;
+}
+
+export interface TwikooConfig {
+    envId: string;
+    region?: string;
+    lang?: string;
+    assetBaseUrl?: string;
+}
+
+export interface CommentConfig {
+    enabled: boolean;
+    provider: 'twikoo';
+    twikoo: TwikooConfig;
 }
 
 export interface GlassAppearanceConfig {
@@ -148,5 +166,6 @@ export interface ThemeConfig {
     home: HomeConfig;
     footer: FooterConfig;
     post: PostConfig;
+    essay: EssayConfig;
     extra: ExtraConfig;
 }

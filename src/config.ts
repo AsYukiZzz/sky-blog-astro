@@ -1,4 +1,9 @@
-import type { AuthorConfig, SiteConfig, ThemeConfig } from './types/config';
+import type {
+    AuthorConfig,
+    CommentConfig,
+    SiteConfig,
+    ThemeConfig,
+} from './types/config';
 
 export const site: SiteConfig = {
     title: 'Sky Blog',
@@ -52,6 +57,17 @@ export const author: AuthorConfig = {
         { label: '知乎', href: '', icon: 'zhihu' },
         { label: 'X', href: '', icon: 'x' },
     ],
+};
+
+export const comment: CommentConfig = {
+    enabled: false,
+    provider: 'twikoo',
+    twikoo: {
+        envId: '',
+        region: '',
+        lang: 'zh-CN',
+        assetBaseUrl: 'https://cdn.jsdelivr.net/npm/twikoo@2.0.17/dist/',
+    },
 };
 
 export const theme: ThemeConfig = {
@@ -116,6 +132,7 @@ export const theme: ThemeConfig = {
         showLoadTime: true,
     },
     post: {
+        comment: true,
         header: {
             appearance: 'transparent',
         },
@@ -123,6 +140,9 @@ export const theme: ThemeConfig = {
             enabled: false,
             maxItems: 5,
         },
+    },
+    essay: {
+        comment: true,
     },
     extra: {
         sakana: {

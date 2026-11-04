@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import { getPages } from '../../lib/content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Comments from '../../components/Comments.astro';
 import '../../styles/article-content.css';
 import '../../styles/page.css';
 export async function getStaticPaths() {
@@ -33,5 +34,6 @@ const { Content } = await render(entry);
                 <p>如有疑问，请通过站点提供的联系方式与我们取得联系。</p>
             </footer>
         </div>
+        <Comments />
     </article>
 </BaseLayout>

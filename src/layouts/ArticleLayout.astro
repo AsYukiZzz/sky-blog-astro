@@ -5,6 +5,7 @@ import BaseLayout from './BaseLayout.astro';
 import ArticleDirectory from '../components/ArticleDirectory.astro';
 import ArticlePostsDialog from '../components/ArticlePostsDialog.astro';
 import ArticleRecommendations from '../components/ArticleRecommendations.astro';
+import Comments from '../components/Comments.astro';
 import Icon from '../components/Icon.astro';
 import { theme } from '../config';
 import { getAuthor } from '../lib/author';
@@ -391,6 +392,7 @@ const articleHtml = await prepareArticleImages(
                                 : undefined
                         }
                     />
+                    <Comments enabled={theme.post.comment} />
                 </div>
                 <aside class="article-side" data-pagefind-ignore>
                     <section class="glass-card toc-card" aria-label="阅读导航">

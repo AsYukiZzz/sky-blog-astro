@@ -7,6 +7,8 @@ import { formatDate } from '../../lib/format';
 import { copyrightSummary } from '../../lib/copyright';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import Comments from '../../components/Comments.astro';
+import { theme } from '../../config';
 import '../../styles/article-content.css';
 export async function getStaticPaths() {
     return (await getMoments()).map((entry) => ({
@@ -108,6 +110,7 @@ if (author.id !== entry.data.author)
                     分享
                 </button>
             </div>
+            <Comments enabled={theme.essay.comment} />
         </article>
     </div>
 </BaseLayout>
