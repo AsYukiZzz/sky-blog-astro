@@ -1,3 +1,5 @@
+# prepare-build adds exact public HTML routes with 60-second freshness.
+# Other paths retain revalidation; keep custom route policies above generated rules.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { decodeBuildPath } from './build-paths.mjs';
+import { prepareCacheHeaders } from './cache-headers.mjs';
 
 const dist = resolve('dist');
 const manifest = JSON.parse(
@@ -55,3 +56,11 @@ for (const post of manifest.posts) {
 }
 writeFileSync(file, `${redirects.join('\n')}\n`);
 console.log(`Prepared ${redirects.length} Cloudflare Pages redirects.`);
+const cache = prepareCacheHeaders(dist);
+console.log(
+    `Prepared short-lived cache rules for ${cache.cached} public HTML pages.`,
+);
+if (cache.skipped)
+    console.warn(
+        `_headers rule/line limit reached: ${cache.skipped} additional pages keep the default revalidation policy.`,
+    );
