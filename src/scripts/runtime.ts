@@ -35,7 +35,7 @@ function mountPage() {
     routeStartedAt = undefined;
     setupArticleTabs(signal);
     const nextSakana = document.querySelector('[data-sakana]');
-    if (nextSakana !== sakanaRoot) {
+    if (nextSakana !== sakanaRoot || sakanaController?.signal.aborted) {
         sakanaController?.abort();
         sakanaRoot = nextSakana;
         sakanaController = new AbortController();
@@ -47,6 +47,12 @@ function mountPage() {
     setupComments(signal);
     setupArticleReading(signal);
 }
+
+// A removed widget must stop before destination scripts finish loading.
+document.addEventListener('astro:after-swap', () => {
+    if (sakanaRoot && document.querySelector('[data-sakana]') !== sakanaRoot)
+        sakanaController?.abort();
+});
 
 document.addEventListener('astro:before-swap', (event) => {
     pageController?.abort();

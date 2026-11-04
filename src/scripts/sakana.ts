@@ -22,6 +22,21 @@ export function setupSakana(signal: AbortSignal) {
 
     const mobile = matchMedia('(max-width: 767px)');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const visibilityKey = 'sky-sakana-visibility';
+    let autoMode = theme.extra.sakana.autoMode;
+    let forceShowOnMount = false;
+    let showWidget: (() => void) | undefined;
+    let initializationStarted = false;
+    let idleId: number | undefined;
+    let idleFrame = 0;
+    let idleTimer = 0;
+    const savedHidden = () => {
+        try {
+            return localStorage.getItem(visibilityKey) === 'hide';
+        } catch {
+            return false;
+        }
+    };
     const lifecycle = createSakanaLifecycle(async () => {
         const { default: SakanaWidget } = await import('sakana-widget');
         const widget = new SakanaWidget({
@@ -29,9 +44,8 @@ export function setupSakana(signal: AbortSignal) {
             autoFit: true,
             title: true,
             saveState: true,
-            stateKey: 'sky-sakana-visibility',
+            stateKey: visibilityKey,
         });
-        let autoMode = theme.extra.sakana.autoMode;
         const onState = (state: SakanaWidgetVisibility) => {
             const focused = document.activeElement;
             restore.hidden = state !== 'hide';
@@ -42,8 +56,9 @@ export function setupSakana(signal: AbortSignal) {
             } else if (focused === restore)
                 host.querySelector<HTMLButtonElement>('button')?.focus();
         };
+        const show = () => widget.show();
+        showWidget = show;
         widget.addStateListener(onState);
-        restore.addEventListener('click', () => widget.show(), { signal });
 
         return {
             mount() {
@@ -71,6 +86,10 @@ export function setupSakana(signal: AbortSignal) {
                     'aria-label',
                     'Sakana 角色，拖动后松开可以回弹',
                 );
+                if (forceShowOnMount) {
+                    forceShowOnMount = false;
+                    widget.show();
+                }
                 if (autoMode && root.dataset.state === 'show')
                     widget.triggerAutoMode();
             },
@@ -83,57 +102,167 @@ export function setupSakana(signal: AbortSignal) {
             },
             dispose() {
                 widget.removeStateListener(onState);
+                if (showWidget === show) showWidget = undefined;
             },
         };
     }, signal);
 
+    const canRun = () =>
+        !signal.aborted &&
+        root.isConnected &&
+        !document.hidden &&
+        (!mobile.matches || theme.extra.sakana.showOnMobile) &&
+        !reducedMotion.matches;
+    const cancelInitial = () => {
+        if (idleId !== undefined) {
+            window.cancelIdleCallback?.(idleId);
+            idleId = undefined;
+        }
+        cancelAnimationFrame(idleFrame);
+        window.clearTimeout(idleTimer);
+        idleFrame = 0;
+        idleTimer = 0;
+    };
+    const failed = (error: unknown) => {
+        root.hidden = true;
+        if (!signal.aborted) console.warn('[Sakana] 挂件加载失败', error);
+    };
+    const activate = () => {
+        cancelInitial();
+        initializationStarted = true;
+        void lifecycle.setActive(true).catch(failed);
+    };
+    const deferHiddenWidget = () => {
+        if (forceShowOnMount || !savedHidden()) return false;
+        autoMode = false;
+        restore.hidden = false;
+        root.dataset.state = 'hide';
+        return true;
+    };
+    const scheduleInitial = () => {
+        if (idleId !== undefined || idleFrame || idleTimer) return;
+        const run = () => {
+            idleId = undefined;
+            idleFrame = 0;
+            idleTimer = 0;
+            if (initializationStarted || !canRun() || deferHiddenWidget())
+                return;
+            activate();
+        };
+        if (typeof window.requestIdleCallback === 'function') {
+            idleId = window.requestIdleCallback(run, { timeout: 1500 });
+        } else {
+            // Give the initial page a paint opportunity before optional work.
+            idleFrame = requestAnimationFrame(() => {
+                idleFrame = 0;
+                idleTimer = window.setTimeout(run, 0);
+            });
+        }
+    };
+    restore.addEventListener(
+        'click',
+        () => {
+            forceShowOnMount = true;
+            try {
+                localStorage.setItem(visibilityKey, 'show');
+            } catch {
+                /* Persistence is optional. */
+            }
+            if (showWidget) {
+                forceShowOnMount = false;
+                showWidget();
+            }
+            if (canRun()) activate();
+        },
+        { signal },
+    );
+
     const footer = document.querySelector<HTMLElement>('.site-footer');
     let positionFrame = 0;
+    let positionDirty = true;
+    let bottomInset = 0;
+    let footerTop = 0;
+    let viewportHeight = 0;
+    let lastLift: number | undefined;
     const updatePosition = () => {
         positionFrame = 0;
         if (signal.aborted || root.hidden) return;
-        // Read the actual CSS inset so mobile Dock spacing and safe-area insets apply too.
-        const bottom = Number.parseFloat(getComputedStyle(anchor).bottom) || 0;
+        const scrollTop = window.scrollY;
+        if (positionDirty) {
+            // CSS includes the mobile Dock clearance and safe-area insets.
+            bottomInset =
+                Number.parseFloat(getComputedStyle(anchor).bottom) || 0;
+            viewportHeight = window.innerHeight;
+            footerTop = footer
+                ? footer.getBoundingClientRect().top + scrollTop
+                : 0;
+            positionDirty = false;
+        }
         const lift = footer
             ? sakanaFooterLift(
-                  window.innerHeight,
-                  footer.getBoundingClientRect().top,
-                  bottom,
+                  viewportHeight,
+                  footerTop - scrollTop,
+                  bottomInset,
               )
             : 0;
-        root.style.setProperty('--sakana-lift', `${lift}px`);
+        if (lift !== lastLift) {
+            root.style.setProperty('--sakana-lift', `${lift}px`);
+            lastLift = lift;
+        }
     };
     const schedulePosition = () => {
-        if (!positionFrame && !signal.aborted)
+        if (!positionFrame && !signal.aborted && !root.hidden)
             positionFrame = requestAnimationFrame(updatePosition);
+    };
+    const invalidatePosition = () => {
+        positionDirty = true;
+        schedulePosition();
     };
     const sync = () => {
         if (signal.aborted) return;
-        const active =
-            !document.hidden &&
-            (!mobile.matches || theme.extra.sakana.showOnMobile) &&
-            !reducedMotion.matches;
+        const active = canRun();
         root.hidden = !active;
-        if (active) schedulePosition();
-        void lifecycle.setActive(active).catch((error) => {
-            root.hidden = true;
-            if (!signal.aborted) console.warn('[Sakana] 挂件加载失败', error);
-        });
+        if (!active) {
+            cancelInitial();
+            cancelAnimationFrame(positionFrame);
+            positionFrame = 0;
+            void lifecycle.setActive(false).catch(failed);
+            return;
+        }
+        invalidatePosition();
+        if (initializationStarted) activate();
+        else if (deferHiddenWidget()) cancelInitial();
+        else {
+            restore.hidden = true;
+            scheduleInitial();
+        }
     };
     mobile.addEventListener('change', sync, { signal });
     reducedMotion.addEventListener('change', sync, { signal });
     document.addEventListener('visibilitychange', sync, { signal });
+    document.addEventListener('astro:page-load', sync, { signal });
+    window.addEventListener('pageshow', sync, { signal });
     window.addEventListener('scroll', schedulePosition, {
         passive: true,
         signal,
     });
-    window.addEventListener('resize', schedulePosition, {
+    window.addEventListener('resize', invalidatePosition, {
         passive: true,
+        signal,
+    });
+    window.visualViewport?.addEventListener('resize', invalidatePosition, {
+        signal,
+    });
+    document.addEventListener('load', invalidatePosition, {
+        capture: true,
+        signal,
+    });
+    document.fonts.addEventListener('loadingdone', invalidatePosition, {
         signal,
     });
     const layoutObserver =
         'ResizeObserver' in window
-            ? new ResizeObserver(schedulePosition)
+            ? new ResizeObserver(invalidatePosition)
             : undefined;
     if (footer) layoutObserver?.observe(footer);
     const main = document.querySelector('main');
@@ -141,6 +270,7 @@ export function setupSakana(signal: AbortSignal) {
     signal.addEventListener(
         'abort',
         () => {
+            cancelInitial();
             cancelAnimationFrame(positionFrame);
             layoutObserver?.disconnect();
             root.hidden = true;

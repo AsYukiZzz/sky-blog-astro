@@ -13,6 +13,7 @@ import { basename, dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type {
     GlobalThemeConfig,
+    ExtraConfig,
     GlassAppearanceConfig,
     HomeConfig,
     PostConfig,
@@ -26,6 +27,7 @@ export async function createBackgroundSite(
         glass?: Partial<GlassAppearanceConfig>;
         loading?: GlobalThemeConfig['loading'];
         font?: GlobalThemeConfig['font'];
+        sakana?: Partial<ExtraConfig['sakana']>;
         hero?: HomeConfig['hero'];
         headerAppearance?: PostConfig['header']['appearance'];
         comments?: boolean;
@@ -114,6 +116,12 @@ export async function createBackgroundSite(
             writeFileSync(
                 configPath,
                 `${readFileSync(configPath, 'utf8')}\ntheme.global.font = ${JSON.stringify(options.font)};\n`,
+            );
+        }
+        if (options.sakana) {
+            writeFileSync(
+                configPath,
+                `${readFileSync(configPath, 'utf8')}\nObject.assign(theme.extra.sakana, ${JSON.stringify(options.sakana)});\n`,
             );
         }
         const heroSetup = options.hero
