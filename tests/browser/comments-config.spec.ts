@@ -3,6 +3,21 @@ import { createBackgroundSite } from '../fixtures/site-background';
 
 const endpoint = 'https://comments.example.test/api/';
 
+test.beforeEach(async ({ page }) => {
+    await page.route(
+        'https://cdn.jsdelivr.net/npm/twikoo@2.0.17/dist/**',
+        (route) =>
+            route.fulfill({
+                contentType: route.request().url().endsWith('.css')
+                    ? 'text/css'
+                    : 'text/javascript',
+                body: route.request().url().endsWith('.css')
+                    ? ''
+                    : 'window.twikoo = { init: async function() {} };',
+            }),
+    );
+});
+
 test('the default global switch hides comments on all detail types', async ({
     page,
 }) => {

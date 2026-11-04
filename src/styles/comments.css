@@ -1,0 +1,103 @@
+[data-comments]:not([data-comment-state]) [data-comment-status] {
+    display: none;
+}
+
+[data-comments] [data-comment-status] {
+    color: var(--sky-muted);
+}
+
+[data-comments] [data-comment-retry] {
+    padding: 8px 16px;
+    border: 1px solid var(--sky-border);
+    border-radius: 10px;
+    background: var(--color-base-100);
+    color: var(--color-base-content);
+}
+
+[data-comments] .twikoo {
+    min-width: 0;
+    color: var(--color-base-content);
+    text-align: start;
+    font-family: inherit;
+}
+
+[data-comments]
+    .twikoo
+    :is(.tk-input__inner, .tk-textarea__inner, .tk-admin-config-select) {
+    min-width: 0;
+    max-width: 100%;
+    border-color: var(--sky-border);
+    border-radius: 10px;
+    background: color-mix(in oklch, var(--color-base-100) 65%, transparent);
+    color: var(--color-base-content);
+    font: inherit;
+}
+
+[data-comments] .twikoo :is(input, textarea)::placeholder {
+    color: var(--sky-muted);
+}
+
+[data-comments]
+    .twikoo
+    :is(
+        .tk-input-group__prepend,
+        .tk-input-group__append,
+        .tk-preview-container
+    ) {
+    border-color: var(--sky-border);
+    background: transparent;
+    color: var(--sky-muted);
+}
+
+[data-comments] .twikoo :is(.tk-comment, .tk-replies, .tk-admin-comment-item) {
+    border-color: var(--sky-border);
+}
+
+[data-comments] .twikoo :is(.tk-button, .tk-admin, .tk-login) {
+    border-color: var(--sky-border);
+    background-color: var(--color-base-100);
+    color: var(--color-base-content);
+}
+
+[data-comments] .twikoo .tk-button--primary {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+}
+
+[data-comments]
+    .twikoo
+    :is(.tk-button--text, .tk-nick-link, .tk-action-link, .tk-content a) {
+    color: var(--color-primary);
+}
+
+[data-comments] .twikoo :is(.tk-time, .tk-extras, .tk-footer, .tk-comments-no) {
+    color: var(--sky-muted);
+}
+
+[data-comments] .twikoo :is(.tk-content, .tk-preview-container) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+[data-comments] .twikoo .tk-content img {
+    max-width: min(100%, 300px);
+}
+
+[data-comments] .twikoo :is(input, textarea, button, select):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+    [data-comments] .twikoo .tk-meta-input {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    [data-comments] .twikoo .tk-meta-input .tk-input {
+        flex: 0 0 auto;
+        min-width: 0;
+        margin: 0;
+    }
+}

@@ -4,6 +4,7 @@ import { setupDialogs } from './dialogs';
 import { setupImagePreviews } from './image-preview';
 import { setupSearch } from './search';
 import { setupClipboard } from './clipboard';
+import { setupComments } from './comments';
 import { setupArticleReading } from './article-reading';
 import { setupMotion } from './motion';
 import { setupArticleTabs } from './article-tabs';
@@ -23,6 +24,8 @@ setupSearch(siteController.signal);
 let pageController: AbortController | undefined;
 let sakanaController: AbortController | undefined;
 let sakanaRoot: Element | null | undefined;
+let commentController: AbortController | undefined;
+let commentRoot: Element | null | undefined;
 let routeStartedAt: number | undefined;
 let mountedMain: HTMLElement | null | undefined;
 
@@ -41,6 +44,13 @@ function mountPage() {
         if (nextSakana) setupSakana(sakanaController.signal);
     }
     setupMotion(signal);
+    const nextComments = document.querySelector('[data-comments]');
+    if (nextComments !== commentRoot || commentController?.signal.aborted) {
+        commentController?.abort();
+        commentRoot = nextComments;
+        commentController = new AbortController();
+        if (nextComments) setupComments(commentController.signal);
+    }
     setupImagePreviews(signal);
     setupClipboard(signal);
     setupArticleReading(signal);
@@ -48,6 +58,11 @@ function mountPage() {
 
 // A removed widget must stop before destination scripts finish loading.
 document.addEventListener('astro:after-swap', () => {
+    if (
+        commentRoot &&
+        document.querySelector('[data-comments]') !== commentRoot
+    )
+        commentController?.abort();
     if (sakanaRoot && document.querySelector('[data-sakana]') !== sakanaRoot)
         sakanaController?.abort();
 });
