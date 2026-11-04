@@ -9,7 +9,7 @@ const current = (href: string) =>
     path === href ? 'page' : inColumns(href) ? 'location' : undefined;
 ---
 
-<header class="site-nav" data-pagefind-ignore>
+<header class="site-nav" data-pagefind-ignore data-navigation-persist="nav">
     <div class="glass-surface nav-surface" aria-hidden="true"></div>
     <div class="nav-inner">
         <button
@@ -98,6 +98,7 @@ const current = (href: string) =>
     id="mobile-navigation"
     class="glass-surface mobile-navigation"
     aria-label="移动端导航"
+    data-navigation-persist="mobile-nav"
 >
     <div class="mobile-menu-heading">
         <a href="/" class="brand">

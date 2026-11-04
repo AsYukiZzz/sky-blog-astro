@@ -72,43 +72,28 @@ for (const viewport of [
         test('raster and picture previews keep intrinsic sizes and shrink without distortion', async ({
             page,
         }) => {
-            await page.addInitScript(() => {
-                document.addEventListener(
-                    'astro:page-load',
-                    () => {
-                        const article =
-                            document.getElementById('article-content');
-                        if (!article) return;
-                        const raster = (width: number, height: number) => {
-                            const canvas = document.createElement('canvas');
-                            canvas.width = width;
-                            canvas.height = height;
-                            const context = canvas.getContext('2d')!;
-                            context.fillStyle = '#a98eb0';
-                            context.fillRect(0, 0, width, height);
-                            return canvas.toDataURL('image/png');
-                        };
-                        for (const fixture of [
-                            { alt: 'small raster', width: 48, height: 32 },
-                            { alt: 'large raster', width: 960, height: 560 },
-                        ]) {
-                            const image = document.createElement('img');
-                            image.src = raster(fixture.width, fixture.height);
-                            image.alt = fixture.alt;
-                            article.append(image);
-                        }
-                        const picture = document.createElement('picture');
-                        const source = document.createElement('source');
-                        source.srcset = raster(72, 48);
-                        source.type = 'image/png';
-                        const fallback = document.createElement('img');
-                        fallback.src = raster(48, 32);
-                        fallback.alt = 'small picture';
-                        picture.append(source, fallback);
-                        article.append(picture);
-                    },
-                    { once: true, capture: true },
-                );
+            const fixtures = await page.evaluate(() => {
+                const raster = (width: number, height: number) => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const context = canvas.getContext('2d')!;
+                    context.fillStyle = '#a98eb0';
+                    context.fillRect(0, 0, width, height);
+                    return canvas.toDataURL('image/png');
+                };
+                return `<img src="${raster(48, 32)}" alt="small raster"><img src="${raster(960, 560)}" alt="large raster"><picture><source srcset="${raster(72, 48)}" type="image/png"><img src="${raster(48, 32)}" alt="small picture"></picture>`;
+            });
+            // Put fixtures in the rendered HTML, before the early runtime mount.
+            await page.route(`**${articlePath}`, async (route) => {
+                const response = await route.fetch();
+                await route.fulfill({
+                    response,
+                    body: (await response.text()).replace(
+                        /(<div\b[^>]*id="article-content"[^>]*>)/,
+                        `$1${fixtures}`,
+                    ),
+                });
             });
             await page.goto(articlePath);
             const articleBox = await page

@@ -5,16 +5,16 @@ import {
 } from '../lib/site-metrics';
 
 export function setupSiteStatus(signal: AbortSignal, routeStartedAt?: number) {
-    const uptimeNodes =
-        document.querySelectorAll<HTMLElement>('[data-site-uptime]');
-    const copyrightNodes = document.querySelectorAll<HTMLElement>(
-        '[data-copyright-years]',
-    );
     const loadNode = document.querySelector<HTMLElement>(
         '[data-page-load-time]',
     );
     const updateDates = () => {
         const now = new Date();
+        const uptimeNodes =
+            document.querySelectorAll<HTMLElement>('[data-site-uptime]');
+        const copyrightNodes = document.querySelectorAll<HTMLElement>(
+            '[data-copyright-years]',
+        );
         uptimeNodes.forEach((node) => {
             const days = operatingDays(
                 node.dataset.siteStartedAt ?? '',
@@ -89,4 +89,9 @@ export function setupSiteStatus(signal: AbortSignal, routeStartedAt?: number) {
         },
         { once: true },
     );
+    return (startedAt?: number) => {
+        routeStartedAt = startedAt;
+        updateDates();
+        scheduleTiming();
+    };
 }

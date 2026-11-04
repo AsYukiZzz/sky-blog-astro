@@ -12,8 +12,14 @@ const { articleDiscovery = false } = Astro.props;
         class="glass-surface sky-dock"
         aria-label="快捷操作"
         data-pagefind-ignore
+        data-navigation-persist="dock"
     >
-        <a class="dock-btn" href="/" aria-label="返回首页">
+        <a
+            class="dock-btn"
+            href="/"
+            aria-label="返回首页"
+            data-navigation-key="dock-home"
+        >
             <Icon name="home" size={19} />
         </a>
         <button
@@ -23,10 +29,16 @@ const { articleDiscovery = false } = Astro.props;
             aria-label="搜索内容"
             aria-haspopup="dialog"
             aria-controls="search-dialog"
+            data-navigation-key="dock-search"
         >
             <Icon name="search" size={19} />
         </button>
-        <button class="dock-btn" data-theme-toggle aria-label="切换明暗主题">
+        <button
+            class="dock-btn"
+            data-theme-toggle
+            aria-label="切换明暗主题"
+            data-navigation-key="dock-theme"
+        >
             <Icon name="sun" size={19} class="light-icon" />
             <Icon name="moon" size={19} class="dark-icon" />
         </button>
@@ -37,13 +49,19 @@ const { articleDiscovery = false } = Astro.props;
                 data-open-article-posts
                 aria-haspopup="dialog"
                 aria-controls="article-posts-dialog"
+                data-navigation-key="dock-discover"
             >
                 <Icon name="document" size={18} />
                 <span>发现文章</span>
             </button>
         )}
-        <span class="dock-divider"></span>
-        <button class="dock-btn" data-scroll-top aria-label="返回顶部">
+        <span class="dock-divider" data-navigation-key="dock-divider"></span>
+        <button
+            class="dock-btn"
+            data-scroll-top
+            aria-label="返回顶部"
+            data-navigation-key="dock-top"
+        >
             <Icon name="up" size={20} />
         </button>
     </aside>

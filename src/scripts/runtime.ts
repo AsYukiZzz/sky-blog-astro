@@ -11,9 +11,19 @@ import { setupArticleTabs } from './article-tabs';
 import { setupSiteStatus } from './site-status';
 import { setupSakana } from './sakana';
 import { setupPageLoading } from './page-loading';
+import { setupPartialNavigation } from './partial-navigation';
 
 const finishPageLoading = setupPageLoading();
+setupPartialNavigation();
+const siteController = new AbortController();
+const updateSiteStatus = setupSiteStatus(siteController.signal);
+setupThemeControls(siteController.signal);
+setupNavigation(siteController.signal);
+setupDialogs(siteController.signal);
+setupSearch(siteController.signal);
 let pageController: AbortController | undefined;
+let sakanaController: AbortController | undefined;
+let sakanaRoot: Element | null | undefined;
 let routeStartedAt: number | undefined;
 let mountedMain: HTMLElement | null | undefined;
 
@@ -21,16 +31,18 @@ function mountPage() {
     pageController?.abort();
     pageController = new AbortController();
     const { signal } = pageController;
-    setupThemeControls(signal);
-    setupSiteStatus(signal, routeStartedAt);
+    updateSiteStatus(routeStartedAt);
     routeStartedAt = undefined;
     setupArticleTabs(signal);
-    setupSakana(signal);
+    const nextSakana = document.querySelector('[data-sakana]');
+    if (nextSakana !== sakanaRoot) {
+        sakanaController?.abort();
+        sakanaRoot = nextSakana;
+        sakanaController = new AbortController();
+        if (nextSakana) setupSakana(sakanaController.signal);
+    }
     setupMotion(signal);
-    setupNavigation(signal);
-    setupDialogs(signal);
     setupImagePreviews(signal);
-    setupSearch(signal);
     setupClipboard(signal);
     setupComments(signal);
     setupArticleReading(signal);

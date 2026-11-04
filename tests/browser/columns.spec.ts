@@ -266,7 +266,23 @@ test('detail information follows the switch and pagination preserves its manual 
 test('more columns expands for its current item and empty columns keep their public introduction', async ({
     page,
 }) => {
-    await page.goto(`${site.origin}/columns/${encodeURIComponent('教程')}/`);
+    await page.goto(`${site.origin}/columns/empty-1/`);
+    await expect(page.locator('[data-page-loading]')).toBeHidden();
+    await expect(page.locator('.columns-more')).not.toHaveAttribute('open');
+    await page.evaluate(
+        (path) => {
+            const link = document.createElement('a');
+            link.href = path;
+            document.body.append(link);
+            link.click();
+            link.remove();
+        },
+        `/columns/${encodeURIComponent('教程')}/`,
+    );
+    await expect(page).toHaveURL(
+        `${site.origin}/columns/${encodeURIComponent('教程')}/`,
+    );
+    await expect(page.locator('[data-page-loading]')).toBeHidden();
     await expect(
         page.getByRole('navigation', { name: '专栏切换' }).locator('details'),
     ).toHaveAttribute('open', '');
@@ -277,7 +293,9 @@ test('more columns expands for its current item and empty columns keep their pub
         '<strong>介绍</strong>',
     );
     await expect(page.locator('[data-column-info] strong')).toHaveCount(0);
-    await page.goto(`${site.origin}/columns/empty-1/`);
+    await page.locator('.columns-switch a[href="/columns/empty-1/"]').click();
+    await expect(page).toHaveURL(`${site.origin}/columns/empty-1/`);
+    await expect(page.locator('.columns-more')).not.toHaveAttribute('open');
     await expect(page.locator('[data-columns-header] h1 small')).toHaveText(
         '0',
     );

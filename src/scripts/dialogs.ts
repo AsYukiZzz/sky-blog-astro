@@ -1,6 +1,5 @@
 export function setupDialogs(signal: AbortSignal) {
     if (signal.aborted) return;
-    const dialogs = [...document.querySelectorAll<HTMLDialogElement>('dialog')];
     const root = document.documentElement;
     const measureScrollbar = () => {
         if (!document.querySelector('dialog:modal'))
@@ -11,14 +10,16 @@ export function setupDialogs(signal: AbortSignal) {
     };
     measureScrollbar();
     window.addEventListener('resize', measureScrollbar, { signal });
-    dialogs.forEach((dialog) =>
-        dialog.addEventListener(
-            'beforetoggle',
-            (event) => {
-                if (event.newState === 'open') measureScrollbar();
-            },
-            { signal },
-        ),
+    document.addEventListener(
+        'beforetoggle',
+        (event) => {
+            if (
+                event.target instanceof HTMLDialogElement &&
+                (event as ToggleEvent).newState === 'open'
+            )
+                measureScrollbar();
+        },
+        { signal, capture: true },
     );
     document.addEventListener(
         'click',
@@ -54,7 +55,9 @@ export function setupDialogs(signal: AbortSignal) {
     signal.addEventListener(
         'abort',
         () => {
-            dialogs.forEach((dialog) => dialog.open && dialog.close());
+            document
+                .querySelectorAll<HTMLDialogElement>('dialog[open]')
+                .forEach((dialog) => dialog.close());
             root.style.removeProperty('--dialog-scrollbar-width');
         },
         { once: true },

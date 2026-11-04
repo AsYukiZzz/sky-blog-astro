@@ -48,10 +48,12 @@ test('the navigation search opens in place and its article result navigates with
     ).toBe('same-document');
     await page.goBack();
     await expect(page).toHaveURL(`http://127.0.0.1:4399${originPath}`);
+    await expect(page.locator('main h1')).toHaveText('瞬间格式示例');
+    await expect(page.locator('[data-page-loading]')).toBeHidden();
     await page.keyboard.press('Control+k');
     await expect(dialog).toBeVisible();
     await expect(input).toBeFocused();
-    await expect(input).toHaveValue('');
+    await expect(input).toHaveValue('Markdown');
 });
 
 test('Escape and the backdrop restore the reading position and search trigger focus', async ({
