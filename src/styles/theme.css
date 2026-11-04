@@ -47,7 +47,8 @@ body {
 }
 
 .body-font-serif {
-    font-family: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+    font-family:
+        'Noto Serif SC Variable', 'Source Han Serif SC', 'SimSun', serif;
 }
 
 @layer base {

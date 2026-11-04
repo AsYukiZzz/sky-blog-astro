@@ -44,7 +44,7 @@
 .home-hero-title {
     margin: 0;
     color: var(--color-base-content);
-    font-family: 'Caveat', 'Noto Serif SC', 'SimSun', serif;
+    font-family: 'Caveat', 'Noto Serif SC Variable', 'SimSun', serif;
     font-size: clamp(64px, 8vw, 104px);
     font-weight: 400;
     line-height: 1.35;

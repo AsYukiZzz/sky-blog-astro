@@ -11,9 +11,7 @@ import Footer from '../components/Footer.astro';
 import Dock from '../components/Dock.astro';
 import SearchDialog from '../components/SearchDialog.astro';
 import '../styles/global.css';
-import '@fontsource/noto-serif-sc/400.css';
-import '@fontsource/noto-serif-sc/600.css';
-import '@fontsource/noto-serif-sc/700.css';
+import serifFontUrl from '@fontsource-variable/noto-serif-sc/index.css?url';
 interface Props {
     title?: string;
     description?: string;
@@ -75,6 +73,9 @@ const schema = {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <SiteWallpaperHead wallpapers={global.wallpapers} />
+        {global.font === 'serif' && (
+            <link rel="stylesheet" href={serifFontUrl} />
+        )}
         <title>{pageTitle}</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={canonical} />

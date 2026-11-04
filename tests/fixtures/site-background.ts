@@ -25,6 +25,7 @@ export async function createBackgroundSite(
         background?: Partial<GlobalThemeConfig['background']>;
         glass?: Partial<GlassAppearanceConfig>;
         loading?: GlobalThemeConfig['loading'];
+        font?: GlobalThemeConfig['font'];
         hero?: HomeConfig['hero'];
         headerAppearance?: PostConfig['header']['appearance'];
         comments?: boolean;
@@ -93,6 +94,12 @@ export async function createBackgroundSite(
             writeFileSync(
                 configPath,
                 `${readFileSync(configPath, 'utf8')}\nObject.assign(theme.global, { loading: ${JSON.stringify(options.loading)} });\n`,
+            );
+        }
+        if (options.font) {
+            writeFileSync(
+                configPath,
+                `${readFileSync(configPath, 'utf8')}\ntheme.global.font = ${JSON.stringify(options.font)};\n`,
             );
         }
         const heroSetup = options.hero

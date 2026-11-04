@@ -17,10 +17,10 @@ importers:
       '@astrojs/sitemap':
         specifier: 3.7.4
         version: 3.7.4
-      '@fontsource/caveat':
+      '@fontsource-variable/noto-serif-sc':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/noto-serif-sc':
+      '@fontsource/caveat':
         specifier: ^5.3.0
         version: 5.3.0
       astro:
@@ -537,11 +537,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@fontsource-variable/noto-serif-sc@5.3.0':
+    resolution: {integrity: sha512-7LcN2NEf4HDjoSkGWc79WqDDyMK8JvSPdA/gsHjJpZ8l9A9mcK/GQTazp3klmkBwJooy0eqeNvlmaZFXPupHrA==}
+
   '@fontsource/caveat@5.3.0':
     resolution: {integrity: sha512-eHTfzQxFSW9ABERRLNruHoNJmKed2J7pqTUc5lp4a4POMgXGKpxmWj3d9Hz10kmAg6iuTTLe6UagbA4bnsmfQw==}
-
-  '@fontsource/noto-serif-sc@5.3.0':
-    resolution: {integrity: sha512-0/zaEFkidiWldE62rTeD74x8ygUsQvejiSNtO0LQxQk3qpaHnlMZ3w4C7yH80B4KTIg8VKeFP4oSgwWMchY9+g==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2592,9 +2592,9 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@fontsource/caveat@5.3.0': {}
+  '@fontsource-variable/noto-serif-sc@5.3.0': {}
 
-  '@fontsource/noto-serif-sc@5.3.0': {}
+  '@fontsource/caveat@5.3.0': {}
 
   '@img/colour@1.1.0':
     optional: true

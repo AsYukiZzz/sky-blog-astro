@@ -406,7 +406,7 @@
     top: 0.25rem;
     left: 0.75rem;
     font-size: 3.5rem;
-    font-family: Georgia, 'Noto Serif SC', serif;
+    font-family: Georgia, 'Noto Serif SC Variable', serif;
     font-weight: 400;
     font-style: normal;
     color: var(--color-primary);
@@ -423,7 +423,7 @@
     bottom: -0.5rem;
     right: 0.75rem;
     font-size: 3.5rem;
-    font-family: Georgia, 'Noto Serif SC', serif;
+    font-family: Georgia, 'Noto Serif SC Variable', serif;
     font-weight: 400;
     font-style: normal;
     color: var(--color-primary);
