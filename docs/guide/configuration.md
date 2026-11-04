@@ -1,6 +1,6 @@
 # 配置项说明
 
-配置入口是 [src/config.ts](../../src/config.ts)，分为 `site`、`author`、`theme` 三组。下文的字段名相对于所在分组；类型见 [src/types/config.ts](../../src/types/config.ts)。修改后需重新构建和部署，步骤见 [部署指南](deployment.md)。
+配置入口是 [src/config.ts](../../src/config.ts)，分为 `site`、`author`、`theme`、`comment` 四组。评论服务使用独立的 `CommentConfig`；主题中的开关只控制展示位置。下文的字段名相对于所在分组；类型见 [src/types/config.ts](../../src/types/config.ts)。修改后需重新构建和部署，步骤见 [部署指南](deployment.md)。
 
 内容与列表数据的维护方式见 [内容发布](content.md)。
 
@@ -93,7 +93,7 @@
 
 ## 3 主题（`theme`）
 
-完整默认配置如下；各字段的含义与修改方法见后续小节。
+完整 `theme` 配置示例如下；各字段的含义与修改方法见后续小节。评论服务参数在独立的 `comment` 分组中维护。
 
 <details>
 <summary>展开完整 theme 配置</summary>
@@ -161,6 +161,7 @@
         "showLoadTime": true
     },
     "post": {
+        "comment": true,
         "header": {
             "appearance": "transparent"
         },
@@ -168,6 +169,9 @@
             "enabled": false,
             "maxItems": 5
         }
+    },
+    "essay": {
+        "comment": true
     },
     "extra": {
         "sakana": {
@@ -345,7 +349,19 @@ Hero 使用 `theme.global.background` 定义的全站背景，直接与后续卡
 
 ### 3.4 文章（`theme.post`）
 
-#### 3.4.1 阅读目录与文章入口
+#### 3.4.1 评论开关（`theme.post.comment`）
+
+`comment` 是布尔值，默认 `true`，控制文章详情页是否显示评论。设为 `false` 隐藏文章评论，随笔和独立页面分别按自己的规则展示。此开关生效的前提是全局 `comment.enabled` 已打开且服务地址非空，见 [评论服务](#4-评论服务comment)。
+
+```ts
+post: {
+    comment: true,
+    header: { appearance: 'transparent' },
+    recommendations: { enabled: false, maxItems: 5 },
+},
+```
+
+#### 3.4.2 阅读目录与文章入口
 
 文章详情右侧只显示目录卡片，并占满右侧可用高度，不随目录条数收缩。属于专栏的文章可在卡片内切换“本文目录”和“专栏目录”，默认显示本文目录；专栏目录沿用 [columns.jsonc](../../src/data/columns.jsonc) 中的文章顺序，仅显示已公开文章，并标记当前文章。专栏名称、公开文章总篇数和当前篇序固定显示在列表底部；专栏模式隐藏阅读进度，本文目录保留阅读进度。此行为按文章归属判断，与访问来源无关；普通文章和独立页面不显示专栏切换标签。手机折叠目录与大屏目录使用相同规则。
 
@@ -355,7 +371,7 @@ Hero 使用 `theme.global.background` 定义的全站背景，直接与后续卡
 
 - 文章详情页的阅读目录和推荐弹窗。独立页面使用单独的页面版式。
 
-#### 3.4.2 文末推荐（`theme.post.recommendations`）
+#### 3.4.3 文末推荐（`theme.post.recommendations`）
 
 `enabled` 控制文章底部“热门文章 / 最新文章”卡片的显示，默认 `false`，设为 `true` 后显示。卡片内通过标签切换文章列表。
 
@@ -384,9 +400,19 @@ header: {
 
 两种模式使用相同排版，保留封面曲别针装饰。此设置不改变全站背景或正文、目录等其他卡片的玻璃材质，也不提供逐篇文章覆盖配置。
 
-### 3.5 附加功能（`theme.extra`）
+### 3.5 随笔（`theme.essay`）
 
-#### 3.5.1 石蒜挂件（`theme.extra.sakana`）
+`comment` 是布尔值，默认 `true`，控制 `/moments/` 下随笔详情页的评论展示，也需要全局评论开关和服务配置生效。设为 `false` 不影响文章和独立页面。配置名 `essay` 与内容目录、访问路径中的 `moments` 对应，不改变原有随笔地址。
+
+```ts
+essay: {
+    comment: true,
+},
+```
+
+### 3.6 附加功能（`theme.extra`）
+
+#### 3.6.1 石蒜挂件（`theme.extra.sakana`）
 
 首次进入首页时，挂件在浏览器空闲后初始化，页面内容与加载遮罩不等待它。已保存收起状态时只显示恢复入口，点击后才加载挂件。切换页面或展示条件不再满足时，会取消待初始化任务或暂停已加载实例；恢复后继续适配实际尺寸与页脚位置。
 
@@ -400,10 +426,97 @@ header: {
 
 - 首页挂件、恢复入口及移动端展示。
 
-#### 3.5.2 悬浮快捷栏
+#### 3.6.2 悬浮快捷栏
 
 `dock` 控制悬浮 Dock 显示，提供返回首页、搜索、明暗切换和回到顶部入口。文章详情页还提供“发现文章”，关闭 Dock 后，已启用的文末推荐卡片仍可使用。
 
 影响范围：
 
 - 全站悬浮快捷栏。
+
+## 4 评论服务（`comment`）
+
+评论服务配置独立于 `theme`，在 `src/config.ts` 中以 `export const comment: CommentConfig` 导出。当前提供商为 [Twikoo](https://twikoo.js.org/)，后端由站主独立部署；博客仍然输出静态页面，构建时不连接评论服务。
+
+默认配置如下。启用时填写 `twikoo.envId`，再将 `enabled` 设为 `true`：
+
+```ts
+export const comment: CommentConfig = {
+    enabled: false,
+    provider: 'twikoo',
+    twikoo: {
+        envId: '',
+        region: '',
+        lang: 'zh-CN',
+        assetBaseUrl: 'https://cdn.jsdelivr.net/npm/twikoo@2.0.17/dist/',
+    },
+};
+```
+
+| 字段                  | 默认值                   | 说明                                                |
+| --------------------- | ------------------------ | --------------------------------------------------- |
+| `enabled`             | `false`                  | 全局总开关，关闭时所有页面都隐藏评论                |
+| `provider`            | `twikoo`                 | 当前支持的评论提供商                                |
+| `twikoo.envId`        | 空字符串                 | 完整服务接口地址，或 CloudBase 环境 ID              |
+| `twikoo.region`       | 空字符串                 | CloudBase 区域；空值不传给 SDK，普通 URL 后端可留空 |
+| `twikoo.lang`         | `zh-CN`                  | 评论界面语言，与 `site.language` 分开设置           |
+| `twikoo.assetBaseUrl` | 上方示例中的固定版本目录 | 前端资源所在目录，可替换为镜像或站内目录            |
+
+### 4.1 服务地址与版本
+
+URL 后端填写部署平台提供的完整 HTTP/HTTPS 接口地址，保留需要的路径，例如 `https://comments.example.com/` 或 `https://example.netlify.app/.netlify/functions/twikoo`。CloudBase 则填写 `blog-xxxxxxxx` 形式的环境 ID，按需设置 `region`。字段首尾空白会移除，接口路径保持原样。
+
+服务地址或环境 ID 属于公开前端配置，数据库连接串、邮件凭据和管理员密码由后端管理。正式站点使用 HTTPS 接口，并在后端允许博客的实际域名访问。
+
+当前前端适配 Twikoo `2.0.17`。部署和升级时保持前后端版本一致；替换 `assetBaseUrl` 时使用相同版本的资源，并验证初始化、语言和评论读写行为。[Twikoo 前端部署说明](https://twikoo.js.org/frontend.html)
+
+### 4.2 展示规则与使用示例
+
+| 页面       | 显示条件                                                                      |
+| ---------- | ----------------------------------------------------------------------------- |
+| 文章详情   | `comment.enabled` 为 `true`、服务地址非空，且 `theme.post.comment` 为 `true`  |
+| 随笔详情   | `comment.enabled` 为 `true`、服务地址非空，且 `theme.essay.comment` 为 `true` |
+| 独立页面   | `comment.enabled` 为 `true` 且服务地址非空                                    |
+| 首页与列表 | 无评论区                                                                      |
+
+评论关闭或服务地址留空时隐藏整张卡片，也不请求 Twikoo 的第三方资源。页面开关不能覆盖全局关闭状态。
+
+例如，仅启用文章评论并关闭随笔评论，在完整配置中设置：
+
+```ts
+comment.enabled = true;
+comment.twikoo.envId = 'https://comments.example.com/';
+theme.post.comment = true;
+theme.essay.comment = false;
+```
+
+这组赋值可放在 `src/config.ts` 的 `comment`、`theme` 声明之后，也可直接修改两个对象中的对应字段；独立页面继续显示评论。全部停用时设置 `comment.enabled = false`。
+
+### 4.3 资源、语言与主题
+
+评论区距离可视范围约 300px 时才加载脚本和样式，同一浏览器文档内复用资源；站内导航后无需再次下载。加载评论不阻塞正文和页面加载反馈。无 `IntersectionObserver` 时直接异步加载；禁用 JavaScript 时显示启用提示。
+
+资源目录需包含同一版本的 `twikoo.nocss.js`、`twikoo.css` 和 `locales/`。主题使用包含 CloudBase 支持的 nocss 产物，独立管理 CSS。中文简体与英文内置，其余支持语言从 `locales/` 按需加载；例如 `ja` 对应 `locales/ja-JP.js`。语言资源准备完成后再初始化，加载失败或超过 15 秒时显示重试入口。
+
+`assetBaseUrl` 接受明确的 HTTP/HTTPS 地址或以 `/` 开头的站内路径，不能包含查询参数、锚点、控制字符或 URL 凭据。目录尾部的 `/` 会自动补齐。自托管时可把同版本的整个 `dist` 目录复制到 `public/vendor/twikoo/`，然后配置：
+
+```ts
+assetBaseUrl: '/vendor/twikoo/',
+```
+
+评论卡片、输入区与按钮沿用博客明暗主题，切换主题保留当前表单输入。手机端自动竖排资料字段，长链接和图片限制在评论区宽度内。
+
+### 4.4 页面关联与故障排查
+
+评论按 pathname 关联，移除非根路径末尾的斜杠，保留大小写和 URL 编码。`/posts/example/`、`/posts/example?from=home` 与 `/posts/example/#section` 共用 `/posts/example` 的评论；查询参数、锚点和域名不参与关联。同一路径在相同后端下更换域名仍沿用评论，更改 slug 或切换后端时需自行处理数据关联。
+
+同一篇文章切换查询参数或锚点时保留当前表单，切到其他文章时使用新的挂载容器。评论关联与浏览器本地草稿是不同机制；是否恢复以前写过的内容还取决于 Twikoo 自身的草稿功能。
+
+| 现象                     | 检查方法                                                                               |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| 没有评论卡片             | 确认总开关、对应页面开关、服务地址，并重新构建部署                                     |
+| 显示“评论暂时无法加载”   | 检查脚本、CSS 和语言资源是否可访问；单个资源等待上限为 15 秒，恢复后点击“重新加载评论” |
+| 表单已显示但后端请求失败 | 检查服务地址、后端状态、博客域名的跨域权限和前后端版本；详细错误由 Twikoo 显示         |
+| 更换地址后找不到原评论   | 核对规范化后的页面路径和正在使用的后端，处理 slug 或数据迁移                           |
+
+博客端可以在受控响应下验证加载、导航和样式；实际评论读取、发表及回复仍需使用部署好的后端联调。

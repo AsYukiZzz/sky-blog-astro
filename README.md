@@ -11,7 +11,7 @@
 - **阅读体验**：文章目录、阅读进度、图片预览、明暗切换与页面过渡。
 - **内容组织**：Markdown / MDX、独立页面、分类、标签及随笔。
 - **静态搜索**：Pagefind 中英文站内搜索、RSS 和网站地图。
-- **可选功能**：Sakana 挂件与悬浮快捷 Dock。
+- **可选功能**：Twikoo 评论、Sakana 挂件与悬浮快捷 Dock。
 
 ## 🧩 首页卡片布局
 
@@ -44,6 +44,8 @@
 
 搜索索引随构建生成，请在预览服务中验证搜索功能。
 
+启用评论时，在 `src/config.ts` 的顶层 `comment.twikoo.envId` 填写已部署的 Twikoo 服务地址，打开 `comment.enabled`。文章和随笔分别通过 `theme.post.comment`、`theme.essay.comment` 控制展示，独立页面跟随全局开关；前端资源与后端版本保持一致。完整字段与使用示例见 [评论配置](docs/guide/configuration.md#4-评论服务comment)。
+
 ## ☁️ 部署
 
 将构建产物 `dist/` 部署到 Cloudflare Pages 或其他静态托管平台。运行版本、站点域名和部署参数见 [部署指南](docs/guide/deployment.md)。
@@ -66,7 +68,7 @@
 
 每次提交前依次执行 `pnpm format`、`pnpm format:check`；检查通过后又修改文件时，需要重新执行。
 
-浏览器回归检查及浏览器通道设置见 [部署指南](docs/guide/deployment.md#3-浏览器检查)。
+浏览器回归检查及浏览器通道设置见 [部署指南](docs/guide/deployment.md#4-浏览器检查)。
 
 ## 📄 致谢与许可
 
