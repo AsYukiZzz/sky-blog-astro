@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import { getPages } from '../../lib/content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Comments from '../../components/Comments.astro';
+import '../../styles/article-content.css';
 import '../../styles/page.css';
 export async function getStaticPaths() {
     return (await getPages()).map((entry) => ({

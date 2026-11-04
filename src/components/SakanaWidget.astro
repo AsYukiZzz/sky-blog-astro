@@ -1,8 +1,7 @@
 ---
 import { theme } from '../config';
 import Icon from './Icon.astro';
-// Astro must restore the base CSS on navigation; the lazy JS module is cached.
-import 'sakana-widget/lib/index.css';
+// Restore-button and positioning styles are needed before the optional widget.
 import '../styles/sakana.css';
 
 const { sakana } = theme.extra;

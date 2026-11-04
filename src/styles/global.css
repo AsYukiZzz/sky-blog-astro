@@ -2,12 +2,10 @@
 @import './theme.css';
 @import './background.css';
 @import './cards.css';
-@import './article-content.css';
 @import './navigation.css';
 @import './floating-dock.css';
 @import './dialogs.css';
 @import './search.css';
-@import './home.css';
 @import './footer.css';
 @import './motion.css';
 @source "../**/*.{astro,ts}";

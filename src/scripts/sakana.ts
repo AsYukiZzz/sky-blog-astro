@@ -1,6 +1,8 @@
 import { theme } from '../config';
 import { createSakanaLifecycle } from '../lib/sakana-lifecycle';
 import { sakanaFooterLift } from '../lib/sakana-position';
+import { createSakanaStylesLoader } from './sakana-styles';
+import sakanaStylesheet from 'sakana-widget/lib/index.css?url';
 import type { SakanaWidgetVisibility } from 'sakana-widget';
 
 export function setupSakana(signal: AbortSignal) {
@@ -37,8 +39,12 @@ export function setupSakana(signal: AbortSignal) {
             return false;
         }
     };
+    const loadStyles = createSakanaStylesLoader(sakanaStylesheet, signal);
     const lifecycle = createSakanaLifecycle(async () => {
-        const { default: SakanaWidget } = await import('sakana-widget');
+        const [{ default: SakanaWidget }] = await Promise.all([
+            import('sakana-widget'),
+            loadStyles(),
+        ]);
         const widget = new SakanaWidget({
             character: theme.extra.sakana.character,
             autoFit: true,

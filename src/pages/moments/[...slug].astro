@@ -8,6 +8,7 @@ import { copyrightSummary } from '../../lib/copyright';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Comments from '../../components/Comments.astro';
 import Icon from '../../components/Icon.astro';
+import '../../styles/article-content.css';
 export async function getStaticPaths() {
     return (await getMoments()).map((entry) => ({
         params: { slug: entry.data.slug },
