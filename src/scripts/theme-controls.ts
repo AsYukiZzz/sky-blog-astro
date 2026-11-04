@@ -1,6 +1,5 @@
 import { themeState } from '../lib/theme-state';
 import { browserStorage } from './browser-storage';
-import { updateCommentTheme } from './comments';
 
 export function setupThemeControls(signal: AbortSignal) {
     if (signal.aborted) return;
@@ -10,7 +9,6 @@ export function setupThemeControls(signal: AbortSignal) {
         document.documentElement.dataset.theme = state.name;
         document.documentElement.dataset.colorScheme = state.colorScheme;
         if (save) browserStorage.set('sky-theme', state.name);
-        updateCommentTheme(state.colorScheme);
     };
 
     applyTheme(

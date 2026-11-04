@@ -30,7 +30,6 @@ export async function createBackgroundSite(
         sakana?: Partial<ExtraConfig['sakana']>;
         hero?: HomeConfig['hero'];
         headerAppearance?: PostConfig['header']['appearance'];
-        comments?: boolean;
         recommendations?: boolean;
         coverlessPost?: boolean;
         updatedPost?: boolean;
@@ -104,7 +103,7 @@ export async function createBackgroundSite(
         };
         writeFileSync(
             configPath,
-            `${readFileSync(configPath, 'utf8')}\nObject.assign(theme.global.background, ${JSON.stringify(background)});\nObject.assign(theme.global.appearance.glass, ${JSON.stringify(options.glass ?? {})});\n${options.headerAppearance === undefined ? '' : `Object.assign(theme.post, { header: { appearance: ${JSON.stringify(options.headerAppearance)} } });`}\ntheme.post.recommendations.enabled = ${Boolean(options.recommendations)};\n${options.comments ? "Object.assign(theme.post.comment, { enabled: true, repo: 'example/blog', repoId: 'test-repo', categoryId: 'test-category' });" : ''}\n`,
+            `${readFileSync(configPath, 'utf8')}\nObject.assign(theme.global.background, ${JSON.stringify(background)});\nObject.assign(theme.global.appearance.glass, ${JSON.stringify(options.glass ?? {})});\n${options.headerAppearance === undefined ? '' : `Object.assign(theme.post, { header: { appearance: ${JSON.stringify(options.headerAppearance)} } });`}\ntheme.post.recommendations.enabled = ${Boolean(options.recommendations)};\n`,
         );
         if (options.loading) {
             writeFileSync(

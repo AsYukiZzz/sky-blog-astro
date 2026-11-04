@@ -5,7 +5,6 @@ let site: Awaited<ReturnType<typeof createBackgroundSite>>;
 test.beforeAll(async () => {
     test.setTimeout(120_000);
     site = await createBackgroundSite({
-        comments: true,
         recommendations: true,
     });
 });
@@ -13,35 +12,13 @@ test.afterAll(async () => {
     await site?.close();
 });
 
-test('independent pages have a reading surface and a separate comment surface', async ({
-    page,
-}) => {
-    await page.route('https://giscus.app/**', (route) =>
-        route.fulfill({ contentType: 'text/javascript', body: '' }),
-    );
+test('independent pages have a reading surface', async ({ page }) => {
     await page.goto(`${site.origin}/pages/privacy/`);
     await expect(page.locator('#article-content').locator('..')).toHaveCSS(
         'backdrop-filter',
         'blur(32px) saturate(1.3)',
     );
     await expect(page.locator('#page-title')).toBeVisible();
-    await expect(page.locator('.comments-section')).toHaveCSS(
-        'backdrop-filter',
-        'blur(32px) saturate(1.3)',
-    );
-    expect(
-        await page.locator('.comments-section').evaluate((el) => {
-            for (
-                let parent = el.parentElement;
-                parent;
-                parent = parent.parentElement
-            ) {
-                if (getComputedStyle(parent).backdropFilter !== 'none')
-                    return false;
-            }
-            return true;
-        }),
-    ).toBe(true);
 });
 
 for (const scheme of ['light', 'dark'] as const) {
@@ -51,9 +28,6 @@ for (const scheme of ['light', 'dark'] as const) {
         await page.addInitScript(
             (scheme) => localStorage.setItem('sky-theme', scheme),
             scheme,
-        );
-        await page.route('https://giscus.app/**', (route) =>
-            route.fulfill({ contentType: 'text/javascript', body: '' }),
         );
         await page.goto(`${site.origin}/posts/format-example/`);
         await page.locator('.site-nav [data-open-search]').click();

@@ -6,7 +6,6 @@ let site: Awaited<ReturnType<typeof createBackgroundSite>>;
 test.beforeAll(async () => {
     test.setTimeout(120_000);
     site = await createBackgroundSite({
-        comments: true,
         recommendations: true,
     });
 });

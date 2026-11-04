@@ -6,7 +6,6 @@ let site: Awaited<ReturnType<typeof createBackgroundSite>>;
 test.beforeAll(async () => {
     test.setTimeout(120_000);
     site = await createBackgroundSite({
-        comments: true,
         recommendations: true,
     });
 });
@@ -22,9 +21,6 @@ for (const scheme of ['light', 'dark'] as const) {
             (scheme) => localStorage.setItem('sky-theme', scheme),
             scheme,
         );
-        await page.route('https://giscus.app/**', (route) =>
-            route.fulfill({ contentType: 'text/javascript', body: '' }),
-        );
         await page.goto(`${site.origin}/posts/format-example/`);
         await expect(page.locator('.article-page')).toHaveCSS(
             'background-color',
@@ -39,7 +35,6 @@ for (const scheme of ['light', 'dark'] as const) {
             '.article-footer',
             '.post-neighbors',
             '.article-recommendations',
-            '.comments-section',
             '.toc-card',
         ]) {
             const surface = page.locator(selector);
@@ -64,38 +59,6 @@ for (const scheme of ['light', 'dark'] as const) {
                 return ancestors;
             });
         expect(structure).toEqual([]);
-        await expect(page.locator('[data-giscus] script')).toHaveAttribute(
-            'data-theme',
-            scheme,
-        );
-        await page.locator('.comments-section').evaluate((el) => {
-            const iframe = document.createElement('iframe');
-            iframe.className = 'giscus-frame';
-            el.append(iframe);
-            (window as Window & { themeMessages?: unknown[] }).themeMessages =
-                [];
-            iframe.contentWindow!.postMessage = (message, targetOrigin) => {
-                (
-                    window as Window & { themeMessages?: unknown[] }
-                ).themeMessages!.push({ message, targetOrigin });
-            };
-        });
-        await page.locator('.site-nav [data-theme-toggle]').click();
-        const nextScheme = scheme === 'light' ? 'dark' : 'light';
-        await expect
-            .poll(() =>
-                page.evaluate(
-                    () =>
-                        (window as Window & { themeMessages?: unknown[] })
-                            .themeMessages,
-                ),
-            )
-            .toEqual([
-                {
-                    message: { giscus: { setConfig: { theme: nextScheme } } },
-                    targetOrigin: 'https://giscus.app',
-                },
-            ]);
     });
 }
 
@@ -103,9 +66,6 @@ test('mobile inline directory keeps its glass surface while switching column tab
     page,
 }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.route('https://giscus.app/**', (route) =>
-        route.fulfill({ contentType: 'text/javascript', body: '' }),
-    );
     await page.goto(`${site.origin}/posts/format-example/`);
     const directory = page.locator('.mobile-toc');
     await expect(directory).toHaveCSS(

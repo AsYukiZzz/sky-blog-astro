@@ -17,11 +17,9 @@ publishedAt: 2026-10-05
 
 站内搜索使用本站提供的静态索引。RSS 提供已公开文章的订阅内容。点击外部链接后，会进入对应服务的网站；其数据处理方式由该服务说明。
 
-## 托管与可选评论
+## 网站托管
 
 网站托管与内容分发服务可能处理访问请求。实际使用的服务商见页脚，相关处理方式以服务商的隐私说明为准。
-
-本站可配置 Giscus 评论。启用后，评论区域会加载 Giscus 资源并通过 GitHub 提供评论功能；当前页面是否显示评论区，取决于站点配置。使用该功能前，可查看 [Giscus 隐私说明](https://github.com/giscus/giscus/blob/main/PRIVACY-POLICY.md) 与 [GitHub 隐私说明](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)。
 
 ## 联系方式
 

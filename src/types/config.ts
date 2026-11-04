@@ -106,13 +106,6 @@ export interface PostConfig {
         enabled: boolean;
         maxItems: number;
     };
-    comment: {
-        enabled: boolean;
-        repo: string;
-        repoId: string;
-        category: string;
-        categoryId: string;
-    };
 }
 
 export interface ExtraConfig {

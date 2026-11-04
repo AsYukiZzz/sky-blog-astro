@@ -123,13 +123,6 @@ export const theme: ThemeConfig = {
             enabled: false,
             maxItems: 5,
         },
-        comment: {
-            enabled: false,
-            repo: '',
-            repoId: '',
-            category: 'Announcements',
-            categoryId: '',
-        },
     },
     extra: {
         sakana: {

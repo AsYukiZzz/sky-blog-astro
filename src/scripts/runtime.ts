@@ -4,7 +4,6 @@ import { setupDialogs } from './dialogs';
 import { setupImagePreviews } from './image-preview';
 import { setupSearch } from './search';
 import { setupClipboard } from './clipboard';
-import { setupComments } from './comments';
 import { setupArticleReading } from './article-reading';
 import { setupMotion } from './motion';
 import { setupArticleTabs } from './article-tabs';
@@ -44,7 +43,6 @@ function mountPage() {
     setupMotion(signal);
     setupImagePreviews(signal);
     setupClipboard(signal);
-    setupComments(signal);
     setupArticleReading(signal);
 }
 
