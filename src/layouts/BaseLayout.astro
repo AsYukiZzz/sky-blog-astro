@@ -4,6 +4,7 @@ import { site, theme } from '../config';
 import { initialThemeScript } from '../lib/theme-state';
 import { resolveGlobalTheme } from '../lib/global-theme';
 import SiteBackground from '../components/SiteBackground.astro';
+import SiteWallpaperHead from '../components/SiteWallpaperHead.astro';
 import PageLoading from '../components/PageLoading.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -73,6 +74,7 @@ const schema = {
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <SiteWallpaperHead wallpapers={global.wallpapers} />
         <title>{pageTitle}</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={canonical} />

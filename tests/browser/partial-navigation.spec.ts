@@ -173,6 +173,8 @@ test('history and article anchors keep the public shell and working page control
     );
     await expect(page.locator('[data-page-loading]')).toBeHidden();
     await expectSameShell(page);
+    // The restored bottom anchor intentionally hides Dock while the footer is visible.
+    await page.locator('.article-heading').scrollIntoViewIfNeeded();
     await page.locator('.dock-discover').click();
     await expect(page.locator('#article-posts-dialog')).toBeVisible();
     await page.keyboard.press('Escape');

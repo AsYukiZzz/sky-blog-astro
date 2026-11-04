@@ -1,0 +1,24 @@
+---
+import type { WallpaperConfig } from '../types/config';
+import { siteWallpaperPreloadScript } from '../lib/site-wallpaper';
+
+interface Props {
+    wallpapers: WallpaperConfig[];
+}
+const { wallpapers } = Astro.props;
+---
+
+{wallpapers.length > 0 && (
+    <>
+        <link
+            data-site-wallpaper-preconnect
+            transition:persist="site-wallpaper-preconnect"
+        />
+        <link
+            data-site-wallpaper-preload
+            data-wallpapers={JSON.stringify(wallpapers)}
+            transition:persist="site-wallpaper-preload"
+        />
+        <script is:inline set:html={siteWallpaperPreloadScript()} />
+    </>
+)}

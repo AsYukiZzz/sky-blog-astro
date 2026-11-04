@@ -14,6 +14,10 @@
     transition: opacity 300ms ease;
 }
 
+.site-background img[data-wallpaper-reveal='instant'] {
+    transition: none;
+}
+
 .site-background
     img:is([data-wallpaper-state='pending'], [data-wallpaper-state='failed']) {
     opacity: 0;

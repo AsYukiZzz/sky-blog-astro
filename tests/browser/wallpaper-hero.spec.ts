@@ -74,6 +74,12 @@ test('client navigation from another page matches the persistent wallpaper befor
         Math.random = () => 0.999;
         const observed = window as Window & { heroSwaps?: string[] };
         observed.heroSwaps = [];
+    });
+    await page.goto(`${site.origin}/archives/`);
+    await expect(page.locator('[data-page-loading]')).toBeHidden();
+    // Wrap the application's final swap after its router listeners are installed.
+    await page.evaluate(() => {
+        const observed = window as Window & { heroSwaps?: string[] };
         document.addEventListener('astro:before-swap', (event) => {
             const transition = event as Event & {
                 newDocument: Document;
@@ -89,8 +95,6 @@ test('client navigation from another page matches the persistent wallpaper befor
             };
         });
     });
-    await page.goto(`${site.origin}/archives/`);
-    await expect(page.locator('[data-page-loading]')).toBeHidden();
     await page.locator('[data-site-background]').evaluate((node) => {
         (node as HTMLElement).dataset.instance = 'original';
     });

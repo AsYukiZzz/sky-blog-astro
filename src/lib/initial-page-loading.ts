@@ -93,6 +93,9 @@ function startInitialPageLoading(preview: boolean, loading: PageLoadingConfig) {
     if (wallpaper) {
         wallpaper.dataset.wallpaperState = 'pending';
         wallpaperReady = imageReady(wallpaper).then(() => {
+            // Reveal under the opaque initial cover; only late arrivals fade in.
+            if (!finished && wallpaper.naturalWidth > 0)
+                wallpaper.dataset.wallpaperReveal = 'instant';
             wallpaper.dataset.wallpaperState =
                 wallpaper.naturalWidth > 0 ? 'ready' : 'failed';
         });
@@ -124,7 +127,6 @@ function startInitialPageLoading(preview: boolean, loading: PageLoadingConfig) {
         });
         await Promise.all([
             loading.strategy === 'wallpaper' ? wallpaperReady : undefined,
-            document.fonts?.ready.catch(() => {}),
             ...images.map(imageReady),
         ]);
         resourcesReady = true;

@@ -23,13 +23,26 @@ const wallpaper = wallpapers[0];
 >
     {wallpaper && (
         <img
-            src={wallpaper.image}
             alt=""
-            data-site-wallpaper
+            data-wallpaper-placeholder
+            data-wallpaper-state="pending"
+            hidden
             style={{ 'object-position': position }}
             decoding="async"
             fetchpriority="high"
         />
+    )}
+    {wallpaper && (
+        <noscript>
+            <img
+                src={wallpaper.image}
+                alt=""
+                data-site-wallpaper
+                style={{ 'object-position': position }}
+                decoding="async"
+                fetchpriority="high"
+            />
+        </noscript>
     )}
 </div>
 <script is:inline set:html={siteWallpaperScript()} />
