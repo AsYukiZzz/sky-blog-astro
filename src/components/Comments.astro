@@ -37,8 +37,25 @@ const key = config ? `comments:${JSON.stringify([config, path])}` : '';
         <button type="button" data-comment-retry hidden>
             重新加载评论
         </button>
+        <div data-comment-placeholder aria-hidden="true">
+            <div class="comment-placeholder-meta">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="comment-placeholder-textarea"></div>
+            <div class="comment-placeholder-action"></div>
+        </div>
         <div data-comment-mount></div>
         <noscript>
+            <style is:inline>
+                [data-comments] {
+                    min-block-size: 0;
+                }
+                [data-comment-placeholder] {
+                    display: none;
+                }
+            </style>
             <p>请启用 JavaScript 查看和发表评论。</p>
         </noscript>
     </section>

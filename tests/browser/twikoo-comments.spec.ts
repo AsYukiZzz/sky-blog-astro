@@ -7,6 +7,8 @@ const other = '/posts/standalone-example/';
 let site: Awaited<ReturnType<typeof createBackgroundSite>>;
 
 type CommentWindow = Window & {
+    twikooExecutions?: number;
+    twikooEmpty?: boolean;
     twikooCalls?: {
         el: string;
         path: string;
@@ -22,6 +24,7 @@ type CommentWindow = Window & {
 };
 
 const sdk = `
+window.twikooExecutions = (window.twikooExecutions || 0) + 1;
 window.twikooCalls = [];
 window.twikooActive = 0;
 window.twikooMaxActive = 0;
@@ -39,16 +42,26 @@ window.twikoo = {init: async function(options) {
         if (!mount) return;
         mount.innerHTML = '<div class="twikoo"><div class="tk-comments"><div class="tk-submit"><div class="tk-meta-input"><div class="tk-input"><input class="tk-input__inner" placeholder="昵称"></div></div><textarea class="tk-textarea__inner" aria-label="评论内容"></textarea><button class="tk-button tk-button--primary">发送</button></div><div class="tk-content"><a></a><img></div></div><div class="tk-admin-container"><div class="tk-admin"></div></div></div>';
         mount.firstElementChild.dataset.path = options.path;
-        mount.querySelector('a').textContent = 'https://example.com/' + 'long'.repeat(100);
-        mount.querySelector('a').href = 'https://example.com/';
-        mount.querySelector('img').src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1024"/>');
+        if (window.twikooEmpty) mount.querySelector('.tk-content').remove();
+        else {
+            mount.querySelector('a').textContent = 'https://example.com/' + 'long'.repeat(100);
+            mount.querySelector('a').href = 'https://example.com/';
+            mount.querySelector('img').src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1024"/>');
+        }
     } finally { window.twikooActive--; }
 }};
 `;
 
+const sdkStyle =
+    '.twikoo{position:relative}.tk-meta-input{display:flex;flex-direction:column}.tk-input{display:inline-flex}.tk-input__inner{height:32px}.tk-textarea__inner{color:#333;background:#fff;border:1px solid #ddd}.tk-admin-container{position:absolute;inset:0;pointer-events:none}.tk-admin{opacity:0}';
+
 async function mockResources(
     page: Page,
-    options: { failScriptOnce?: boolean; scriptGate?: Promise<void> } = {},
+    options: {
+        failScriptOnce?: boolean;
+        invalidScriptOnce?: boolean;
+        scriptGate?: Promise<void>;
+    } = {},
 ) {
     const count = { script: 0, css: 0 };
     await page.route(`${assets}**`, async (route) => {
@@ -56,14 +69,27 @@ async function mockResources(
             count.css++;
             return route.fulfill({
                 contentType: 'text/css',
-                body: '.twikoo{position:relative}.tk-meta-input{display:flex;flex-direction:column}.tk-input{display:inline-flex}.tk-input__inner{height:32px}.tk-textarea__inner{color:#333;background:#fff;border:1px solid #ddd}.tk-admin-container{position:absolute;inset:0;pointer-events:none}.tk-admin{opacity:0}',
+                body: sdkStyle,
             });
         }
         count.script++;
         if (options.failScriptOnce && count.script === 1)
             return route.abort('failed');
         if (options.scriptGate) await options.scriptGate;
-        return route.fulfill({ contentType: 'text/javascript', body: sdk });
+        if (options.invalidScriptOnce && count.script === 1)
+            return route.fulfill({
+                contentType: 'text/javascript',
+                body: 'window.twikooExecutions = (window.twikooExecutions || 0) + 1;',
+            });
+        const inlineStyle = new URL(route.request().url()).pathname.endsWith(
+            'twikoo.min.js',
+        )
+            ? `(() => {const style = document.createElement('style'); style.setAttribute('data-twikoo', ''); style.textContent = ${JSON.stringify(sdkStyle)}; document.head.append(style);})();`
+            : '';
+        return route.fulfill({
+            contentType: 'text/javascript',
+            body: inlineStyle + sdk,
+        });
     });
     return count;
 }
@@ -118,7 +144,14 @@ test('resources wait for the comment viewport and do not block page loading', as
     await expect(page.locator('[data-page-loading]')).toBeHidden();
     expect(count).toEqual({ script: 0, css: 0 });
     await reveal(page);
-    expect(count).toEqual({ script: 1, css: 1 });
+    expect(count).toEqual({ script: 1, css: 0 });
+    await expect(page.locator('[data-comment-assets] script')).toHaveAttribute(
+        'src',
+        `${assets}twikoo.min.js`,
+    );
+    await expect(
+        page.locator('[data-comment-assets] style[data-twikoo]'),
+    ).toHaveCount(1);
     expect(
         await page.evaluate(() =>
             (window as CommentWindow).twikooCalls?.map((call) => ({
@@ -130,6 +163,186 @@ test('resources wait for the comment viewport and do not block page loading', as
     ).toEqual([
         { path: '/posts/format-example', lang: 'zh-CN', region: undefined },
     ]);
+});
+
+test('approaching the comments only downloads the SDK until the section is visible', async ({
+    page,
+}) => {
+    const count = await mockResources(page);
+    await page.goto(`${site.origin}${article}`);
+    const response = page.waitForResponse(`${assets}twikoo.min.js`);
+    await page.locator('[data-comments]').evaluate((root) => {
+        window.scrollTo(
+            0,
+            window.scrollY +
+                root.getBoundingClientRect().top -
+                innerHeight -
+                150,
+        );
+    });
+    await response;
+    await expect(
+        page.locator('[data-comment-assets] link[rel="preload"]'),
+    ).toHaveCount(1);
+    await expect(page.locator('[data-comment-assets] script')).toHaveCount(0);
+    expect(
+        await page.evaluate(
+            () => (window as CommentWindow).twikooExecutions ?? 0,
+        ),
+    ).toBe(0);
+    await reveal(page);
+    expect(count).toEqual({ script: 1, css: 0 });
+});
+
+for (const edge of ['bottom', 'top'] as const) {
+    test(`comments touching the viewport ${edge} load after scrolling inward`, async ({
+        page,
+    }) => {
+        const count = await mockResources(page);
+        await page.goto(`${site.origin}${article}`);
+        await expect(page.locator('[data-page-loading]')).toBeHidden();
+        await page.evaluate(async () => {
+            await document.fonts.ready;
+        });
+        const response = page.waitForResponse(`${assets}twikoo.min.js`);
+        const root = page.locator('[data-comments]');
+        await root.evaluate(async (element, edge) => {
+            // Jump directly to zero-area contact without scrolling through the
+            // section, and confirm the browser delivered that native IO event.
+            await new Promise<void>((resolve) => {
+                const observer = new IntersectionObserver((entries) => {
+                    if (
+                        entries.some(
+                            (entry) =>
+                                entry.isIntersecting &&
+                                entry.intersectionRatio === 0,
+                        )
+                    ) {
+                        observer.disconnect();
+                        resolve();
+                    }
+                });
+                observer.observe(element);
+                if (edge === 'top') {
+                    const spacer = document.createElement('div');
+                    spacer.style.blockSize = `${innerHeight}px`;
+                    document.body.append(spacer);
+                }
+                const bounds = element.getBoundingClientRect();
+                const target =
+                    edge === 'bottom'
+                        ? bounds.top - innerHeight
+                        : bounds.bottom;
+                scrollTo(0, Math.floor(scrollY + target));
+                const aligned = element.getBoundingClientRect();
+                const offset =
+                    edge === 'bottom'
+                        ? innerHeight - aligned.top
+                        : -aligned.bottom;
+                element.style.transform = `translateY(${offset}px)`;
+            });
+        }, edge);
+        await (await response).finished();
+        await expect(root).toHaveAttribute('data-comment-state', 'waiting');
+        expect(
+            await page.evaluate(
+                () => (window as CommentWindow).twikooExecutions ?? 0,
+            ),
+        ).toBe(0);
+        await page.evaluate(
+            (edge) => scrollBy(0, edge === 'bottom' ? 20 : -20),
+            edge,
+        );
+        await expect(root).toHaveAttribute('data-comment-state', 'ready');
+        expect(
+            await page.evaluate(
+                () => (window as CommentWindow).twikooExecutions,
+            ),
+        ).toBe(1);
+        expect(
+            await page.evaluate(
+                () => (window as CommentWindow).twikooCalls?.length,
+            ),
+        ).toBe(1);
+        expect(count).toEqual({ script: 1, css: 0 });
+    });
+}
+
+test('CloudBase keeps the complete SDK and separate stylesheet', async ({
+    page,
+}) => {
+    test.setTimeout(120_000);
+    const cloud = await createBackgroundSite({
+        comment: {
+            enabled: true,
+            twikoo: {
+                envId: 'blog-123456789',
+                region: 'ap-guangzhou',
+                assetBaseUrl: assets,
+            },
+        },
+    });
+    try {
+        const count = await mockResources(page);
+        await page.goto(`${cloud.origin}${article}`);
+        await reveal(page);
+        await expect(
+            page.locator('[data-comment-assets] script'),
+        ).toHaveAttribute('src', `${assets}twikoo.nocss.js`);
+        expect(count).toEqual({ script: 1, css: 1 });
+        expect(
+            await page.evaluate(() =>
+                (window as CommentWindow).twikooCalls?.map(
+                    ({ envId, region }) => ({ envId, region }),
+                ),
+            ),
+        ).toEqual([{ envId: 'blog-123456789', region: 'ap-guangzhou' }]);
+    } finally {
+        await cloud.close();
+    }
+});
+
+test('the loading placeholder reserves the empty form height on desktop and mobile', async ({
+    page,
+}) => {
+    await page.addInitScript(() => {
+        (window as CommentWindow).twikooEmpty = true;
+    });
+    for (const width of [1280, 768, 767, 600, 481, 480, 390, 320]) {
+        await page.setViewportSize({ width, height: 900 });
+        let release!: () => void;
+        const gate = new Promise<void>((resolve) => {
+            release = resolve;
+        });
+        await mockResources(page, { scriptGate: gate });
+        try {
+            await page.goto(`${site.origin}${article}`);
+            const root = page.locator('[data-comments]');
+            await root.scrollIntoViewIfNeeded();
+            await expect(root).toHaveAttribute('data-comment-state', 'loading');
+            await expect(
+                root.locator('[data-comment-placeholder]'),
+            ).toBeVisible();
+            const height = await root.evaluate(
+                (element) => element.getBoundingClientRect().height,
+            );
+            release();
+            await reveal(page);
+            await expect(
+                root.locator('[data-comment-placeholder]'),
+            ).toBeHidden();
+            expect(
+                Math.abs(
+                    (await root.evaluate(
+                        (element) => element.getBoundingClientRect().height,
+                    )) - height,
+                ),
+            ).toBeLessThan(1);
+        } finally {
+            release();
+            await page.unroute(`${assets}**`);
+        }
+    }
 });
 
 test('query, hash, duplicate events and theme changes preserve the active form', async ({
@@ -201,11 +414,17 @@ test('navigation and history use distinct article mounts while keeping loaded re
     await expect(page.locator('[data-comments]')).toHaveCount(0);
     await navigate(page, other);
     await reveal(page);
-    expect(count).toEqual({ script: 1, css: 1 });
-    await expect(page.locator('[data-comment-assets] link')).toHaveCount(1);
+    expect(count).toEqual({ script: 1, css: 0 });
+    await expect(
+        page.locator('[data-comment-assets] style[data-twikoo]'),
+    ).toHaveCount(1);
+    await expect(page.locator('head style[data-twikoo]')).toHaveCount(0);
+    expect(
+        await page.evaluate(() => (window as CommentWindow).twikooExecutions),
+    ).toBe(1);
 });
 
-test('leaving while resources load discards the old mount and reuses the completed download', async ({
+test('leaving during the download prevents SDK execution and reuses the preload on the next article', async ({
     page,
 }) => {
     let release!: () => void;
@@ -217,8 +436,15 @@ test('leaving while resources load discards the old mount and reuses the complet
     await page.locator('[data-comments]').scrollIntoViewIfNeeded();
     await expect.poll(() => count.script).toBe(1);
     await navigate(page, '/archives/');
+    const response = page.waitForResponse(`${assets}twikoo.min.js`);
     release();
-    await expect(page.locator('[data-comment-assets] script')).toHaveCount(1);
+    await response;
+    await expect(page.locator('[data-comment-assets] script')).toHaveCount(0);
+    expect(
+        await page.evaluate(
+            () => (window as CommentWindow).twikooExecutions ?? 0,
+        ),
+    ).toBe(0);
     await navigate(page, other);
     await reveal(page);
     expect(
@@ -226,7 +452,7 @@ test('leaving while resources load discards the old mount and reuses the complet
             (window as CommentWindow).twikooCalls?.map((call) => call.path),
         ),
     ).toEqual(['/posts/standalone-example']);
-    expect(count).toEqual({ script: 1, css: 1 });
+    expect(count).toEqual({ script: 1, css: 0 });
 });
 
 test('an in-flight SDK initialization cannot race the next article', async ({
@@ -256,9 +482,75 @@ test('an in-flight SDK initialization cannot race the next article', async ({
     ).toBe(1);
 });
 
-test('a failed script can retry without downloading the successful stylesheet twice', async ({
+test('scrolling away before the preload completes postpones execution until returning', async ({
     page,
 }) => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+    const count = await mockResources(page, { scriptGate: gate });
+    try {
+        await page.goto(`${site.origin}${article}`);
+        await page.locator('[data-comments]').scrollIntoViewIfNeeded();
+        await expect.poll(() => count.script).toBe(1);
+        await page.evaluate(() => scrollTo(0, 0));
+        await page.waitForFunction(
+            () =>
+                document
+                    .querySelector('[data-comments]')!
+                    .getBoundingClientRect().top > innerHeight,
+        );
+        release();
+        await expect(page.locator('[data-comments]')).toHaveAttribute(
+            'data-comment-state',
+            'waiting',
+        );
+        expect(
+            await page.evaluate(
+                () => (window as CommentWindow).twikooExecutions ?? 0,
+            ),
+        ).toBe(0);
+        await reveal(page);
+        expect(count).toEqual({ script: 1, css: 0 });
+    } finally {
+        release();
+    }
+});
+
+test('the next article can take over an SDK download that is still pending', async ({
+    page,
+}) => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+    const count = await mockResources(page, { scriptGate: gate });
+    try {
+        await page.goto(`${site.origin}${article}`);
+        await page.locator('[data-comments]').scrollIntoViewIfNeeded();
+        await expect.poll(() => count.script).toBe(1);
+        await navigate(page, other);
+        await page.locator('[data-comments]').scrollIntoViewIfNeeded();
+        release();
+        await reveal(page);
+        expect(
+            await page.evaluate(() =>
+                (window as CommentWindow).twikooCalls?.map((call) => call.path),
+            ),
+        ).toEqual(['/posts/standalone-example']);
+        expect(
+            await page.evaluate(
+                () => (window as CommentWindow).twikooExecutions,
+            ),
+        ).toBe(1);
+        expect(count).toEqual({ script: 1, css: 0 });
+    } finally {
+        release();
+    }
+});
+
+test('a failed SDK download can retry', async ({ page }) => {
     const count = await mockResources(page, { failScriptOnce: true });
     await page.goto(`${site.origin}${article}`);
     await page.locator('[data-comments]').scrollIntoViewIfNeeded();
@@ -268,7 +560,7 @@ test('a failed script can retry without downloading the successful stylesheet tw
     );
     await page.getByRole('button', { name: '重新加载评论' }).click();
     await reveal(page);
-    expect(count).toEqual({ script: 2, css: 1 });
+    expect(count).toEqual({ script: 2, css: 0 });
 });
 
 test('a rejected initialization can retry with the already loaded SDK', async ({
@@ -286,12 +578,71 @@ test('a rejected initialization can retry with the already loaded SDK', async ({
     );
     await page.getByRole('button', { name: '重新加载评论' }).click();
     await reveal(page);
-    expect(count).toEqual({ script: 1, css: 1 });
+    expect(count).toEqual({ script: 1, css: 0 });
     expect(
         await page.evaluate(
             () => (window as CommentWindow).twikooCalls?.length,
         ),
     ).toBe(2);
+});
+
+test('an invalid SDK response is discarded and retry downloads a fresh resource', async ({
+    page,
+}) => {
+    const count = await mockResources(page, { invalidScriptOnce: true });
+    await page.goto(`${site.origin}${article}`);
+    await page.locator('[data-comments]').scrollIntoViewIfNeeded();
+    await expect(page.locator('[data-comments]')).toHaveAttribute(
+        'data-comment-state',
+        'error',
+    );
+    await page.getByRole('button', { name: '重新加载评论' }).click();
+    await reveal(page);
+    expect(count).toEqual({ script: 2, css: 0 });
+    expect(
+        await page.evaluate(() => (window as CommentWindow).twikooExecutions),
+    ).toBe(2);
+    await expect(page.locator('[data-comment-assets] script')).toHaveCount(1);
+    await expect(
+        page.locator('[data-comment-assets] style[data-twikoo]'),
+    ).toHaveCount(1);
+});
+
+test('a timed-out preload can retry without executing its late response', async ({
+    page,
+}) => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+    const count = await mockResources(page, { scriptGate: gate });
+    try {
+        await page.clock.install();
+        await page.goto(`${site.origin}${article}`);
+        await page.locator('[data-comments]').scrollIntoViewIfNeeded();
+        await expect.poll(() => count.script).toBe(1);
+        await page.clock.fastForward(15_001);
+        await expect(page.locator('[data-comments]')).toHaveAttribute(
+            'data-comment-state',
+            'error',
+        );
+        release();
+        expect(
+            await page.evaluate(
+                () => (window as CommentWindow).twikooExecutions ?? 0,
+            ),
+        ).toBe(0);
+        await page.getByRole('button', { name: '重新加载评论' }).click();
+        await reveal(page);
+        expect(count).toEqual({ script: 2, css: 0 });
+        expect(
+            await page.evaluate(
+                () => (window as CommentWindow).twikooExecutions,
+            ),
+        ).toBe(1);
+    } finally {
+        release();
+    }
 });
 
 test('theme and narrow viewports keep the form usable without reinitializing', async ({
@@ -406,7 +757,7 @@ test('a slow locale times out before SDK initialization and can retry after the 
                 (window as CommentWindow).twikooCalls?.map((call) => call.lang),
             ),
         ).toEqual(['ja-JP']);
-        expect(count).toEqual({ script: 1, css: 1 });
+        expect(count).toEqual({ script: 1, css: 0 });
     } finally {
         release?.();
         await localized.close();

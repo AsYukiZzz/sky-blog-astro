@@ -494,9 +494,11 @@ theme.essay.comment = false;
 
 ### 4.3 资源、语言与主题
 
-评论区距离可视范围约 300px 时才加载脚本和样式，同一浏览器文档内复用资源；站内导航后无需再次下载。加载评论不阻塞正文和页面加载反馈。无 `IntersectionObserver` 时直接异步加载；禁用 JavaScript 时显示启用提示。
+加载评论不阻塞正文和页面加载反馈。无 `IntersectionObserver` 时直接异步加载；禁用 JavaScript 时显示启用提示。
 
-资源目录需包含同一版本的 `twikoo.nocss.js`、`twikoo.css` 和 `locales/`。主题使用包含 CloudBase 支持的 nocss 产物，独立管理 CSS。中文简体与英文内置，其余支持语言从 `locales/` 按需加载；例如 `ja` 对应 `locales/ja-JP.js`。语言资源准备完成后再初始化，加载失败或超过 15 秒时显示重试入口。
+主题根据服务地址自动选择前端产物：HTTP/HTTPS 后端使用自带样式的精简版 `twikoo.min.js`；CloudBase 环境 ID 使用完整版 `twikoo.nocss.js` 和独立的 `twikoo.css`。资源目录需包含所用产物和同版本的 `locales/`。中文简体与英文内置，其余支持语言从 `locales/` 按需加载；例如 `ja` 对应 `locales/ja-JP.js`。语言资源准备完成后再初始化，加载失败或超过 15 秒时显示重试入口。
+
+评论区预留基础表单空间，在距离视口约 300px 时预下载 SDK，进入视口且下载完成后才执行和挂载。预下载期间离页不会启动 SDK 执行，后续文章可复用下载结果；已经开始的脚本执行无法撤销。SDK 及其样式在局部导航中保留，避免重复加载。
 
 `assetBaseUrl` 接受明确的 HTTP/HTTPS 地址或以 `/` 开头的站内路径，不能包含查询参数、锚点、控制字符或 URL 凭据。目录尾部的 `/` 会自动补齐。自托管时可把同版本的整个 `dist` 目录复制到 `public/vendor/twikoo/`，然后配置：
 

@@ -21,6 +21,11 @@ test.beforeEach(async ({ page }) => {
 test('the default global switch hides comments on all detail types', async ({
     page,
 }) => {
+    const sdkRequests: string[] = [];
+    page.on('request', (request) => {
+        if (request.url().includes('/twikoo@2.0.17/dist/'))
+            sdkRequests.push(request.url());
+    });
     for (const path of [
         '/posts/format-example/',
         '/moments/format-example/',
@@ -29,6 +34,7 @@ test('the default global switch hides comments on all detail types', async ({
         await page.goto(path);
         await expect(page.locator('[data-comments]')).toHaveCount(0);
     }
+    expect(sdkRequests).toEqual([]);
 });
 
 for (const postComment of [false, true]) {

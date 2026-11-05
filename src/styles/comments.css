@@ -1,3 +1,49 @@
+[data-comments] {
+    /* Reserve the whole card, including its heading, status and basic form. */
+    min-block-size: calc(432px + 2 * var(--article-footer-padding, 24px));
+}
+
+[data-comments] [data-comment-placeholder] {
+    display: grid;
+    gap: 16px;
+}
+
+[data-comments] .comment-placeholder-meta {
+    display: flex;
+    gap: 8px;
+}
+
+[data-comments] .comment-placeholder-meta span {
+    flex: 1;
+    block-size: 32px;
+}
+
+[data-comments]
+    :is(
+        .comment-placeholder-meta span,
+        .comment-placeholder-textarea,
+        .comment-placeholder-action
+    ) {
+    border: 1px solid var(--sky-border);
+    border-radius: 10px;
+    background: color-mix(in oklch, var(--sky-muted) 8%, transparent);
+}
+
+[data-comments] .comment-placeholder-textarea {
+    block-size: 160px;
+}
+
+[data-comments] .comment-placeholder-action {
+    justify-self: end;
+    inline-size: 80px;
+    block-size: 32px;
+}
+
+[data-comments]:is([data-comment-state='ready'], [data-comment-state='error'])
+    [data-comment-placeholder] {
+    display: none;
+}
+
 [data-comments]:not([data-comment-state]) [data-comment-status] {
     display: none;
 }
@@ -87,6 +133,21 @@
 [data-comments] .twikoo :is(input, textarea, button, select):focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+}
+
+/* The fixed SDK stacks the three identity fields below 768px. */
+@media (max-width: 767px) {
+    [data-comments] {
+        min-block-size: calc(528px + 2 * var(--article-footer-padding, 24px));
+    }
+
+    [data-comments] .comment-placeholder-meta {
+        flex-direction: column;
+    }
+
+    [data-comments] .comment-placeholder-meta span {
+        flex: none;
+    }
 }
 
 @media (max-width: 480px) {

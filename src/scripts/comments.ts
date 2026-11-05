@@ -1,4 +1,4 @@
-import { loadTwikoo, prepareTwikooLanguage } from './twikoo';
+import { loadTwikoo, preloadTwikoo, prepareTwikooLanguage } from './twikoo';
 
 let mountNumber = 0;
 let initialization: Promise<unknown> = Promise.resolve();
@@ -20,7 +20,16 @@ export function setupComments(signal: AbortSignal): void {
     mount.id = `sky-twikoo-${++mountNumber}`;
     const selector = `#${mount.id}`;
     const current = () => !signal.aborted && root.isConnected;
+    const active = () => {
+        if (!current()) return false;
+        if (typeof IntersectionObserver === 'undefined') return true;
+        const bounds = root.getBoundingClientRect();
+        return bounds.top < innerHeight && bounds.bottom > 0;
+    };
     let loading = false;
+    let initialized = false;
+    let preloadObserver: IntersectionObserver | undefined;
+    let visibleObserver: IntersectionObserver | undefined;
 
     function state(value: keyof typeof statusMessages) {
         if (!current()) return;
@@ -33,19 +42,22 @@ export function setupComments(signal: AbortSignal): void {
         if (retry) retry.hidden = value !== 'error';
     }
 
-    async function load() {
-        if (!current() || loading) return;
+    async function load(retryRequested = false) {
+        if (!active() || loading || initialized) return;
+        if (!retryRequested && root!.dataset.commentState === 'error') return;
         loading = true;
         state('loading');
         try {
-            const client = await loadTwikoo(assetBaseUrl!);
-            if (!current()) return;
+            const client = await loadTwikoo(assetBaseUrl!, envId!, active);
+            if (!client || !active()) {
+                state('waiting');
+                return;
+            }
             const language = await prepareTwikooLanguage(assetBaseUrl!, lang!);
-            if (!current()) return;
             // The SDK replaces its previous app on init, but has no public destroy.
             // Serialize initializations and use unique targets across route changes.
             const pending = initialization.then(async () => {
-                if (!current()) return;
+                if (!active()) return false;
                 mount!.replaceChildren();
                 await client.init({
                     envId: envId!,
@@ -55,14 +67,23 @@ export function setupComments(signal: AbortSignal): void {
                     localeBaseUrl: new URL(assetBaseUrl!, location.href).href,
                     ...(region ? { region } : {}),
                 });
+                return true;
             });
             initialization = pending.catch(() => undefined);
-            await pending;
-            state('ready');
+            initialized = await pending;
+            state(initialized ? 'ready' : 'waiting');
+            if (initialized) {
+                preloadObserver?.disconnect();
+                visibleObserver?.disconnect();
+            }
         } catch {
             state('error');
         } finally {
             loading = false;
+            if (current() && root!.dataset.commentState === 'waiting') {
+                visibleObserver?.unobserve(root!);
+                visibleObserver?.observe(root!);
+            }
         }
     }
 
@@ -70,7 +91,7 @@ export function setupComments(signal: AbortSignal): void {
     retry?.addEventListener(
         'click',
         () => {
-            void load();
+            void load(true);
         },
         { signal },
     );
@@ -78,16 +99,35 @@ export function setupComments(signal: AbortSignal): void {
         void load();
         return;
     }
-    const observer = new IntersectionObserver(
+    preloadObserver = new IntersectionObserver(
         (entries) => {
-            if (!entries.some((entry) => entry.isIntersecting)) return;
-            observer.disconnect();
-            void load();
+            if (!current() || !entries.some((entry) => entry.isIntersecting))
+                return;
+            preloadObserver?.disconnect();
+            void preloadTwikoo(assetBaseUrl!, envId!).catch(() =>
+                state('error'),
+            );
         },
         { rootMargin: '300px' },
     );
-    observer.observe(root);
-    signal.addEventListener('abort', () => observer.disconnect(), {
-        once: true,
-    });
+    visibleObserver = new IntersectionObserver(
+        (entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) void load();
+        },
+        // Threshold 0 reports edge contact but may not notify again when the
+        // section gains positive visible area after active() rejected contact.
+        { threshold: 0.001 },
+    );
+    preloadObserver.observe(root);
+    visibleObserver.observe(root);
+    signal.addEventListener(
+        'abort',
+        () => {
+            preloadObserver?.disconnect();
+            visibleObserver?.disconnect();
+        },
+        {
+            once: true,
+        },
+    );
 }
