@@ -29,6 +29,11 @@ export function resolveHeroConfig(
     const entry = (value: HeroEntry, field: string): HeroEntry => {
         if (!value || typeof value !== 'object')
             fail(field, '必须配置完整 Hero 条目。');
+        if (
+            value.showTitle !== undefined &&
+            typeof value.showTitle !== 'boolean'
+        )
+            fail(`${field}.showTitle`, '必须为布尔值。');
         if (typeof value.title !== 'string' || !value.title.trim())
             fail(`${field}.title`, '必须为非空字符串。');
         if (typeof value.subtitle !== 'string')
@@ -36,6 +41,7 @@ export function resolveHeroConfig(
         if (!positions.has(value.position))
             fail(`${field}.position`, '必须为七种预设位置之一。');
         return {
+            showTitle: value.showTitle ?? true,
             title: value.title,
             subtitle: value.subtitle,
             position: value.position,

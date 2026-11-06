@@ -21,11 +21,13 @@ function config(): HomeHeroConfig {
 test('wallpaper IDs select complete Hero entries and unmatched IDs use the default', () => {
     const hero = resolveHeroConfig(config(), wallpapers);
     assert.deepEqual(selectHeroEntry(hero, 'forest'), {
+        showTitle: true,
         title: 'Forest',
         subtitle: '',
         position: 'top-right',
     });
     assert.deepEqual(selectHeroEntry(hero, 'unmapped'), {
+        showTitle: true,
         title: 'Sky',
         subtitle: 'Default story',
         position: 'bottom-left',
@@ -103,9 +105,42 @@ test('an own prototype-like wallpaper ID matches without reading inherited entri
         { id: '__proto__', image: '/own.webp' },
     ]);
     assert.deepEqual(selectHeroEntry(hero, '__proto__'), {
+        showTitle: true,
         title: 'Own entry',
         subtitle: '',
         position: 'center',
     });
     assert.equal(selectHeroEntry(hero, 'toString'), hero.default);
+});
+
+test('title visibility follows the selected wallpaper and defaults to visible per entry', () => {
+    const value = config();
+    value.default.showTitle = false;
+    const hero = resolveHeroConfig(value, wallpapers);
+    assert.equal(selectHeroEntry(hero, null).showTitle, false);
+    assert.equal(selectHeroEntry(hero, 'unmapped').showTitle, false);
+    assert.equal(selectHeroEntry(hero, 'forest').showTitle, true);
+    value.byWallpaper.forest.showTitle = false;
+    assert.equal(
+        selectHeroEntry(resolveHeroConfig(value, wallpapers), 'forest')
+            .showTitle,
+        false,
+    );
+});
+
+test('non-boolean title switches report the invalid entry instead of silently hiding text', () => {
+    for (const field of ['default', 'byWallpaper.forest']) {
+        for (const invalid of ['false', 0, null]) {
+            const value = config();
+            const entry =
+                field === 'default' ? value.default : value.byWallpaper.forest;
+            Reflect.set(entry, 'showTitle', invalid);
+            assert.throws(
+                () => resolveHeroConfig(value, wallpapers),
+                new RegExp(
+                    `theme\\.home\\.hero\\.${field.replaceAll('.', '\\.')}\\.showTitle`,
+                ),
+            );
+        }
+    }
 });

@@ -79,6 +79,8 @@ function startSiteWallpaper(
         const config = JSON.parse(hero.dataset.heroConfig) as HomeHeroConfig;
         const entry = heroEntry(config, background.dataset.wallpaperId ?? null);
         hero.dataset.heroPosition = entry.position;
+        const content = hero.querySelector<HTMLElement>('.home-hero-content');
+        if (content) content.hidden = entry.showTitle === false;
         const title = hero.querySelector<HTMLElement>('.home-hero-title');
         const subtitle = hero.querySelector<HTMLElement>('.home-hero-subtitle');
         if (title) title.textContent = entry.title;

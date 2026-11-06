@@ -41,6 +41,9 @@
     width: min(100%, 960px);
     min-width: 0;
 }
+.home-hero-content[hidden] {
+    display: none;
+}
 .home-hero-title {
     margin: 0;
     color: var(--color-base-content);

@@ -18,7 +18,7 @@ const entry = selectHeroEntry(hero, global.wallpapers[0]?.id ?? null);
     data-hero-config={JSON.stringify(hero)}
     data-hero-position={entry.position}
 >
-    <div class="home-hero-content">
+    <div class="home-hero-content" hidden={entry.showTitle === false}>
         <h1 class="home-hero-title">{entry.title}</h1>
         <p class="home-hero-subtitle" hidden={!entry.subtitle}>
             {entry.subtitle}

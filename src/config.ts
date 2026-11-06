@@ -100,6 +100,7 @@ export const theme: ThemeConfig = {
         hero: {
             size: 'full',
             default: {
+                showTitle: true,
                 title: 'sky blog',
                 subtitle: '记录生活，分享思考，探索无限可能',
                 position: 'top-right',

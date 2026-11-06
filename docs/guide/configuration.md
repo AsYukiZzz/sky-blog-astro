@@ -126,6 +126,7 @@
         "hero": {
             "size": "full",
             "default": {
+                "showTitle": true,
                 "title": "sky blog",
                 "subtitle": "记录生活，分享思考，探索无限可能",
                 "position": "bottom-left"
@@ -275,18 +276,22 @@ pnpm dev:loading
 
 `size` 选择 `full`（一屏高度）或 `compact`（较矮封面），同时影响后续卡片区的间距。`default` 必须配置，包含非空白的 `title`、字符串 `subtitle` 和预设 `position`，副标题用空字符串隐藏。
 
-`byWallpaper` 按全站壁纸 ID 配置完整的标题、副标题和位置。选中 ID 没有对应项时，整个 Hero 使用 `default`，不逐字段混合；纯色模式、空壁纸列表也使用 `default`。关联键必须对应已定义的壁纸 ID。图片加载失败时保留所选组的文案和位置。
+`showTitle` 为可选布尔值，省略时为 `true`。设为 `false` 会同时隐藏主标题和副标题，Hero 仍保留配置的封面高度；标题、副标题和位置仍须完整配置。
+
+`byWallpaper` 按全站壁纸 ID 配置完整的标题、副标题、显示开关和位置。选中 ID 没有对应项时，整个 Hero 使用 `default`，不逐字段混合；匹配项省略 `showTitle` 时使用自身的默认值 `true`，不会继承 `default.showTitle`。纯色模式、空壁纸列表也使用 `default`。关联键必须对应已定义的壁纸 ID。图片加载失败时保留所选组的文案、显示开关和位置。
 
 ```ts
 hero: {
     size: 'full',
     default: {
+        showTitle: true,
         title: 'sky blog',
         subtitle: '记录生活，分享思考',
         position: 'bottom-left',
     },
     byWallpaper: {
         sea: {
+            showTitle: false,
             title: '向海而行',
             subtitle: '记录沿途的风景',
             position: 'top-right',
@@ -296,6 +301,8 @@ hero: {
 ```
 
 上例需先在 `global.background.wallpapers` 定义 `sea`。支持七种位置：`top-left`（左上）、`bottom-left`（左下）、`top-right`（右上）、`bottom-right`（右下）、`top-center`（上中）、`bottom-center`（下中）、`center`（居中）。标题与副标题整体定位，文字跟随左、右或居中对齐，不配置自由坐标。
+
+例中选中 `sea` 时隐藏整个标题区域。刷新和返回首页会同步当前壁纸对应的显示状态；禁用 JavaScript 时，使用第一张壁纸对应条目或 `default` 的显示开关。
 
 Hero 使用 `theme.global.background` 定义的全站背景，直接与后续卡片区域衔接。
 

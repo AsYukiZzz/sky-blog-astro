@@ -82,6 +82,7 @@ export type HeroPosition =
     | 'center';
 
 export interface HeroEntry {
+    showTitle?: boolean;
     title: string;
     subtitle: string;
     position: HeroPosition;
