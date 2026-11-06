@@ -36,9 +36,7 @@ export function setupClipboard(signal: AbortSignal) {
             const target =
                 event.target instanceof Element ? event.target : null;
             if (!target) return;
-            const url =
-                document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
-                    ?.href ?? location.href;
+            const url = `${location.origin}${location.pathname}`;
             if (target.closest('[data-copy-link]')) void copyText(url);
             if (target.closest('[data-share]')) {
                 if (navigator.share)
