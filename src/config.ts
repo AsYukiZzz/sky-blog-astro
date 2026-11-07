@@ -84,6 +84,16 @@ export const theme: ThemeConfig = {
                 {
                     id: 'wallpaperA',
                     image: 'https://img.saturnhalo.xyz/file/images/wallpaper/1792081008166.webp',
+                    // 确认实际作者后填写；未配置时隐藏署名入口。
+                    author: {
+                        name: '作者名字',
+                        // url: 'https://www.pixiv.net/artworks/456',
+                        links: {
+                            pixiv: 'https://www.pixiv.net/users/123',
+                            weibo: 'https://weibo.com/artist',
+                            x: 'https://x.com/artist',
+                        },
+                    },
                 },
             ],
             position: 'center',
@@ -104,6 +114,8 @@ export const theme: ThemeConfig = {
                 title: 'sky blog',
                 subtitle: '记录生活，分享思考，探索无限可能',
                 position: 'top-right',
+                showAuthor: true,
+                authorPosition: 'bottom-left',
             },
             byWallpaper: {},
         },

@@ -80,6 +80,43 @@
         translate: none !important;
     }
 }
+@media (prefers-reduced-motion: no-preference) {
+    @supports (transition-behavior: allow-discrete) and (overlay: auto) {
+        .wallpaper-info[data-wallpaper-motion] {
+            --wallpaper-info-duration: 160ms;
+            opacity: 0;
+            translate: 0 6px;
+            scale: 0.98;
+            transform-origin: center;
+            pointer-events: none;
+            transition:
+                opacity var(--wallpaper-info-duration) var(--sky-ease),
+                translate var(--wallpaper-info-duration) var(--sky-ease),
+                scale var(--wallpaper-info-duration) var(--sky-ease),
+                display var(--wallpaper-info-duration) allow-discrete,
+                overlay var(--wallpaper-info-duration) allow-discrete,
+                box-shadow 0.3s var(--sky-ease),
+                border-color 0.25s;
+        }
+        .wallpaper-info[data-wallpaper-motion]:popover-open {
+            --wallpaper-info-duration: 200ms;
+            opacity: 1;
+            translate: 0 0;
+            scale: 1;
+            pointer-events: auto;
+        }
+        @starting-style {
+            .wallpaper-info[data-wallpaper-motion]:popover-open {
+                opacity: 0;
+                translate: 0 6px;
+                scale: 0.98;
+            }
+        }
+        .wallpaper-info[data-wallpaper-motion][data-wallpaper-instant-close] {
+            transition: none;
+        }
+    }
+}
 .nav-dropdown[open] .dropdown-panel {
     animation: sky-menu-in 0.2s var(--sky-ease);
 }

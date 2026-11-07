@@ -1,4 +1,8 @@
-import type { HomeHeroConfig, WallpaperConfig } from '../types/config.ts';
+import type {
+    HomeHeroConfig,
+    WallpaperConfig,
+    WallpaperPlatform,
+} from '../types/config.ts';
 import { selectWallpaper } from './wallpapers.ts';
 import { selectHeroEntry } from './home-hero.ts';
 
@@ -88,6 +92,60 @@ function startSiteWallpaper(
             subtitle.textContent = entry.subtitle;
             subtitle.hidden = !entry.subtitle;
         }
+        const wallpaper = candidates.find(
+            (candidate) => candidate.id === background.dataset.wallpaperId,
+        );
+        const author = wallpaper?.author;
+        hero.dataset.heroAuthorPosition = entry.authorPosition ?? 'bottom-left';
+        const attribution = hero.querySelector<HTMLElement>(
+            '[data-wallpaper-author]',
+        );
+        const panel = hero.querySelector<HTMLElement>('[data-wallpaper-info]');
+        const visible = entry.showAuthor !== false && Boolean(author);
+        if (!visible && panel?.isConnected && panel.matches(':popover-open'))
+            panel.hidePopover();
+        if (attribution) attribution.hidden = !visible;
+        hero.querySelectorAll<HTMLElement>(
+            '[data-wallpaper-author-name]',
+        ).forEach((name) => {
+            name.textContent = author?.name ?? '';
+        });
+        const preview = hero.querySelector<HTMLImageElement>(
+            '[data-wallpaper-info-image]',
+        );
+        if (preview) {
+            if (wallpaper) {
+                if (preview.getAttribute('src') !== wallpaper.image)
+                    preview.setAttribute('src', wallpaper.image);
+            } else preview.removeAttribute('src');
+            preview.hidden = !wallpaper;
+        }
+        const publication = hero.querySelector<HTMLAnchorElement>(
+            '[data-wallpaper-url]',
+        );
+        if (publication) {
+            if (author?.url) publication.setAttribute('href', author.url);
+            else publication.removeAttribute('href');
+            publication.hidden = !author?.url;
+        }
+        let hasSources = false;
+        hero.querySelectorAll<HTMLElement>('[data-wallpaper-platform]').forEach(
+            (item) => {
+                const href =
+                    author?.links?.[
+                        item.dataset.wallpaperPlatform as WallpaperPlatform
+                    ];
+                const link = item.querySelector('a');
+                if (href) link?.setAttribute('href', href);
+                else link?.removeAttribute('href');
+                item.hidden = !href;
+                hasSources ||= Boolean(href);
+            },
+        );
+        const sources = hero.querySelector<HTMLElement>(
+            '[data-wallpaper-sources]',
+        );
+        if (sources) sources.hidden = !hasSources;
     };
     background.syncHero = syncHero;
     document.addEventListener('astro:before-swap', (event) => {

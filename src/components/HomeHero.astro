@@ -4,12 +4,14 @@ import '@fontsource/caveat/400.css';
 import { resolveHeroConfig, selectHeroEntry } from '../lib/home-hero';
 import { resolveGlobalTheme } from '../lib/global-theme';
 import { homeHeroScript } from '../lib/site-wallpaper';
+import WallpaperInfo from './WallpaperInfo.astro';
 const hero = resolveHeroConfig(
     theme.home.hero,
     theme.global.background.wallpapers,
 );
 const global = resolveGlobalTheme(theme.global);
-const entry = selectHeroEntry(hero, global.wallpapers[0]?.id ?? null);
+const wallpaper = global.wallpapers[0];
+const entry = selectHeroEntry(hero, wallpaper?.id ?? null);
 ---
 
 <section
@@ -17,12 +19,37 @@ const entry = selectHeroEntry(hero, global.wallpapers[0]?.id ?? null);
     aria-label="首页封面"
     data-hero-config={JSON.stringify(hero)}
     data-hero-position={entry.position}
+    data-hero-author-position={entry.authorPosition}
 >
     <div class="home-hero-content" hidden={entry.showTitle === false}>
         <h1 class="home-hero-title">{entry.title}</h1>
         <p class="home-hero-subtitle" hidden={!entry.subtitle}>
             {entry.subtitle}
         </p>
+    </div>
+    <div
+        class="home-hero-author"
+        data-wallpaper-author
+        hidden={entry.showAuthor === false || !wallpaper?.author}
+    >
+        <button
+            class="home-hero-author-toggle"
+            data-wallpaper-author-toggle
+            type="button"
+            popovertarget="home-wallpaper-info"
+            aria-controls="home-wallpaper-info"
+            aria-haspopup="dialog"
+        >
+            <span class="home-hero-author-prefix">壁纸作者：</span>
+            <span
+                class="home-hero-author-name"
+                data-wallpaper-author-name
+                dir="auto"
+            >
+                {wallpaper?.author?.name ?? ''}
+            </span>
+        </button>
+        <WallpaperInfo wallpaper={wallpaper} />
     </div>
     <script is:inline set:html={homeHeroScript()} />
 </section>

@@ -1,0 +1,93 @@
+---
+import type { WallpaperConfig } from '../types/config';
+import Icon from './Icon.astro';
+
+interface Props {
+    wallpaper?: WallpaperConfig;
+}
+const { wallpaper } = Astro.props;
+const author = wallpaper?.author;
+const platforms = [
+    { id: 'pixiv', label: 'Pixiv' },
+    { id: 'weibo', label: 'Weibo' },
+    { id: 'x', label: 'X' },
+] as const;
+const hasSources = Object.values(author?.links ?? {}).some(Boolean);
+---
+
+<div
+    id="home-wallpaper-info"
+    class="glass-surface wallpaper-info"
+    popover="auto"
+    role="dialog"
+    aria-labelledby="home-wallpaper-info-title"
+    data-wallpaper-info
+>
+    <div class="wallpaper-info-body">
+        <div class="wallpaper-info-header">
+            <h2 id="home-wallpaper-info-title">壁纸信息</h2>
+            <button
+                class="wallpaper-info-close"
+                type="button"
+                popovertarget="home-wallpaper-info"
+                popovertargetaction="hide"
+                aria-label="关闭壁纸信息"
+            >
+                <Icon name="close" size={16} />
+            </button>
+        </div>
+        <img
+            class="wallpaper-info-image"
+            data-wallpaper-info-image
+            src={wallpaper?.image}
+            alt="当前壁纸预览"
+            width="640"
+            height="360"
+            loading="lazy"
+            decoding="async"
+            hidden={!wallpaper}
+        />
+        <p class="wallpaper-info-author">
+            <span>壁纸作者</span>
+            <strong data-wallpaper-author-name dir="auto">
+                {author?.name ?? ''}
+            </strong>
+        </p>
+        <a
+            class="wallpaper-info-url"
+            data-wallpaper-url
+            href={author?.url}
+            hidden={!author?.url}
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <span>查看壁纸发布页</span>
+            <Icon name="external" size={14} />
+        </a>
+        <div
+            class="wallpaper-info-sources"
+            data-wallpaper-sources
+            hidden={!hasSources}
+        >
+            <h3>来源平台</h3>
+            <ul class="wallpaper-info-links">
+                {platforms.map(({ id, label }) => (
+                    <li
+                        data-wallpaper-platform={id}
+                        hidden={!author?.links?.[id]}
+                    >
+                        <a
+                            href={author?.links?.[id]}
+                            aria-label={label}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Icon name={id} size={16} />
+                            <span>{label}</span>
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    </div>
+</div>

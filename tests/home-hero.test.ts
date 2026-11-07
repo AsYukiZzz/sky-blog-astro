@@ -22,12 +22,16 @@ test('wallpaper IDs select complete Hero entries and unmatched IDs use the defau
     const hero = resolveHeroConfig(config(), wallpapers);
     assert.deepEqual(selectHeroEntry(hero, 'forest'), {
         showTitle: true,
+        showAuthor: true,
+        authorPosition: 'bottom-left',
         title: 'Forest',
         subtitle: '',
         position: 'top-right',
     });
     assert.deepEqual(selectHeroEntry(hero, 'unmapped'), {
         showTitle: true,
+        showAuthor: true,
+        authorPosition: 'bottom-left',
         title: 'Sky',
         subtitle: 'Default story',
         position: 'bottom-left',
@@ -106,6 +110,8 @@ test('an own prototype-like wallpaper ID matches without reading inherited entri
     ]);
     assert.deepEqual(selectHeroEntry(hero, '__proto__'), {
         showTitle: true,
+        showAuthor: true,
+        authorPosition: 'bottom-left',
         title: 'Own entry',
         subtitle: '',
         position: 'center',
@@ -139,6 +145,57 @@ test('non-boolean title switches report the invalid entry instead of silently hi
                 () => resolveHeroConfig(value, wallpapers),
                 new RegExp(
                     `theme\\.home\\.hero\\.${field.replaceAll('.', '\\.')}\\.showTitle`,
+                ),
+            );
+        }
+    }
+});
+
+test('author visibility and corner use their selected entry independently from title settings', () => {
+    const value = config();
+    value.default.showAuthor = false;
+    value.default.authorPosition = 'bottom-right';
+    const resolved = resolveHeroConfig(value, wallpapers);
+    assert.equal(selectHeroEntry(resolved, null).showAuthor, false);
+    assert.equal(
+        selectHeroEntry(resolved, null).authorPosition,
+        'bottom-right',
+    );
+    assert.equal(selectHeroEntry(resolved, 'forest').showAuthor, true);
+    assert.equal(
+        selectHeroEntry(resolved, 'forest').authorPosition,
+        'bottom-left',
+    );
+    value.byWallpaper.forest.showAuthor = false;
+    value.byWallpaper.forest.authorPosition = 'bottom-right';
+    const entry = selectHeroEntry(
+        resolveHeroConfig(value, wallpapers),
+        'forest',
+    );
+    assert.equal(entry.showAuthor, false);
+    assert.equal(entry.authorPosition, 'bottom-right');
+    assert.equal(entry.showTitle, true);
+    assert.equal(entry.position, 'top-right');
+});
+
+test('invalid author switches and corners report their exact Hero entry', () => {
+    for (const field of ['default', 'byWallpaper.forest']) {
+        for (const [key, invalid] of [
+            ['showAuthor', 'false'],
+            ['showAuthor', 0],
+            ['showAuthor', null],
+            ['authorPosition', 'top-left'],
+            ['authorPosition', 'center'],
+            ['authorPosition', null],
+        ] as const) {
+            const value = config();
+            const entry =
+                field === 'default' ? value.default : value.byWallpaper.forest;
+            Reflect.set(entry, key, invalid);
+            assert.throws(
+                () => resolveHeroConfig(value, wallpapers),
+                new RegExp(
+                    `theme\\.home\\.hero\\.${field.replaceAll('.', '\\.')}\\.${key}`,
                 ),
             );
         }

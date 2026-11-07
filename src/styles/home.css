@@ -35,6 +35,7 @@
     min-height: clamp(420px, 58svh, 620px);
 }
 .home-hero-content {
+    grid-area: 1 / 1;
     display: grid;
     justify-items: var(--hero-horizontal);
     gap: 12px;
@@ -43,6 +44,167 @@
 }
 .home-hero-content[hidden] {
     display: none;
+}
+.home-hero:has(.home-hero-author:not([hidden])) {
+    grid-template-rows: minmax(min-content, 1fr) auto;
+    row-gap: 24px;
+}
+.home-hero-author {
+    grid-area: 2 / 1;
+    align-self: end;
+    justify-self: start;
+    width: fit-content;
+    max-width: 100%;
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: left;
+}
+.home-hero[data-hero-author-position='bottom-right'] .home-hero-author {
+    justify-self: end;
+}
+.home-hero-author-toggle {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 30px;
+    padding: 4px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-base-content);
+    font: inherit;
+    text-align: left;
+}
+.home-hero-author-prefix {
+    flex: 0 0 auto;
+    color: var(--sky-muted);
+    white-space: nowrap;
+}
+.home-hero-author-name {
+    min-width: 0;
+    max-width: 28ch;
+    overflow-wrap: anywhere;
+    transition: color 0.2s var(--sky-ease);
+}
+.home-hero-author-toggle:is(:hover, :focus-visible) .home-hero-author-name {
+    color: var(--color-primary);
+}
+.wallpaper-info {
+    position: fixed;
+    inset: 0;
+    width: min(320px, calc(100vw - 32px));
+    height: fit-content;
+    max-width: calc(100vw - 32px);
+    max-height: min(440px, calc(100dvh - 32px));
+    margin: auto;
+    padding: 14px;
+    border-radius: 12px;
+    color: var(--color-base-content);
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: left;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+.wallpaper-info-body {
+    display: grid;
+    gap: 12px;
+}
+.wallpaper-info-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.wallpaper-info-header h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+.wallpaper-info-close {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--sky-muted);
+}
+.wallpaper-info-close:is(:hover, :focus-visible),
+.wallpaper-info-url:is(:hover, :focus-visible),
+.wallpaper-info-links a:is(:hover, :focus-visible) {
+    background: color-mix(in oklch, var(--color-base-content) 7%, transparent);
+    color: var(--color-base-content);
+}
+.wallpaper-info-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.wallpaper-info-author {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.wallpaper-info-author > span,
+.wallpaper-info-sources h3 {
+    margin: 0;
+    color: var(--sky-muted);
+    font-size: 12px;
+    font-weight: 400;
+}
+.wallpaper-info-sources {
+    display: grid;
+    gap: 6px;
+}
+.wallpaper-info-url {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: 6px;
+    min-height: 32px;
+    max-width: 100%;
+    padding: 4px 0;
+    border-radius: 4px;
+    color: var(--color-primary);
+}
+.wallpaper-info-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.wallpaper-info-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    color: var(--sky-muted);
+}
+@media (pointer: coarse) {
+    .home-hero-author-toggle,
+    .wallpaper-info-url,
+    .wallpaper-info-links a {
+        min-height: 44px;
+    }
+    .wallpaper-info-close {
+        width: 44px;
+        height: 44px;
+    }
 }
 .home-hero-title {
     margin: 0;

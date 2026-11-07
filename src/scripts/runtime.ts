@@ -12,6 +12,7 @@ import { setupSiteStatus } from './site-status';
 import { setupSakana } from './sakana';
 import { setupPageLoading } from './page-loading';
 import { setupPartialNavigation } from './partial-navigation';
+import { setupWallpaperInfo } from './wallpaper-info';
 
 const finishPageLoading = setupPageLoading();
 setupPartialNavigation();
@@ -36,6 +37,7 @@ function mountPage() {
     updateSiteStatus(routeStartedAt);
     routeStartedAt = undefined;
     setupArticleTabs(signal);
+    setupWallpaperInfo(signal);
     const nextSakana = document.querySelector('[data-sakana]');
     if (nextSakana !== sakanaRoot || sakanaController?.signal.aborted) {
         sakanaController?.abort();

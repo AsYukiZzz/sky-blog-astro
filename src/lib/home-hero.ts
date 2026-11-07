@@ -29,19 +29,29 @@ export function resolveHeroConfig(
     const entry = (value: HeroEntry, field: string): HeroEntry => {
         if (!value || typeof value !== 'object')
             fail(field, '必须配置完整 Hero 条目。');
-        if (
-            value.showTitle !== undefined &&
-            typeof value.showTitle !== 'boolean'
-        )
-            fail(`${field}.showTitle`, '必须为布尔值。');
+        for (const key of ['showTitle', 'showAuthor'] as const) {
+            if (value[key] !== undefined && typeof value[key] !== 'boolean')
+                fail(`${field}.${key}`, '必须为布尔值。');
+        }
         if (typeof value.title !== 'string' || !value.title.trim())
             fail(`${field}.title`, '必须为非空字符串。');
         if (typeof value.subtitle !== 'string')
             fail(`${field}.subtitle`, '必须为字符串，可用空字符串隐藏。');
         if (!positions.has(value.position))
             fail(`${field}.position`, '必须为七种预设位置之一。');
+        if (
+            value.authorPosition !== undefined &&
+            value.authorPosition !== 'bottom-left' &&
+            value.authorPosition !== 'bottom-right'
+        )
+            fail(
+                `${field}.authorPosition`,
+                '必须为 bottom-left 或 bottom-right。',
+            );
         return {
             showTitle: value.showTitle ?? true,
+            showAuthor: value.showAuthor ?? true,
+            authorPosition: value.authorPosition ?? 'bottom-left',
             title: value.title,
             subtitle: value.subtitle,
             position: value.position,

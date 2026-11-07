@@ -129,7 +129,9 @@
                 "showTitle": true,
                 "title": "sky blog",
                 "subtitle": "记录生活，分享思考，探索无限可能",
-                "position": "bottom-left"
+                "position": "bottom-left",
+                "showAuthor": true,
+                "authorPosition": "bottom-left"
             },
             "byWallpaper": {}
         },
@@ -200,7 +202,11 @@
 
 #### 3.1.1 背景（`theme.global.background`）
 
-`type` 仅支持 `solid`（跟随明暗主题的普通底色）和 `image`（图片壁纸）。`wallpapers` 为壁纸数组，每项只有 `id` 和 `image`：`id` 用于关联首页 Hero，`image` 填写本地路径或完整 URL。两个字段都必须是非空白字符串，首尾空白会移除，ID 不可重复。数组为空或图片加载失败时显示普通底色；普通底色模式不加载候选图片。
+`type` 仅支持 `solid`（跟随明暗主题的普通底色）和 `image`（图片壁纸）。`wallpapers` 为壁纸数组，每项包含 `id`、`image` 和可选的 `author`：`id` 用于关联首页 Hero，`image` 填写本地路径或完整 URL。`id`、`image` 都必须是非空白字符串，首尾空白会移除，ID 不可重复。数组为空或图片加载失败时显示普通底色；普通底色模式不加载候选图片。
+
+`author.name` 填写壁纸作者的非空白名称，`author.links` 可按需填写 `pixiv`、`weibo`、`x` 的完整 HTTP(S) 链接，可指向作者主页或作品页面；空白链接不显示。姓名及链接的首尾空白会移除，不支持相对路径、其他协议或省略 `://` 的链接。未配置 `author` 时不显示署名入口；仅填写姓名也可以使用信息弹卡。
+
+`author.url` 是可选的壁纸发布页链接，与 `name`、`links` 同级，通常填写这张壁纸的作品发布页。配置后弹卡显示「查看壁纸发布页」，在新标签页打开；未配置或留空时隐藏整个入口，不使用图片地址或作者平台链接代替。它同样要求完整的 HTTP(S) URL，并移除首尾空白。
 
 每次首次进入、刷新或完整文档导航时，浏览器从候选中等概率选一张，可能连续选中同一张。站内跳转、返回首页、前进后退和 BFCache 恢复保留本次选中的壁纸。禁用 JavaScript 时显示列表中的第一张。图片加载失败后保留所选 ID，不反复尝试其他候选。
 
@@ -213,7 +219,19 @@ global: {
     background: {
         type: 'image',
         wallpapers: [
-            { id: 'forest', image: '/images/forest.webp' },
+            {
+                id: 'forest',
+                image: '/images/forest.webp',
+                author: {
+                    name: '作者名字',
+                    url: 'https://www.pixiv.net/artworks/456',
+                    links: {
+                        pixiv: 'https://www.pixiv.net/users/123',
+                        weibo: 'https://weibo.com/artist',
+                        x: 'https://x.com/artist',
+                    },
+                },
+            },
             { id: 'sea', image: '/images/sea.webp' },
         ],
         position: 'center',
@@ -278,7 +296,9 @@ pnpm dev:loading
 
 `showTitle` 为可选布尔值，省略时为 `true`。设为 `false` 会同时隐藏主标题和副标题，Hero 仍保留配置的封面高度；标题、副标题和位置仍须完整配置。
 
-`byWallpaper` 按全站壁纸 ID 配置完整的标题、副标题、显示开关和位置。选中 ID 没有对应项时，整个 Hero 使用 `default`，不逐字段混合；匹配项省略 `showTitle` 时使用自身的默认值 `true`，不会继承 `default.showTitle`。纯色模式、空壁纸列表也使用 `default`。关联键必须对应已定义的壁纸 ID。图片加载失败时保留所选组的文案、显示开关和位置。
+`showAuthor` 独立控制壁纸作者入口，省略时为 `true`。`authorPosition` 只支持 `bottom-left`（左下）和 `bottom-right`（右下），省略时为左下，与标题的 `position` 分开设置。两项都位于 `default` 或 `byWallpaper[id]` 内，跟随当前壁纸选择。缺少作者信息、纯色模式或空壁纸列表时，即使开启也不显示作者入口。两个开关同时关闭时仍保留 Hero 高度。
+
+`byWallpaper` 按全站壁纸 ID 配置完整的标题、副标题、显示开关和位置。选中 ID 没有对应项时，整个 Hero 使用 `default`，不逐字段混合；匹配项省略 `showTitle`、`showAuthor`、`authorPosition` 时，分别使用自身的默认值 `true`、`true`、`bottom-left`，不会继承 `default` 中这些字段。纯色模式、空壁纸列表也使用 `default`。关联键必须对应已定义的壁纸 ID。图片加载失败时保留所选组的文案、作者信息、显示开关和位置。
 
 ```ts
 hero: {
@@ -288,6 +308,8 @@ hero: {
         title: 'sky blog',
         subtitle: '记录生活，分享思考',
         position: 'bottom-left',
+        showAuthor: true,
+        authorPosition: 'bottom-left',
     },
     byWallpaper: {
         sea: {
@@ -295,6 +317,8 @@ hero: {
             title: '向海而行',
             subtitle: '记录沿途的风景',
             position: 'top-right',
+            showAuthor: true,
+            authorPosition: 'bottom-right',
         },
     },
 },
@@ -304,13 +328,22 @@ hero: {
 
 例中选中 `sea` 时隐藏整个标题区域。刷新和返回首页会同步当前壁纸对应的显示状态；禁用 JavaScript 时，使用第一张壁纸对应条目或 `default` 的显示开关。
 
+壁纸上只显示可点击的纯文字「壁纸作者：名字」，移入或键盘聚焦时仅让名字柔和变为主题色，不添加下划线；入口没有卡片底色、模糊、边框或阴影，键盘操作保留清晰的焦点轮廓。点击后展开圆角玻璃小卡片，包含当前壁纸预览、作者名称、可选发布页入口及来源平台链接；来源按 Pixiv、Weibo、X 排列，只显示已配置的项，并在新标签页打开填写的链接。发布页入口与来源平台独立显示；未填写来源时隐藏来源区域，不展示内部壁纸 ID。
+
+弹卡沿用主题的缓动曲线，打开时以 200ms 淡入、轻微上移和放大，关闭时以 160ms 反向收起；页面滚动与点击关闭、Escape 等操作共用这套关闭逻辑，退出期间不能点击或聚焦卡片内容，连续滚动不会重启或截断退出动画。站内跳转时立即清理弹卡。系统开启“减少动态效果”时取消过渡；无 JavaScript 或相关 CSS 特性不支持时保留原生直接开合。
+
+再次点击姓名、点击卡片外部或关闭按钮、按 Escape 均可关闭；支持 Tab、Enter 和空格键操作。弹卡始终在视口水平、垂直居中，与署名入口的左右位置无关；最大宽度 320px、最大高度 440px，并在较小视口中保留四周至少 16px 的空间，长内容在卡片内部滚动。窗口尺寸变化时由 CSS 自动保持居中，不按姓名附近的上下空间调整位置。页面实际滚动时立即触发关闭动画，不锁住页面；卡片内部滚动保持打开，站内跳转时关闭。站内导航、前进后退会同步当前壁纸的姓名、预览、发布页和平台链接。禁用 JavaScript 时仍可点击查看第一张壁纸的信息，弹卡同样居中显示。
+
 Hero 使用 `theme.global.background` 定义的全站背景，直接与后续卡片区域衔接。
 
 标题使用主题本地提供的 Caveat 400 手写字体，最大 104px、最小 64px。Hero 与下方卡片共用最大 1280px 的居中容器及响应式左右留白，两侧文字与卡片外边缘对齐；底部安全留白为 24px，顶部预留导航栏空间。`serif` 模式的中文使用 Noto Serif SC 可变字体，`sans` 模式使用本机衬线后备字体。标题与副标题直接显示在全站背景上；窄屏、长标题和中英文混排会正常换行，必要时撑高封面。字体加载失败时仍显示备用字体，无 JavaScript 时显示第一张壁纸对应组或 `default`。
 
+作者入口共用标题与下方卡片的左右边界，距离 Hero 底部 24px，与标题区域至少间隔 24px。长姓名会换行；窄屏或内容较长时允许撑高封面，避免与标题重叠。
+
 影响范围：
 
 - 首页封面的文字。
+- 壁纸作者入口、信息弹卡和来源链接。
 - 封面高度及卡片区顶部间距。
 
 #### 3.2.2 卡片（`theme.home.card`）

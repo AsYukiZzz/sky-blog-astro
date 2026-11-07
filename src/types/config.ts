@@ -67,9 +67,18 @@ export interface HomeCardConfig<Id extends string = HomeCardId> {
     layouts?: Partial<Record<HomeLayoutName, Partial<HomeLayout>>>;
 }
 
+export type WallpaperPlatform = 'pixiv' | 'weibo' | 'x';
+
+export interface WallpaperAuthorConfig {
+    name: string;
+    url?: string;
+    links?: Partial<Record<WallpaperPlatform, string>>;
+}
+
 export interface WallpaperConfig {
     id: string;
     image: string;
+    author?: WallpaperAuthorConfig;
 }
 
 export type HeroPosition =
@@ -86,6 +95,8 @@ export interface HeroEntry {
     title: string;
     subtitle: string;
     position: HeroPosition;
+    showAuthor?: boolean;
+    authorPosition?: 'bottom-left' | 'bottom-right';
 }
 
 export interface HomeHeroConfig {
